@@ -117,13 +117,15 @@ namespace reflash_oficial.Controllers
                 DatabaseModel.Partners = GetPartnersFromDatabase();
             }
 
-            ViewBag.Cars = DatabaseModel.Cars;
-            return View(DatabaseModel.Partners);
+            //ViewBag.Cars = DatabaseModel.Cars;
+            //return View(DatabaseModel.Cars);
+            return View();
         }
 
         public IActionResult Partners()
         {
-            return View();
+            
+            return View(DatabaseModel.Partners);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
