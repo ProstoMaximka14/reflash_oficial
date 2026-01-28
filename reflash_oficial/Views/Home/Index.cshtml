@@ -1,608 +1,444 @@
-﻿
+﻿@model reflash_oficial.Models.ReflashCarModel
 @{
-    ViewData["Title"] = "Главная";
+    ViewData["Title"] = "Выбор автомобиля";
 }
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Последовательный выбор характеристик</title>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            margin: 20px;
+            background: #f5f5f5;
         }
-        
+
         .container {
-            max-width: 1200px;
-            margin: 50px auto;
-            background-color: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
+
         h1 {
             text-align: center;
-            color: #333;
-            margin-bottom: 40px;
-            font-size: 28px;
+            margin-bottom: 30px;
         }
-        
+
         .dropdowns-row {
             display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
+            gap: 15px;
+            margin: 25px 0;
+            align-items: flex-end;
         }
-        
+
         .dropdown-section {
             flex: 1;
-            min-width: 200px;
+            min-width: 180px;
         }
-        
-        .step-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 30px;
-            height: 30px;
-            background-color: #ddd;
-            color: #666;
-            border-radius: 50%;
-            font-weight: bold;
-            margin-bottom: 10px;
-            margin-left: auto;
-            margin-right: auto;
-            transition: all 0.3s;
-        }
-        
-        .step-indicator.active {
-            background-color: #4CAF50;
-            color: white;
-        }
-        
-        .step-indicator.completed {
-            background-color: #2196F3;
-            color: white;
-        }
-        
+
         .dropdown-label {
             display: block;
-            text-align: center;
             font-weight: bold;
-            margin-bottom: 12px;
-            color: #333;
-            font-size: 16px;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
-        
-        .dropdown-btn {
+
+        .dropdown-select {
             width: 100%;
-            padding: 15px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            background-color: white;
-            cursor: pointer;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+            .dropdown-select:disabled {
+                background-color: #f5f5f5;
+                opacity: 0.7;
+            }
+
+        .actions {
+            margin-top: 25px;
             text-align: center;
-            position: relative;
-            transition: all 0.3s;
-            color: #666;
         }
-        
-        .dropdown-btn:hover {
-            border-color: #bbb;
-        }
-        
-        .dropdown-btn:disabled {
-            background-color: #f5f5f5;
-            color: #999;
-            cursor: not-allowed;
-            border-color: #eee;
-        }
-        
-        .dropdown-btn.active {
-            border-color: #4CAF50;
-            color: #333;
-            background-color: #f8fff8;
-        }
-        
-        .dropdown-btn.completed {
-            border-color: #2196F3;
-            color: #2196F3;
-            background-color: #f0f8ff;
-        }
-        
-        .dropdown-btn::after {
-            content: '▼';
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 12px;
-            color: inherit;
-        }
-        
-        .dropdown-btn.active::after {
-            content: '▲';
-        }
-        
-        .dropdown-btn.completed::after {
-            content: '✓';
-            color: #2196F3;
-        }
-        
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: white;
-            width: 100%;
-            max-height: 300px;
-            overflow-y: auto;
-            border: 2px solid #4CAF50;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            z-index: 1000;
-            margin-top: -2px;
-        }
-        
-        .dropdown-content a {
-            color: #333;
-            padding: 12px 15px;
-            text-decoration: none;
-            display: block;
-            border-bottom: 1px solid #f0f0f0;
-            transition: all 0.2s;
-        }
-        
-        .dropdown-content a:hover {
-            background-color: #f5f5f5;
-        }
-        
-        .dropdown-content a.selected {
-            background-color: #e8f5e9;
-            font-weight: bold;
-            color: #2E7D32;
-        }
-        
-        .selected-info {
-            margin-top: 30px;
-            padding: 25px;
-            background: linear-gradient(135deg, #f8fff8 0%, #f0f8ff 100%);
-            border-radius: 10px;
-            border-left: 5px solid #4CAF50;
-        }
-        
-        .selected-info h3 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 20px;
-        }
-        
-        .selection-progress {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-        }
-        
-        .progress-item {
-            text-align: center;
-            flex: 1;
-        }
-        
-        .progress-item span {
-            display: block;
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-        
-        .progress-item div {
-            font-weight: bold;
-            color: #333;
-            min-height: 24px;
-        }
-        
-        .reset-btn {
-            display: block;
-            margin: 30px auto 0;
-            padding: 12px 30px;
-            background-color: #ff6b6b;
+
+        .btn-reset {
+            padding: 10px 25px;
+            background: #ff6b6b;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
+            margin-right: 10px;
         }
-        
-        .reset-btn:hover {
-            background-color: #ff5252;
+
+        .btn-success {
+            padding: 10px 25px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: none; /* Изначально скрыта */
         }
-        
-       
-        }
+
+            .btn-success:hover {
+                background: #45a049;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+
+            .btn-success:active {
+                transform: translateY(0);
+            }
+
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Последовательный выбор характеристик автомобиля</h1>
-        
-        <!-- Прогресс выбора -->
-        <div class="selection-progress">
-            <div class="progress-item">
-                <span>Шаг 1</span>
-                <div id="progressMake">Не выбрано</div>
-            </div>
-            <div class="progress-item">
-                <span>Шаг 2</span>
-                <div id="progressModel">Не выбрано</div>
-            </div>
-            <div class="progress-item">
-                <span>Шаг 3</span>
-                <div id="progressGeneration">Не выбрано</div>
-            </div>
-            <div class="progress-item">
-                <span>Шаг 4</span>
-                <div id="progressEngine">Не выбрано</div>
-            </div>
-        </div>
-        
-        <!-- Ряд дропдаунов -->
+        <h1>🚗 Выбор автомобиля</h1>
+
+        <!-- 4 дропдауна в строку -->
         <div class="dropdowns-row">
-            <!-- Дропдаун 1: Производитель -->
+            <!-- Бренд -->
             <div class="dropdown-section">
-                <div class="step-indicator active" id="step1">1</div>
-                <label class="dropdown-label">Производитель</label>
-                <button class="dropdown-btn active" id="makeBtn" onclick="toggleDropdown('makeDropdown', this)">
-                    Выберите производителя
-                </button>
-                <div id="makeDropdown" class="dropdown-content">
-                    <a href="#" onclick="selectItem('make', 'Acura', this)">Acura</a>
-                    <a href="#" onclick="selectItem('make', 'Honda', this)">Honda</a>
-                    <a href="#" onclick="selectItem('make', 'Mazda', this)">Mazda</a>
-                </div>
+                <label class="dropdown-label">Бренд:</label>
+                <select class="dropdown-select" id="brandDropdown" disabled>
+                    <option value="">-- Загрузка... --</option>
+                </select>
             </div>
-            
-            <!-- Дропдаун 2: Модель -->
+
+            <!-- Модель -->
             <div class="dropdown-section">
-                <div class="step-indicator" id="step2">2</div>
-                <label class="dropdown-label">Модель</label>
-                <button class="dropdown-btn" id="modelBtn" onclick="toggleDropdown('modelDropdown', this)" disabled>
-                    Сначала выберите производителя
-                </button>
-                <div id="modelDropdown" class="dropdown-content">
-                    <!-- Acura модели -->
-                    <div class="model-group" id="acuraModels" style="display: none;">
-                        <div style="padding: 10px 15px; background-color: #f0f0f0; font-weight: bold; color: #666;">Acura</div>
-                        <a href="#" onclick="selectItem('model', 'Integra', this)">Integra</a>
-                        <a href="#" onclick="selectItem('model', 'NSX', this)">NSX</a>
-                        <a href="#" onclick="selectItem('model', 'MDX', this)">MDX</a>
-                        <a href="#" onclick="selectItem('model', 'TLX', this)">TLX</a>
-                    </div>
-                    <!-- Honda модели -->
-                    <div class="model-group" id="hondaModels" style="display: none;">
-                        <div style="padding: 10px 15px; background-color: #f0f0f0; font-weight: bold; color: #666;">Honda</div>
-                        <a href="#" onclick="selectItem('model', 'Civic', this)">Civic</a>
-                        <a href="#" onclick="selectItem('model', 'Accord', this)">Accord</a>
-                        <a href="#" onclick="selectItem('model', 'CR-V', this)">CR-V</a>
-                        <a href="#" onclick="selectItem('model', 'Pilot', this)">Pilot</a>
-                    </div>
-                    <!-- Mazda модели -->
-                    <div class="model-group" id="mazdaModels" style="display: none;">
-                        <div style="padding: 10px 15px; background-color: #f0f0f0; font-weight: bold; color: #666;">Mazda</div>
-                        <a href="#" onclick="selectItem('model', 'Mazda3', this)">Mazda3</a>
-                        <a href="#" onclick="selectItem('model', 'Mazda6', this)">Mazda6</a>
-                        <a href="#" onclick="selectItem('model', 'CX-5', this)">CX-5</a>
-                        <a href="#" onclick="selectItem('model', 'CX-9', this)">CX-9</a>
-                    </div>
-                </div>
+                <label class="dropdown-label">Модель:</label>
+                <select class="dropdown-select" id="modelDropdown" disabled>
+                    <option value="">-- Сначала бренд --</option>
+                </select>
             </div>
-            
-            <!-- Дропдаун 3: Поколение -->
+
+            <!-- Поколение -->
             <div class="dropdown-section">
-                <div class="step-indicator" id="step3">3</div>
-                <label class="dropdown-label">Поколение</label>
-                <button class="dropdown-btn" id="generationBtn" onclick="toggleDropdown('generationDropdown', this)" disabled>
-                    Сначала выберите модель
-                </button>
-                <div id="generationDropdown" class="dropdown-content">
-                    <a href="#" onclick="selectItem('generation', 'Первое поколение', this)">Первое поколение</a>
-                    <a href="#" onclick="selectItem('generation', 'Второе поколение', this)">Второе поколение</a>
-                    <a href="#" onclick="selectItem('generation', 'Третье поколение', this)">Третье поколение</a>
-                    <a href="#" onclick="selectItem('generation', 'Четвертое поколение', this)">Четвертое поколение</a>
-                </div>
+                <label class="dropdown-label">Поколение:</label>
+                <select class="dropdown-select" id="generationDropdown" disabled>
+                    <option value="">-- Сначала модель --</option>
+                </select>
             </div>
-            
-            <!-- Дропдаун 4: Двигатель -->
+
+            <!-- Двигатель -->
             <div class="dropdown-section">
-                <div class="step-indicator" id="step4">4</div>
-                <label class="dropdown-label">Двигатель</label>
-                <button class="dropdown-btn" id="engineBtn" onclick="toggleDropdown('engineDropdown', this)" disabled>
-                    Сначала выберите поколение
-                </button>
-                <div id="engineDropdown" class="dropdown-content">
-                    <a href="#" onclick="selectItem('engine', '1.5L i-VTEC', this)">1.5L i-VTEC</a>
-                    <a href="#" onclick="selectItem('engine', '2.0L Skyactiv-G', this)">2.0L Skyactiv-G</a>
-                    <a href="#" onclick="selectItem('engine', '2.5L Turbo', this)">2.5L Turbo</a>
-                    <a href="#" onclick="selectItem('engine', '3.0L V6', this)">3.0L V6</a>
-                    <a href="#" onclick="selectItem('engine', '3.5L V6', this)">3.5L V6</a>
-                </div>
+                <label class="dropdown-label">Двигатель:</label>
+                <select class="dropdown-select" id="engineDropdown" disabled>
+                    <option value="">-- Сначала поколение --</option>
+                </select>
             </div>
         </div>
-        
-        <!-- Итоговый блок -->
-        <div class="selected-info">
-            <h3>Выбранная конфигурация:</h3>
-            <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
-                <div style="flex: 1; min-width: 200px; margin: 10px;">
-                    <strong>Производитель:</strong><br>
-                    <span id="selectedMake" style="color: #4CAF50; font-size: 18px;">—</span>
-                </div>
-                <div style="flex: 1; min-width: 200px; margin: 10px;">
-                    <strong>Модель:</strong><br>
-                    <span id="selectedModel" style="color: #2196F3; font-size: 18px;">—</span>
-                </div>
-                <div style="flex: 1; min-width: 200px; margin: 10px;">
-                    <strong>Поколение:</strong><br>
-                    <span id="selectedGeneration" style="color: #9C27B0; font-size: 18px;">—</span>
-                </div>
-                <div style="flex: 1; min-width: 200px; margin: 10px;">
-                    <strong>Двигатель:</strong><br>
-                    <span id="selectedEngine" style="color: #FF9800; font-size: 18px;">—</span>
-                </div>
-            </div>
+
+        <!-- Кнопки -->
+        <div class="actions">
+            <button class="btn-reset" onclick="resetAll()">Сбросить все</button>
+            <button class="btn-success" id="successButton" onclick="onSuccessButtonClick()">
+                перейти
+            </button>
         </div>
-        
-        <button class="reset-btn" onclick="resetAll()">Сбросить все выборы</button>
     </div>
 
     <script>
-        // Объект для хранения выбранных значений
-        const selectedValues = {
-            make: null,
-            model: null,
-            generation: null,
-            engine: null
+        // Текущее состояние машины (синхронизируется с сервером)
+        let currentCar = {
+            brand: '@Model.Brand',
+            model: '@Model.Model',
+            generation: '@Model.Generation',
+            engine: '@Model.Engine'
         };
-        
-        // Карта моделей для каждого производителя
-        const modelsByMake = {
-            'Acura': ['Integra', 'NSX', 'MDX', 'TLX'],
-            'Honda': ['Civic', 'Accord', 'CR-V', 'Pilot'],
-            'Mazda': ['Mazda3', 'Mazda6', 'CX-5', 'CX-9']
-        };
-        
-        // Функция для переключения видимости дропдауна
-        function toggleDropdown(dropdownId, button) {
-            if (button.disabled) return;
-            
-            // Закрываем все остальные дропдауны
-            const allDropdowns = document.querySelectorAll('.dropdown-content');
-            const allButtons = document.querySelectorAll('.dropdown-btn');
-            
-            allDropdowns.forEach(dropdown => {
-                if (dropdown.id !== dropdownId) {
-                    dropdown.style.display = 'none';
-                }
-            });
-            
-            allButtons.forEach(btn => {
-                if (btn !== button) {
-                    btn.classList.remove('active');
-                }
-            });
-            
-            // Переключаем текущий дропдаун
-            const dropdown = document.getElementById(dropdownId);
-            const isVisible = dropdown.style.display === 'block';
-            
-            dropdown.style.display = isVisible ? 'none' : 'block';
-            button.classList.toggle('active', !isVisible);
-        }
-        
-        // Функция выбора элемента
-        function selectItem(type, value, element) {
-            // Сохраняем значение
-            selectedValues[type] = value;
-            
-            // Обновляем текст кнопки
-            const button = document.getElementById(type + 'Btn');
-            button.textContent = value;
-            button.classList.remove('active');
-            button.classList.add('completed');
-            
-            // Обновляем индикатор шага
-            updateStepIndicators(type);
-            
-            // Закрываем дропдаун
-            const dropdown = document.getElementById(type + 'Dropdown');
-            dropdown.style.display = 'none';
-            
-            // Обновляем прогресс
-            updateProgress();
-            
-            // Обновляем итоговый блок
-            updateSelectedInfo();
-            
-            // Если выбран производитель - обновляем список моделей
-            if (type === 'make') {
-                updateModelOptions(value);
-                // Активируем следующий дропдаун
-                activateNextDropdown('model');
-            }
-            
-            // Если выбрана модель - активируем следующий дропдаун
-            if (type === 'model') {
-                activateNextDropdown('generation');
-            }
-            
-            // Если выбрано поколение - активируем следующий дропдаун
-            if (type === 'generation') {
-                activateNextDropdown('engine');
-            }
-            
-            console.log(`Выбрано: ${type} - ${value}`);
-        }
-        
-        // Функция обновления опций моделей на основе выбранного производителя
-        function updateModelOptions(make) {
-            // Скрываем все группы моделей
-            document.querySelectorAll('.model-group').forEach(group => {
-                group.style.display = 'none';
-            });
-            
-            // Показываем нужную группу
-            const modelGroup = document.getElementById(make.toLowerCase() + 'Models');
-            if (modelGroup) {
-                modelGroup.style.display = 'block';
-            }
-        }
-        
-        // Функция активации следующего дропдауна
-        function activateNextDropdown(nextType) {
-            const button = document.getElementById(nextType + 'Btn');
-            const step = document.getElementById('step' + (getStepNumber(nextType) + 1));
-            
-            button.disabled = false;
-            button.textContent = `Выберите ${getDropdownLabel(nextType)}`;
-            button.classList.remove('completed');
-            button.classList.add('active');
-            
-            step.classList.add('active');
-        }
-        
-        // Функция обновления индикаторов шагов
-        function updateStepIndicators(currentType) {
-            const steps = {
-                'make': 'step1',
-                'model': 'step2',
-                'generation': 'step3',
-                'engine': 'step4'
-            };
-            
-            const stepNumber = getStepNumber(currentType);
-            
-            // Отмечаем текущий шаг как выполненный
-            const currentStep = document.getElementById(steps[currentType]);
-            currentStep.classList.remove('active');
-            currentStep.classList.add('completed');
-            
-            // Активируем следующий шаг, если он есть
-            if (stepNumber < 4) {
-                const nextStep = document.getElementById(`step${stepNumber + 1}`);
-                nextStep.classList.add('active');
-            }
-        }
-        
-        // Функция обновления блока прогресса
-        function updateProgress() {
-            document.getElementById('progressMake').textContent = selectedValues.make || 'Не выбрано';
-            document.getElementById('progressModel').textContent = selectedValues.model || 'Не выбрано';
-            document.getElementById('progressGeneration').textContent = selectedValues.generation || 'Не выбрано';
-            document.getElementById('progressEngine').textContent = selectedValues.engine || 'Не выбрано';
-        }
-        
-        // Функция обновления итогового блока
-        function updateSelectedInfo() {
-            document.getElementById('selectedMake').textContent = selectedValues.make || '—';
-            document.getElementById('selectedModel').textContent = selectedValues.model || '—';
-            document.getElementById('selectedGeneration').textContent = selectedValues.generation || '—';
-            document.getElementById('selectedEngine').textContent = selectedValues.engine || '—';
-        }
-        
-        // Функция сброса всех выборов
-        function resetAll() {
-            // Сброс значений
-            selectedValues.make = null;
-            selectedValues.model = null;
-            selectedValues.generation = null;
-            selectedValues.engine = null;
-            
-            // Сброс кнопок
-            const buttons = ['makeBtn', 'modelBtn', 'generationBtn', 'engineBtn'];
-            buttons.forEach((btnId, index) => {
-                const button = document.getElementById(btnId);
-                button.classList.remove('completed', 'active');
-                button.disabled = index > 0;
-                
-                if (index === 0) {
-                    button.textContent = 'Выберите производителя';
-                    button.classList.add('active');
-                } else {
-                    button.textContent = index === 1 ? 'Сначала выберите производителя' : 
-                                      index === 2 ? 'Сначала выберите модель' : 
-                                      'Сначала выберите поколение';
-                }
-            });
-            
-            // Сброс индикаторов шагов
-            for (let i = 1; i <= 4; i++) {
-                const step = document.getElementById(`step${i}`);
-                step.classList.remove('active', 'completed');
-                if (i === 1) step.classList.add('active');
-            }
-            
-            // Обновление UI
-            updateProgress();
-            updateSelectedInfo();
-            
-            // Закрытие всех дропдаунов
-            document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-                dropdown.style.display = 'none';
-            });
-            
-            console.log('Все выборы сброшены');
-        }
-        
-        // Вспомогательные функции
-        function getStepNumber(type) {
-            const stepMap = { 'make': 1, 'model': 2, 'generation': 3, 'engine': 4 };
-            return stepMap[type] || 0;
-        }
-        
-        function getDropdownLabel(type) {
-            const labelMap = { 
-                'make': 'производителя', 
-                'model': 'модель', 
-                'generation': 'поколение', 
-                'engine': 'двигатель' 
-            };
-            return labelMap[type] || '';
-        }
-        
-        // Закрытие дропдаунов при клике вне их
-        document.addEventListener('click', function(event) {
-            if (!event.target.matches('.dropdown-btn') && !event.target.matches('.dropdown-content a')) {
-                document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-                    dropdown.style.display = 'none';
-                });
-                
-                document.querySelectorAll('.dropdown-btn').forEach(button => {
-                    if (!button.classList.contains('completed')) {
-                        button.classList.remove('active');
-                    }
-                });
+
+        // Загрузка при старте
+        document.addEventListener('DOMContentLoaded', async function () {
+            await loadInitialData();
+
+            // Проверяем, если все поля уже заполнены, показываем кнопку
+            if (isCarComplete()) {
+                showSuccessButton();
             }
         });
-        
-        // Инициализация
-        updateProgress();
-        updateSelectedInfo();
+
+        // Проверка, что все поля автомобиля заполнены
+        function isCarComplete() {
+            return currentCar.brand &&
+                   currentCar.model &&
+                   currentCar.generation &&
+                   currentCar.engine;
+        }
+
+        // Показать кнопку успешного завершения
+        function showSuccessButton() {
+            const successButton = document.getElementById('successButton');
+            if (successButton) {
+                successButton.style.display = 'inline-block';
+
+                // Плавное появление
+                setTimeout(() => {
+                    successButton.style.opacity = '1';
+                    successButton.style.transform = 'scale(1)';
+                }, 10);
+            }
+        }
+
+        // Скрыть кнопку успешного завершения
+        function hideSuccessButton() {
+            const successButton = document.getElementById('successButton');
+            if (successButton) {
+                successButton.style.display = 'none';
+            }
+        }
+
+        // Обработка нажатия на кнопку "Готово"
+                function onSuccessButtonClick() {
+            if (!isCarComplete()) {
+                alert('Пожалуйста, заполните все поля перед продолжением.');
+                return;
+            }
+
+            // Создаем параметры для URL
+            const params = new URLSearchParams({
+                brand: currentCar.brand,
+                model: currentCar.model,
+                generation: currentCar.generation,
+                engine: currentCar.engine
+            });
+
+            // Делаем редирект на страницу Success
+            window.location.href = `/Home/Car?${params.toString()}`;
+        }
+
+        // Загрузка начальных данных
+        async function loadInitialData() {
+            try {
+                const response = await fetch('/Home/GetInitialData');
+                const result = await response.json();
+
+                // Обновляем состояние
+                updateCar(result.car);
+
+                // Заполняем первый дропдаун
+                updateDropdown(result.nextField, result.options);
+
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+            }
+        }
+
+        // Обработчик изменения дропдауна
+        async function handleChange(fieldName, newValue) {
+            try {
+                // Отправляем на сервер 3 вещи:
+                // 1. Текущую машину (currentCar)
+                // 2. Какое поле изменили (fieldName)
+                // 3. На что изменили (newValue)
+                const response = await fetch('/Home/ProcessSelection', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        car: currentCar,
+                        changedField: fieldName,
+                        newValue: newValue
+                    })
+                });
+
+                const result = await response.json();
+
+                // Получаем от сервера 2 вещи:
+                // 1. Обновленную машину (result.car)
+                // 2. Список для следующего дропдауна (result.options)
+
+                // Обновляем состояние
+                updateCar(result.car);
+
+                // Обновляем UI
+                updateUI(result);
+
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+
+        // Обновление состояния машины
+        function updateCar(newCar) {
+            currentCar = {
+                brand: newCar.brand || '',
+                model: newCar.model || '',
+                generation: newCar.generation || '',
+                engine: newCar.engine || ''
+            };
+
+            console.log('Машина обновлена:', currentCar);
+        }
+
+        // Обновление UI на основе ответа сервера
+        function updateUI(result) {
+            // 1. Обновляем значения в дропдаунах
+            updateDropdownValues();
+
+            // 2. Если есть следующий дропдаун - заполняем его
+            if (result.nextField && result.nextField !== 'complete') {
+                updateDropdown(result.nextField, result.options);
+            }
+
+            // 3. Если все заполнено - показываем кнопку "Готово"
+            if (result.nextField === 'complete') {
+                showSuccessButton();
+            } else {
+                // Если выбор еще не завершен - скрываем кнопку
+                hideSuccessButton();
+            }
+
+            // 4. Сбрасываем только следующие дропдауны, НЕ очищаем текущий выбор
+            if (result.nextField && result.nextField !== 'complete') {
+                resetDropdownsAfter(result.nextField);
+            }
+        }
+
+        // Обновление значений в дропдаунах
+        function updateDropdownValues() {
+            // Устанавливаем значения только если они не пустые
+            if (currentCar.brand) {
+                document.getElementById('brandDropdown').value = currentCar.brand;
+            }
+            if (currentCar.model) {
+                document.getElementById('modelDropdown').value = currentCar.model;
+            }
+            if (currentCar.generation) {
+                document.getElementById('generationDropdown').value = currentCar.generation;
+            }
+            if (currentCar.engine) {
+                document.getElementById('engineDropdown').value = currentCar.engine;
+            }
+        }
+
+        // Заполнение конкретного дропдауна
+        function updateDropdown(fieldName, options) {
+            const dropdownId = fieldName + 'Dropdown';
+            const dropdown = document.getElementById(dropdownId);
+
+            if (!dropdown) return;
+
+            // Сохраняем текущее выбранное значение
+            const currentValue = dropdown.value;
+
+            // Очищаем и заполняем новыми опциями
+            dropdown.innerHTML = '';
+
+            // Добавляем пустую опцию
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            emptyOption.textContent = getPlaceholder(fieldName);
+            dropdown.appendChild(emptyOption);
+
+            // Добавляем опции из списка
+            if (options && options.length > 0) {
+                options.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option;
+                    dropdown.appendChild(opt);
+                });
+            }
+
+            // Восстанавливаем предыдущее значение, если оно есть в новом списке
+            if (currentValue && options && options.includes(currentValue)) {
+                dropdown.value = currentValue;
+            } else {
+                // Иначе используем значение из состояния
+                dropdown.value = currentCar[fieldName] || '';
+            }
+
+            // Активируем дропдаун
+            dropdown.disabled = false;
+
+            // Устанавливаем обработчик
+            dropdown.onchange = function() {
+                handleChange(fieldName, this.value);
+            };
+
+            // Фокусируемся на дропдауне
+            setTimeout(() => dropdown.focus(), 50);
+        }
+
+        // Сброс дропдаунов после указанного поля (НЕ включая само поле)
+        function resetDropdownsAfter(fieldName) {
+            const fields = ['brand', 'model', 'generation', 'engine'];
+            const startIndex = fields.indexOf(fieldName) + 1; // +1 чтобы НЕ сбрасывать само поле
+
+            for (let i = startIndex; i < fields.length; i++) {
+                const dropdownId = fields[i] + 'Dropdown';
+                const dropdown = document.getElementById(dropdownId);
+
+                if (dropdown) {
+                    // Сбрасываем только если поле еще не было заполнено
+                    // или если мы меняем более ранний выбор
+                    if (!currentCar[fields[i]] || i > startIndex) {
+                        dropdown.innerHTML = `<option value="">-- ${getPlaceholder(fields[i])} --</option>`;
+                        dropdown.disabled = true;
+                        dropdown.onchange = null;
+
+                        // Сбрасываем значение в состоянии только для этих полей
+                        currentCar[fields[i]] = '';
+                    }
+                }
+            }
+        }
+
+        // Получение текста для пустой опции
+        function getPlaceholder(fieldName) {
+            const placeholders = {
+                'brand': 'Выберите бренд',
+                'model': 'Выберите модель',
+                'generation': 'Выберите поколение',
+                'engine': 'Выберите двигатель'
+            };
+            return placeholders[fieldName] || 'Выберите';
+        }
+
+        // Полный сброс (только по нажатию кнопки)
+        async function resetAll() {
+            if (!confirm('Вы уверены, что хотите сбросить все выбранные значения?')) {
+                return;
+            }
+
+            try {
+                // Запрашиваем начальные данные
+                const response = await fetch('/Home/GetInitialData');
+                const result = await response.json();
+
+                // Сбрасываем состояние
+                currentCar = { brand: '', model: '', generation: '', engine: '' };
+
+                // Сбрасываем все дропдауны
+                ['brand', 'model', 'generation', 'engine'].forEach(field => {
+                    const dropdownId = field + 'Dropdown';
+                    const dropdown = document.getElementById(dropdownId);
+                    if (dropdown) {
+                        dropdown.innerHTML = `<option value="">-- ${getPlaceholder(field)} --</option>`;
+                        dropdown.disabled = true;
+                        dropdown.onchange = null;
+                    }
+                });
+
+                // Заполняем первый дропдаун
+                updateDropdown(result.nextField, result.options);
+
+                // Скрываем кнопку "Готово"
+                hideSuccessButton();
+
+            } catch (error) {
+                console.error('Ошибка сброса:', error);
+            }
+        }
     </script>
 </body>
 </html>

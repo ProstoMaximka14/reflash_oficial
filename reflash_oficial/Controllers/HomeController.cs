@@ -12,6 +12,7 @@ using System.Diagnostics;
 
 namespace reflash_oficial.Controllers
 {
+
     public class HomeController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -65,6 +66,258 @@ namespace reflash_oficial.Controllers
 
             return cars;
         }
+        // метод для получение столбцов таблицы с предыдущем столбцом таблицы в виде списка 
+        private List<SortDatabaseModel> Get_Sort_Cars(string Type_now, List<ReflashCarModel> cars)
+        {
+            List<SortDatabaseModel> type = new List<SortDatabaseModel>();
+            List<String> spisok = new List<String>();
+            if (Type_now == "brand")
+            {
+                foreach (ReflashCarModel car_now in cars)
+                {
+                    if (!spisok.Contains(car_now.Brand))
+                    {
+                        spisok.Add(car_now.Brand);
+                        type.Add(new SortDatabaseModel
+                        {
+                            Name_of_type = car_now.Brand,
+                            Name_of_preType = ""
+                        });
+                    }
+                }
+            }
+            else if (Type_now == "model")
+            {
+                foreach (ReflashCarModel car_now in cars)
+                {
+                    if (!spisok.Contains(car_now.Model))
+                    {
+                        spisok.Add(car_now.Brand);
+                        type.Add(new SortDatabaseModel
+                        {
+                            Name_of_type = car_now.Model,
+                            Name_of_preType = car_now.Brand
+                        });
+                    }
+                }
+            }
+            else if (Type_now == "generation")
+            {
+                foreach (ReflashCarModel car_now in cars)
+                {
+                    if (!spisok.Contains(car_now.Generation))
+                    {
+                        spisok.Add(car_now.Brand);
+                        type.Add(new SortDatabaseModel
+                        {
+                            Name_of_type = car_now.Generation,
+                            Name_of_preType = car_now.Model
+                        });
+                    }
+                }
+            }
+            else if (Type_now == "engine")
+            {
+                foreach (ReflashCarModel car_now in cars)
+                {
+                    if (!spisok.Contains(car_now.Engine))
+                    {
+                        spisok.Add(car_now.Brand);
+                        type.Add(new SortDatabaseModel
+                        {
+                            Name_of_type = car_now.Engine,
+                            Name_of_preType = car_now.Generation
+                        });
+                    }
+                }
+            }
+            return type;
+        }
+        // получение списка для drod daun
+        public List<string> spisok_to_dropdown(string type, string pre_type)
+        {
+            List<string> spisok = new List<string>();
+            if (type == "brand")
+            {
+                foreach (SortDatabaseModel now in DatabaseModel.Brand_l)
+                {
+                    if ((pre_type==now.Name_of_preType) && (!spisok.Contains(now.Name_of_type)) )
+                    {
+                        spisok.Add(now.Name_of_type);
+                    }
+                }
+            }
+            else if (type == "model")
+            {
+                foreach (SortDatabaseModel now in DatabaseModel.Model_l)
+                {
+                    if ((pre_type == now.Name_of_preType) && (!spisok.Contains(now.Name_of_type)))
+                    {
+                        spisok.Add(now.Name_of_type);
+                    }
+                }
+            }
+            else if (type == "generation")
+            {
+                foreach (SortDatabaseModel now in DatabaseModel.Generation_l)
+                {
+                    if ((pre_type == now.Name_of_preType) && (!spisok.Contains(now.Name_of_type)))
+                    {
+                        spisok.Add(now.Name_of_type);
+                    }
+                }
+            }
+            else if (type == "engine")
+            {
+                foreach (SortDatabaseModel now in DatabaseModel.Engine_l)
+                {
+                    if ((pre_type == now.Name_of_preType) && (!spisok.Contains(now.Name_of_type)))
+                    {
+                        spisok.Add(now.Name_of_type);
+                    }
+                }
+            }
+            return spisok;
+        }
+        //вызов первой страницы с прочтением базы данных и отделением столбцов при первом переходе на страницу
+        public IActionResult Index()
+        {
+            if (DatabaseModel.Cars.Count == 0)
+            {
+                DatabaseModel.Cars = GetCarsFromDatabase();
+                DatabaseModel.Partners = GetPartnersFromDatabase();
+                DatabaseModel.Brand_l = Get_Sort_Cars("brand", DatabaseModel.Cars);
+                DatabaseModel.Model_l = Get_Sort_Cars("model", DatabaseModel.Cars);
+                DatabaseModel.Generation_l = Get_Sort_Cars("generation", DatabaseModel.Cars);
+                DatabaseModel.Engine_l = Get_Sort_Cars("engine", DatabaseModel.Cars);
+            }
+            return View(new ReflashCarModel());
+        }
+
+        
+        // Единственный API метод для обработки ВСЕХ изменений
+        [HttpPost]
+        public IActionResult ProcessSelection([FromBody] SelectionRequest request)
+        {
+            // 1. Копируем текущее состояние из запроса
+            var updatedCar = new ReflashCarModel
+            {
+                Brand = request.Car.Brand,
+                Model = request.Car.Model,
+                Generation = request.Car.Generation,
+                Engine = request.Car.Engine
+            };
+
+            // 2. Обрабатываем изменение
+            switch (request.ChangedField)
+            {
+                case "brand":
+                    // Обновляем бренд
+                    updatedCar.Brand = request.NewValue;
+                    // Сбрасываем все что после бренда
+                    updatedCar.Model = "";
+                    updatedCar.Generation = "";
+                    updatedCar.Engine = "";
+                    break;
+
+                case "model":
+                    // Обновляем модель
+                    updatedCar.Model = request.NewValue;
+                    // Сбрасываем все что после модели
+                    updatedCar.Generation = "";
+                    updatedCar.Engine = "";
+                    break;
+
+                case "generation":
+                    // Обновляем поколение
+                    updatedCar.Generation = request.NewValue;
+                    // Сбрасываем все что после поколения
+                    updatedCar.Engine = "";
+                    break;
+
+                case "engine":
+                    // Обновляем двигатель
+                    updatedCar.Engine = request.NewValue;
+                    break;
+
+                default:
+                    // Ничего не меняем (начальный запрос)
+                    break;
+            }
+
+            // 3. Определяем какой дропдаун заполнять следующим
+            string nextField = "";
+            List<string> nextOptions = new List<string>();
+
+            if (string.IsNullOrEmpty(updatedCar.Brand))
+            {
+                nextField = "brand";
+                nextOptions = spisok_to_dropdown(nextField, "");
+            }
+            else if (string.IsNullOrEmpty(updatedCar.Model))
+            {
+                nextField = "model";
+                nextOptions = spisok_to_dropdown(nextField, request.NewValue);
+            }
+            else if (string.IsNullOrEmpty(updatedCar.Generation))
+            {
+                nextField = "generation";
+                nextOptions = spisok_to_dropdown(nextField, request.NewValue);
+            }
+            else if (string.IsNullOrEmpty(updatedCar.Engine))
+            {
+                nextField = "engine";
+                nextOptions = spisok_to_dropdown(nextField,request.NewValue);
+            }
+            else
+            {
+                nextField = "complete";
+                nextOptions = new List<string>();
+            }
+
+            // 4. Возвращаем ответ
+            return Json(new SelectionResponse
+            {
+                Car = updatedCar,
+                NextField = nextField,
+                Options = nextOptions
+            });
+        }
+
+        // Получение начальных данных (тоже через ProcessSelection)
+        [HttpGet]
+        public IActionResult GetInitialData()
+        {
+            return Json(new SelectionResponse
+            {
+                Car = new ReflashCarModel(),
+                NextField = "brand",
+                Options = spisok_to_dropdown("brand", "")
+            });
+        }
+
+        //Вызов странице генерирующейся по выбранной машине из базы данных
+        public IActionResult Car(ReflashCarModel car)
+        {
+            foreach (ReflashCarModel neded_car in DatabaseModel.Cars)
+            {
+                if ((neded_car.Brand == car.Brand) && (neded_car.Model == car.Model) && (neded_car.Generation == car.Generation) && (neded_car.Engine == car.Engine))
+                {
+                    return View(neded_car);
+                }
+            }
+            car = new ReflashCarModel();
+            return View(car);
+        }
+
+
+        //Партнёры
+
+        public IActionResult Partners()
+        {
+            
+            return View(DatabaseModel.Partners);
+        }
 
         // Метод для получения списка партнеров из БД
         private List<PartnersModel> GetPartnersFromDatabase()
@@ -109,29 +362,26 @@ namespace reflash_oficial.Controllers
             return partners;
         }
 
-        public IActionResult Index()
-        {
-            if (DatabaseModel.Cars.Count == 0)
-            {
-                DatabaseModel.Cars = GetCarsFromDatabase();
-                DatabaseModel.Partners = GetPartnersFromDatabase();
-            }
-
-            //ViewBag.Cars = DatabaseModel.Cars;
-            //return View(DatabaseModel.Cars);
-            return View();
-        }
-
-        public IActionResult Partners()
-        {
-            
-            return View(DatabaseModel.Partners);
-        }
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+    }
+    // Запрос от клиента: 3 вещи
+    public class SelectionRequest
+    {
+        public ReflashCarModel Car { get; set; } = new ReflashCarModel();  // 1. Текущая машина
+        public string ChangedField { get; set; } = "";       // 2. Какое поле изменили
+        public string NewValue { get; set; } = "";           // 3. На что изменили
+
+    }
+
+    // Ответ сервера: 2 вещи
+    public class SelectionResponse
+    {
+        public ReflashCarModel Car { get; set; } = new ReflashCarModel();  // 1. Обновленная машина
+        public string NextField { get; set; } = "";          // 2. Какое поле заполнять следующим
+        public List<string> Options { get; set; } = new List<string>(); // Список для дропдауна
     }
 }
