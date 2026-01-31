@@ -399,14 +399,26 @@ namespace reflash_oficial.Controllers
                         {
                             while (reader.Read())
                             {
+                                var photoUrl = reader.IsDBNull(reader.GetOrdinal("photo_url")) ? "" : reader.GetString("photo_url");
+
+                                // ВАЖНО: Если в БД сохранен полный путь, оставляем только имя файла
+                                string photoFileName = photoUrl;
+                                if (!string.IsNullOrEmpty(photoUrl) && photoUrl.Contains("/"))
+                                {
+                                    photoFileName = Path.GetFileName(photoUrl);
+                                }
+
                                 partners.Add(new PartnersModel
                                 {
                                     Id = reader.GetInt32("id"),
                                     name = reader.IsDBNull(reader.GetOrdinal("name")) ? "" : reader.GetString("name"),
                                     phone = reader.IsDBNull(reader.GetOrdinal("phone")) ? "" : reader.GetString("phone"),
-                                    photo = reader.IsDBNull(reader.GetOrdinal("photo_url")) ? "" : reader.GetString("photo_url"),
+                                    photo = photoFileName, // Сохраняем только имя файла
                                     vk = reader.IsDBNull(reader.GetOrdinal("vk_url")) ? "" : reader.GetString("vk_url"),
-                                    website = reader.IsDBNull(reader.GetOrdinal("website_url")) ? "" : reader.GetString("website_url")
+                                    website = reader.IsDBNull(reader.GetOrdinal("website_url")) ? "" : reader.GetString("website_url"),
+                                    city = reader.IsDBNull(reader.GetOrdinal("city")) ? "" : reader.GetString("city"),
+                                    street = reader.IsDBNull(reader.GetOrdinal("street")) ? "" : reader.GetString("street"),
+                                    house = reader.IsDBNull(reader.GetOrdinal("house")) ? "" : reader.GetString("house")
                                 });
                             }
                         }
@@ -417,7 +429,6 @@ namespace reflash_oficial.Controllers
             {
                 TempData["Error"] = $"Ошибка MySQL при загрузке партнеров: {ex.Message}";
             }
-
             return partners;
         }
 

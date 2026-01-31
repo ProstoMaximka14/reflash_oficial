@@ -13,5 +13,21 @@
         public string vk { get; set; }
 
         public string website { get; set; }
+
+        public string city { get; set; }
+        public string street { get; set; }
+        public string house { get; set; }
+
+        public string PhotoUrl
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(photo))
+                    return "/images/default-partner.jpg"; // Дефолтное изображение
+
+                // Используем путь к общей папке
+                return $"/shared-fotos/partners/{photo}";
+            }
+        }
     }
 }

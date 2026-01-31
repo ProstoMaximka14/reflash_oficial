@@ -1,3 +1,5 @@
+using Microsoft.Extensions.FileProviders;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,6 +16,17 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// ВАЖНО: Порядок имеет значение!
+// 1. Сначала настраиваем доступ к общей папке
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(@"C:\fotos"),
+    RequestPath = "/shared-fotos",
+    ServeUnknownFileTypes = true // Разрешаем все типы файлов
+});
+
+// 2. Затем стандартные статические файлы из wwwroot
 app.UseStaticFiles();
 
 app.UseRouting();
