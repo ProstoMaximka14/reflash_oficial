@@ -374,7 +374,6 @@ namespace reflash_oficial.Controllers
 
         public IActionResult Partners()
         {
-            
             return View(DatabaseModel.Partners);
         }
 
