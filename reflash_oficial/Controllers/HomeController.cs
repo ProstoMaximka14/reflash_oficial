@@ -230,6 +230,7 @@ namespace reflash_oficial.Controllers
                 DatabaseModel.Generation_l = Get_Sort_Cars("generation", DatabaseModel.Cars);
                 DatabaseModel.Engine_l = Get_Sort_Cars("engine", DatabaseModel.Cars);
                 DatabaseModel.Engine_with_model = Get_Sort_Cars("engine_with_model", DatabaseModel.Cars);
+                DatabaseModel.News= Get_News_from_data();
             }
             return View(new ReflashCarModel());
         }
@@ -436,6 +437,64 @@ namespace reflash_oficial.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        // новости
+        
+        public IActionResult News()
+        {
+            return View(DatabaseModel.News);
+        }
+
+        // Метод для получения списка нвостей из БД
+        private List<NewsModel> Get_News_from_data()
+        {
+            List<NewsModel> news = new List<NewsModel>();
+            string connectionString = _configuration.GetConnectionString("DefaultConnection")
+                ?? "server=localhost;port=3306;database=reflash_cars;user=root;password=;";
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = "SELECT * FROM news ORDER BY news_name";
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var photoUrl = reader.IsDBNull(reader.GetOrdinal("news_url")) ? "" : reader.GetString("news_url");
+
+                                // ВАЖНО: Если в БД сохранен полный путь, оставляем только имя файла
+                                string photoFileName = photoUrl;
+                                if (!string.IsNullOrEmpty(photoUrl) && photoUrl.Contains("/"))
+                                {
+                                    photoFileName = Path.GetFileName(photoUrl);
+                                }
+
+                                news.Add(new NewsModel
+                                {
+                                    id = reader.GetInt32("id"),
+                                    news_name = reader.IsDBNull(reader.GetOrdinal("news_name")) ? "" : reader.GetString("news_name"),
+                                    news_text = reader.IsDBNull(reader.GetOrdinal("news_text")) ? "" : reader.GetString("news_text"),
+                                    news_date = reader.IsDBNull(reader.GetOrdinal("news_date")) ? "" : reader.GetString("news_date"),
+                                    news_url = photoFileName
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                TempData["Error"] = $"Ошибка MySQL при загрузке партнеров: {ex.Message}";
+            }
+            return news;
+        }
+
     }
     // Запрос от клиента: 
     public class SelectionRequest

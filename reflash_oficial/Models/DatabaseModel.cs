@@ -9,5 +9,6 @@
         public static List<SortDatabaseModel> Generation_l = new List<SortDatabaseModel>();
         public static List<SortDatabaseModel> Engine_l = new List<SortDatabaseModel>();
         public static List<SortDatabaseModel> Engine_with_model = new List<SortDatabaseModel>();
+        public static List<NewsModel> News = new List<NewsModel>();
     }
 }
