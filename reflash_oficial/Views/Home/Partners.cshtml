@@ -387,230 +387,236 @@
     </div>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
     <script type="text/javascript">
-        ymaps.ready(init);
-
-        var map;
-        var partnerPlacemarks = [];
-        var clusterer;
-
-        function init() {
-            // Координаты Кремля
-            var kremlinCoords = [55.751574, 37.617573];
-
-            // Создаем карту с центром на Кремле
+    // Глобальные переменные
+    var map;
+    var partnerPlacemarks = [];
+    
+    // Функция инициализации карты
+    function initMap() {
+        var mapElement = document.getElementById('map');
+        if (!mapElement) {
+            console.error('Элемент map не найден');
+            return;
+        }
+        
+        try {
+            // Создание карты с обзором на весь мир
+            // Координаты [0, 0] - центр мира (пересечение экватора и нулевого меридиана)
+            // Зум 2-3 показывает карту мира
             map = new ymaps.Map('map', {
-                center: kremlinCoords,
-                zoom: 10,
-                controls: [] // Убираем стандартные элементы управления
+                center: [0, 0],  // Центр карты мира
+                zoom: 2,          // Уровень зума для отображения мира
+                controls: ['zoomControl', 'fullscreenControl']
             });
-
-            // Включаем стандартное поведение зума
-            map.behaviors.enable([
-                'scrollZoom', // Зум колесиком мыши
-                'dblClickZoom', // Зум двойным кликом
-                'multiTouch' // Зум на мобильных устройствах
-            ]);
-
-            // Добавляем маркер Кремля
-            addKremlinMarker(kremlinCoords);
-
-            // Добавляем маркеры партнеров из модели
+            
+            console.log('Карта инициализирована успешно');
+            
+            // Добавляем маркеры партнеров
             addPartnersMarkers();
-
-            // Создаем кластеризатор для группировки маркеров
-            createClusterer();
-
-            // Добавляем кнопки управления масштабом
+            
+            // Настройка кнопок зума
             setupZoomControls();
+            
+        } catch (error) {
+            console.error('Ошибка инициализации карты:', error);
+            if (mapElement) {
+                mapElement.innerHTML = '<div style="padding: 20px; text-align: center; color: red;">Ошибка загрузки карты: ' + error.message + '</div>';
+            }
         }
-
-        function addKremlinMarker(coords) {
-            var kremlinPlacemark = new ymaps.Placemark(coords, {
-                hintContent: 'Московский Кремль',
-                balloonContent: '<strong>Московский Кремль</strong><br>Главная достопримечательность Москвы<br><i>Красная площадь, Собор Василия Блаженного</i>'
-            }, {
-                preset: 'islands#redDotIcon', // Красный маркер
-                iconColor: '#dc3545'
-            });
-
-            map.geoObjects.add(kremlinPlacemark);
-        }
-
-        function addPartnersMarkers() {
-            @if (Model != null && Model.Count > 0)
+    }
+    
+    // Функция добавления маркеров партнеров
+    function addPartnersMarkers() {
+        @if (Model != null && Model.Count > 0)
+        {
+            foreach (var partner in Model)
             {
-                    foreach (var partner in Model)
+                if (!string.IsNullOrEmpty(partner.latitude) && !string.IsNullOrEmpty(partner.longitude))
+                {
+                    try
                     {
-                            // Проверяем, есть ли координаты у партнера
-                            if (!string.IsNullOrEmpty(partner.latitude) && !string.IsNullOrEmpty(partner.longitude))
-                            {
-                                    // Очищаем строки от кавычек и спецсимволов для JavaScript
-                                    var name = partner.name?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                                    var phone = partner.phone?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                                    var website = partner.website?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                                    var vk = partner.vk?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                                    var city = partner.city?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                                    var street = partner.street?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                                    var house = partner.house?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-
-                                    // Формируем HTML для балуна (всплывающего окна)
-                                    var balloonContent = $@"<div style='max-width: 250px;'><strong>{name}</strong><br><hr style='margin: 5px 0;'>";
-
-                                    if (!string.IsNullOrEmpty(phone))
-                                    {
-                                            balloonContent += $"<i class='bi bi-telephone'></i> {phone}<br>";
-                                    }
-
-                                    if (!string.IsNullOrEmpty(website))
-                                    {
-                                            balloonContent += $"<i class='bi bi-globe'></i> <a href='{website}' target='_blank' style='color: #007bff;'>Сайт</a><br>";
-                                    }
-
-                                    if (!string.IsNullOrEmpty(vk))
-                                    {
-                                            balloonContent += $"<i class='bi bi-link-45deg'></i> <a href='{vk}' target='_blank' style='color: #007bff;'>ВКонтакте</a><br>";
-                                    }
-
-                                    var address = $"{city} {street} {house}".Trim();
-                                    if (!string.IsNullOrEmpty(address))
-                                    {
-                                            balloonContent += $"<hr style='margin: 5px 0;'><i class='bi bi-geo-alt'></i> {address}";
-                                    }
-
-                                    balloonContent += "</div>";
-
-                                    <text>
-                                        var partnerCoords = [@partner.latitude.Replace(',', '.'), @partner.longitude.Replace(',', '.')];
-                                        var partnerPlacemark = new ymaps.Placemark(partnerCoords, {
-                                            hintContent: '@Html.Raw(name)',
-                                            balloonContent: '@Html.Raw(balloonContent)'
-                                        }, {
-                                            preset: 'islands#blueDotIcon',
-                                            iconColor: '#007bff'
-                                        });
-
-                                        partnerPlacemarks.push(partnerPlacemark);
-
-                                        // Добавляем обработчик клика на карточку партнера
-                                        setupPartnerCardClick(@partner.Id, partnerCoords);
-                                    </text>
+                        var lat = partner.latitude.Replace(',', '.').Trim();
+                        var lon = partner.longitude.Replace(',', '.').Trim();
+                        var name = partner.name?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                        var phone = partner.phone?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                        var website = partner.website?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                        var vk = partner.vk?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                        var city = partner.city?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                        var street = partner.street?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                        var house = partner.house?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                        
+                        // Формируем адрес в C#
+                        var address = string.Join(" ", new[] { city, street, house }.Where(s => !string.IsNullOrEmpty(s))).Trim();
+                        
+                        <text>
+                            var partnerCoords = [parseFloat("@lat"), parseFloat("@lon")];
+                            
+                            // Проверяем, что координаты валидные
+                            if (!isNaN(partnerCoords[0]) && !isNaN(partnerCoords[1])) {
+                                console.log('Добавлен партнер: "@name", координаты:', partnerCoords);
+                                
+                                // Формируем HTML для балуна
+                                var balloonHtml = '<div style="max-width: 250px;">' +
+                                    '<strong>@Html.Raw(name)</strong>' +
+                                    '<hr style="margin: 5px 0;">';
+                                
+                                @if (!string.IsNullOrEmpty(phone))
+                                {
+                                    <text>balloonHtml += '<i class="bi bi-telephone"></i> @phone<br>';</text>
+                                }
+                                
+                                @if (!string.IsNullOrEmpty(website))
+                                {
+                                    <text>balloonHtml += '<i class="bi bi-globe"></i> <a href="@website" target="_blank" style="color: #007bff;">Сайт</a><br>';</text>
+                                }
+                                
+                                @if (!string.IsNullOrEmpty(vk))
+                                {
+                                    <text>balloonHtml += '<i class="bi bi-link-45deg"></i> <a href="@vk" target="_blank" style="color: #007bff;">ВКонтакте</a><br>';</text>
+                                }
+                                
+                                @if (!string.IsNullOrEmpty(address))
+                                {
+                                    <text>balloonHtml += '<hr style="margin: 5px 0;"><i class="bi bi-geo-alt"></i> @address';</text>
+                                }
+                                
+                                balloonHtml += '</div>';
+                                
+                                var partnerPlacemark = new ymaps.Placemark(partnerCoords, {
+                                    hintContent: '@Html.Raw(name)',
+                                    balloonContent: balloonHtml
+                                }, {
+                                    preset: 'islands#blueDotIcon',
+                                    iconColor: '#007bff'
+                                });
+                                
+                                map.geoObjects.add(partnerPlacemark);
+                                partnerPlacemarks.push(partnerPlacemark);
+                                
+                                // Добавляем обработчик клика на карточку
+                                setupPartnerCardClick(@partner.Id, partnerCoords);
+                            } else {
+                                console.warn('Некорректные координаты для партнера "@name":', "@lat", "@lon");
                             }
+                        </text>
                     }
-            }
-        }
-
-        function createClusterer() {
-            if (partnerPlacemarks.length > 0) {
-                // Создаем кластеризатор
-                clusterer = new ymaps.Clusterer({
-                    preset: 'islands#invertedBlueClusterIcons',
-                    clusterIconColor: '#007bff',
-                    clusterDisableClickZoom: false,
-                    clusterOpenBalloonOnClick: true,
-                    clusterBalloonContentLayout: 'cluster#balloonCarousel',
-                    clusterBalloonPanelMaxMapArea: 0,
-                    clusterBalloonContentLayoutHeight: 150,
-                    clusterBalloonContentLayoutWidth: 250
-                });
-
-                // Добавляем маркеры в кластеризатор
-                clusterer.add(partnerPlacemarks);
-
-                // Добавляем кластеризатор на карту
-                map.geoObjects.add(clusterer);
-            }
-        }
-
-        function setupPartnerCardClick(partnerId, coords) {
-            // Находим карточку партнера по ID
-            var partnerCard = document.getElementById('partner-' + partnerId);
-
-            if (partnerCard) {
-                partnerCard.addEventListener('click', function(e) {
-                    // Проверяем, что клик не по ссылке
-                    if (e.target.tagName.toLowerCase() !== 'a') {
-                        // Перемещаем карту к маркеру
-                        map.setCenter(coords, 15, {
-                            duration: 500 // Анимация перемещения
-                        });
-
-                        // Подсвечиваем карточку
-                        highlightPartnerCard(partnerId);
-
-                        // Находим и открываем балун соответствующего маркера
-                        var placemark = partnerPlacemarks.find(function(pm) {
-                            var pmCoords = pm.geometry.getCoordinates();
-                            return Math.abs(pmCoords[0] - coords[0]) < 0.0001 &&
-                                   Math.abs(pmCoords[1] - coords[1]) < 0.0001;
-                        });
-
-                        if (placemark) {
-                            setTimeout(function() {
-                                placemark.balloon.open();
-                            }, 500);
-                        }
+                    catch (Exception ex)
+                    {
+                        // Логируем ошибку в C#
+                        Console.WriteLine($"Ошибка при добавлении партнера {partner.Id}: {ex.Message}");
                     }
-                });
+                }
             }
         }
-
-        function highlightPartnerCard(partnerId) {
-            // Убираем подсветку со всех карточек
-            document.querySelectorAll('.partner-card').forEach(function(card) {
-                card.style.boxShadow = '0 3px 10px rgba(0,0,0,0.08)';
-                card.style.transform = 'none';
+        
+        if (partnerPlacemarks.length === 0) {
+            console.log('Нет партнеров с координатами для отображения на карте');
+        } else {
+            console.log('Добавлено маркеров: ' + partnerPlacemarks.length);
+            
+            // Не подстраиваем границы автоматически, чтобы сохранить обзор мира
+            // Пользователь сам сможет приблизить карту к нужным маркерам
+        }
+    }
+    
+    // Функция обработки клика на карточку партнера
+    function setupPartnerCardClick(partnerId, coords) {
+        var partnerCard = document.getElementById('partner-' + partnerId);
+        
+        if (partnerCard) {
+            partnerCard.addEventListener('click', function(e) {
+                // Проверяем, что клик не по ссылке
+                if (e.target.tagName.toLowerCase() !== 'a') {
+                    // Перемещаем карту к маркеру с анимацией
+                    if (map) {
+                        map.setCenter(coords, 12, {
+                            duration: 800,
+                            flying: true
+                        });
+                    }
+                    
+                    // Подсвечиваем карточку
+                    highlightPartnerCard(partnerId);
+                    
+                    // Находим и открываем балун маркера
+                    var placemark = partnerPlacemarks.find(function(pm) {
+                        var pmCoords = pm.geometry.getCoordinates();
+                        return Math.abs(pmCoords[0] - coords[0]) < 0.0001 &&
+                               Math.abs(pmCoords[1] - coords[1]) < 0.0001;
+                    });
+                    
+                    if (placemark) {
+                        setTimeout(function() {
+                            placemark.balloon.open();
+                        }, 800);
+                    }
+                }
             });
-
-            // Подсвечиваем выбранную карточку
-            var selectedCard = document.getElementById('partner-' + partnerId);
-            if (selectedCard) {
-                selectedCard.style.boxShadow = '0 0 0 3px #007bff, 0 6px 20px rgba(0,0,0,0.12)';
-                selectedCard.style.transform = 'translateY(-2px)';
-
-                // Плавная прокрутка к карточке (опционально)
-                selectedCard.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest'
-                });
+        }
+    }
+    
+    // Функция подсветки карточки
+    function highlightPartnerCard(partnerId) {
+        document.querySelectorAll('.partner-card').forEach(function(card) {
+            card.style.boxShadow = '0 3px 10px rgba(0,0,0,0.08)';
+            card.style.transform = 'none';
+        });
+        
+        var selectedCard = document.getElementById('partner-' + partnerId);
+        if (selectedCard) {
+            selectedCard.style.boxShadow = '0 0 0 3px #007bff, 0 6px 20px rgba(0,0,0,0.12)';
+            selectedCard.style.transform = 'translateY(-2px)';
+            
+            selectedCard.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+        }
+    }
+    
+    // Функция настройки кнопок зума
+    function setupZoomControls() {
+        var zoomIn = document.getElementById('zoom-in');
+        var zoomOut = document.getElementById('zoom-out');
+        
+        if (zoomIn) {
+            zoomIn.onclick = function() {
+                if (map) {
+                    map.setZoom(map.getZoom() + 1);
+                }
+            };
+        }
+        
+        if (zoomOut) {
+            zoomOut.onclick = function() {
+                if (map) {
+                    map.setZoom(map.getZoom() - 1);
+                }
+            };
+        }
+    }
+    
+    // Запуск после загрузки страницы
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof ymaps !== 'undefined') {
+                ymaps.ready(initMap);
+            } else {
+                console.error('ymaps не определен');
+                var mapElement = document.getElementById('map');
+                if (mapElement) {
+                    mapElement.innerHTML = '<div style="padding: 20px; text-align: center; color: red;">Ошибка загрузки Яндекс.Карт</div>';
+                }
             }
+        });
+    } else {
+        if (typeof ymaps !== 'undefined') {
+            ymaps.ready(initMap);
+        } else {
+            console.error('ymaps не определен');
         }
-
-        function setupZoomControls() {
-            // Кнопка увеличения
-            document.getElementById('zoom-in').addEventListener('click', function() {
-                var currentZoom = map.getZoom();
-                if (currentZoom < 19) {
-                    map.setZoom(currentZoom + 1, { duration: 300 });
-                }
-            });
-
-            // Кнопка уменьшения
-            document.getElementById('zoom-out').addEventListener('click', function() {
-                var currentZoom = map.getZoom();
-                if (currentZoom > 0) {
-                    map.setZoom(currentZoom - 1, { duration: 300 });
-                }
-            });
-
-            // Горячие клавиши
-            document.addEventListener('keydown', function(e) {
-                if (e.target.tagName.toLowerCase() === 'input' ||
-                    e.target.tagName.toLowerCase() === 'textarea') {
-                    return;
-                }
-
-                if (e.key === '+' || e.key === '=') {
-                    e.preventDefault();
-                    document.getElementById('zoom-in').click();
-                } else if (e.key === '-' || e.key === '_') {
-                    e.preventDefault();
-                    document.getElementById('zoom-out').click();
-                }
-            });
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
