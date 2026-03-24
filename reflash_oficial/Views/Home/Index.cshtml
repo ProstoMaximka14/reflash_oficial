@@ -71,16 +71,6 @@
             text-align: center;
         }
 
-        .btn-reset {
-            padding: 10px 25px;
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-
         .btn-success {
             padding: 10px 25px;
             background: #4CAF50;
@@ -407,43 +397,6 @@
                 'engine': 'Выберите двигатель'
             };
             return placeholders[fieldName] || 'Выберите';
-        }
-
-        // Полный сброс (только по нажатию кнопки)
-        async function resetAll() 
-        {
-            if (!confirm('Вы уверены, что хотите сбросить все выбранные значения?')) {
-                return;
-            }
-
-            try {
-                // Запрашиваем начальные данные
-                const response = await fetch('/Home/GetInitialData');
-                const result = await response.json();
-
-                // Сбрасываем состояние
-                currentCar = { brand: '', model: '', generation: '', engine: '' };
-
-                // Сбрасываем все дропдауны
-                ['brand', 'model', 'generation', 'engine'].forEach(field => {
-                    const dropdownId = field + 'Dropdown';
-                    const dropdown = document.getElementById(dropdownId);
-                    if (dropdown) {
-                        dropdown.innerHTML = `<option value="">-- ${getPlaceholder(field)} --</option>`;
-                        dropdown.disabled = true;
-                        dropdown.onchange = null;
-                    }
-                });
-
-                // Заполняем первый дропдаун
-                updateDropdown(result.nextField, result.options);
-
-                // Скрываем кнопку "Готово"
-                hideSuccessButton();
-
-            } catch (error) {
-                console.error('Ошибка сброса:', error);
-            }
         }
     </script>
 </body>

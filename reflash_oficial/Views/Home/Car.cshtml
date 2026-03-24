@@ -33,13 +33,123 @@
             line-height: 1.6;
         }
 
+        /* Новый контейнер для всей страницы с флексом */
+        .page-wrapper {
+            display: flex;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        /* Левая колонка с дропдаунами (вне основного контейнера) */
+        .dropdowns-sidebar {
+            flex: 0 0 300px;
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+        }
+
+        /* Контейнер с дропдаунами */
+        .dropdowns-row {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .dropdown-section {
+            width: 100%;
+        }
+
+        .dropdown-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #2c3e50;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .dropdown-select {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+            .dropdown-select:hover:not(:disabled) {
+                border-color: #4CAF50;
+                box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+            }
+
+            .dropdown-select:focus {
+                outline: none;
+                border-color: #4CAF50;
+                box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            }
+
+            .dropdown-select:disabled {
+                background-color: #f5f5f5;
+                opacity: 0.7;
+                cursor: not-allowed;
+                border-color: #ddd;
+            }
+
+        /* Кнопка в сайдбаре */
+        .dropdowns-sidebar .actions {
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        .btn-success {
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: none;
+            opacity: 0;
+            transform: scale(0.9);
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+            .btn-success:hover {
+                background: linear-gradient(135deg, #45a049, #3d8b40);
+                transform: translateY(-2px) scale(1.02);
+                box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+            }
+
+            .btn-success:active {
+                transform: translateY(0) scale(1);
+                box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+            }
+
+        /* Основной контейнер (справа) */
         .container {
+            flex: 1;
             background: white;
             border-radius: 12px;
             padding: 30px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            max-width: 1200px;
-            margin: 0 auto;
         }
 
         /* Шапка с языком и заголовком */
@@ -91,7 +201,7 @@
                 border-color: #4CAF50;
             }
 
-        /* Основной контент в две колонки */
+        /* Основной контент в две колонки внутри контейнера */
         .content-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -229,7 +339,7 @@
         }
 
         /* Кнопки действий */
-        .actions {
+        .actions-bottom {
             display: flex;
             justify-content: center;
             gap: 20px;
@@ -274,108 +384,150 @@
             background: #e8f5e9 !important;
             border-color: #4CAF50 !important;
         }
+
+        
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Шапка -->
-        <div class="header">
-            <div class="title-section">
-                <h1>
-                    <span class="success-icon">✅</span>
-                    @GetLocalized("Автомобиль успешно выбран!", "Car successfully selected!", "Auto erfolgreich ausgewählt!")
-                </h1>
-            </div>
+    <div class="page-wrapper">
+        <!-- Левая колонка с дропдаунами (ВНЕ основного контейнера) -->
+        <div class="dropdowns-sidebar">
+            <div class="dropdowns-row">
+                <!-- Бренд -->
+                <div class="dropdown-section">
+                    <label class="dropdown-label">Бренд:</label>
+                    <select class="dropdown-select" id="brandDropdown" disabled>
+                        <option value="">-- Загрузка... --</option>
+                    </select>
+                </div>
 
-            <div class="language-switcher">
-                <button class="lang-btn @(language == "ru" ? "active" : "")" onclick="switchLanguage('ru')">RU</button>
-                <button class="lang-btn @(language == "eng" ? "active" : "")" onclick="switchLanguage('eng')">EN</button>
-                <button class="lang-btn @(language == "ger" ? "active" : "")" onclick="switchLanguage('ger')">DE</button>
+                <!-- Модель -->
+                <div class="dropdown-section">
+                    <label class="dropdown-label">Модель:</label>
+                    <select class="dropdown-select" id="modelDropdown" disabled>
+                        <option value="">-- Сначала бренд --</option>
+                    </select>
+                </div>
+
+                <!-- Поколение -->
+                <div class="dropdown-section">
+                    <label class="dropdown-label">Поколение:</label>
+                    <select class="dropdown-select" id="generationDropdown" disabled>
+                        <option value="">-- Сначала модель --</option>
+                    </select>
+                </div>
+
+                <!-- Двигатель -->
+                <div class="dropdown-section">
+                    <label class="dropdown-label">Двигатель:</label>
+                    <select class="dropdown-select" id="engineDropdown" disabled>
+                        <option value="">-- Сначала поколение --</option>
+                    </select>
+                </div>
+
+                <!-- Кнопка -->
+                <div class="actions">
+                    <button class="btn-success" id="successButton" onclick="onSuccessButtonClick()">
+                        Перейти
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Основной контент в две колонки -->
-        <div class="content-grid">
-            <!-- Левая колонка -->
-            <div class="left-column">
-                <!-- Изображение автомобиля -->
-                <div class="car-image-container">
-                    @if (!string.IsNullOrEmpty(Model.Image))
-                    {
-                        <img src="@Model.Image" alt="@Model.Brand @Model.Model" class="car-image" />
-                    }
-                    else
-                    {
-                        <div style="padding: 40px; color: #777; text-align: center;">
-                            @GetLocalized("Изображение автомобиля", "Car image", "Auto Bild")
-                        </div>
-                    }
+        <!-- Основной контейнер с контентом автомобиля (справа) -->
+        <div class="container">
+            <!-- Шапка -->
+            <div class="header">
+                <div class="language-switcher">
+                    <button class="lang-btn @(language == "ru" ? "active" : "")" onclick="switchLanguage('ru')">RU</button>
+                    <button class="lang-btn @(language == "eng" ? "active" : "")" onclick="switchLanguage('eng')">EN</button>
+                    <button class="lang-btn @(language == "ger" ? "active" : "")" onclick="switchLanguage('ger')">DE</button>
                 </div>
+            </div>
 
-                <!-- Основные характеристики -->
-                <div class="basic-info">
-                    <div class="basic-info-grid">
-                        <div class="info-item">
-                            <span class="info-label">@GetLocalized("Бренд", "Brand", "Marke")</span>
-                            <span class="info-value">@Model.Brand</span>
+            <!-- Основной контент в две колонки -->
+            <div class="content-grid">
+                <!-- Левая колонка контента -->
+                <div class="left-column">
+                    <!-- Изображение автомобиля -->
+                    <div class="car-image-container">
+                        @if (!string.IsNullOrEmpty(Model.Image))
+                        {
+                            <img src="@Model.Image" alt="@Model.Brand @Model.Model" class="car-image" />
+                        }
+                        else
+                        {
+                            <div style="padding: 40px; color: #777; text-align: center;">
+                                @GetLocalized("Изображение автомобиля", "Car image", "Auto Bild")
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Основные характеристики -->
+                    <div class="basic-info">
+                        <div class="basic-info-grid">
+                            <div class="info-item">
+                                <span class="info-label">@GetLocalized("Бренд", "Brand", "Marke")</span>
+                                <span class="info-value">@Model.Brand</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">@GetLocalized("Модель", "Model", "Modell")</span>
+                                <span class="info-value">@Model.Model</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">@GetLocalized("Поколение", "Generation", "Generation")</span>
+                                <span class="info-value">@Model.Generation</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">@GetLocalized("Двигатель", "Engine", "Motor")</span>
+                                <span class="info-value">@Model.Engine</span>
+                            </div>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">@GetLocalized("Модель", "Model", "Modell")</span>
-                            <span class="info-value">@Model.Model</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">@GetLocalized("Поколение", "Generation", "Generation")</span>
-                            <span class="info-value">@Model.Generation</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">@GetLocalized("Двигатель", "Engine", "Motor")</span>
-                            <span class="info-value">@Model.Engine</span>
-                        </div>
+                    </div>
+
+                    <!-- Блок с описанием -->
+                    <div class="info-block highlight">
+                        <div class="info-title">@GetLocalized("О автомобиле", "About the car", "Über das Auto")</div>
+                        <div class="info-content">@GetLocalized(Model.AboutRu, Model.AboutEng, Model.AboutGer)</div>
                     </div>
                 </div>
 
-                <!-- Блок с описанием -->
-                <div class="info-block highlight">
-                    <div class="info-title">@GetLocalized("О автомобиле", "About the car", "Über das Auto")</div>
-                    <div class="info-content">@GetLocalized(Model.AboutRu, Model.AboutEng, Model.AboutGer)</div>
+                <!-- Правая колонка контента -->
+                <div class="right-column">
+                    <!-- Результаты чип-тюнинга -->
+                    <div class="info-block">
+                        <div class="info-title">@GetLocalized("Результаты чип-тюнинга", "Chip tuning results", "Chip-Tuning-Ergebnisse")</div>
+                        <div class="info-content">@GetLocalized(Model.ResultRu, Model.ResultEng, Model.ResultGer)</div>
+                    </div>
+
+                    <!-- Управление двигателем -->
+                    <div class="info-block">
+                        <div class="info-title">@GetLocalized("Управление двигателем", "Engine control", "Motorsteuerung")</div>
+                        <div class="info-content">@GetLocalized(Model.EngineControlRu, Model.EngineControlEng, Model.EngineControlGer)</div>
+                    </div>
+
+                    <!-- Опции -->
+                    <div class="info-block">
+                        <div class="info-title">@GetLocalized("Дополнительные опции", "Additional options", "Zusätzliche Optionen")</div>
+                        <div class="info-content">@GetLocalized(Model.OptionsRu, Model.OptionsEng, Model.OptionsGer)</div>
+                    </div>
+
+                    <!-- Цена -->
+                    <div class="price-block">
+                        <div class="price-label">@GetLocalized("Стоимость", "Price", "Preis")</div>
+                        <div class="price-value">@GetLocalized(Model.PriceRu, Model.PriceEng, Model.PriceGer)</div>
+                        <div class="price-note">@GetLocalized("*включая все работы и настройки", "*including all works and tuning", "*inklusive aller Arbeiten und Einstellungen")</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Правая колонка -->
-            <div class="right-column">
-                <!-- Результаты чип-тюнинга -->
-                <div class="info-block">
-                    <div class="info-title">@GetLocalized("Результаты чип-тюнинга", "Chip tuning results", "Chip-Tuning-Ergebnisse")</div>
-                    <div class="info-content">@GetLocalized(Model.ResultRu, Model.ResultEng, Model.ResultGer)</div>
-                </div>
-
-                <!-- Управление двигателем -->
-                <div class="info-block">
-                    <div class="info-title">@GetLocalized("Управление двигателем", "Engine control", "Motorsteuerung")</div>
-                    <div class="info-content">@GetLocalized(Model.EngineControlRu, Model.EngineControlEng, Model.EngineControlGer)</div>
-                </div>
-
-                <!-- Опции -->
-                <div class="info-block">
-                    <div class="info-title">@GetLocalized("Дополнительные опции", "Additional options", "Zusätzliche Optionen")</div>
-                    <div class="info-content">@GetLocalized(Model.OptionsRu, Model.OptionsEng, Model.OptionsGer)</div>
-                </div>
-
-                <!-- Цена -->
-                <div class="price-block">
-                    <div class="price-label">@GetLocalized("Стоимость", "Price", "Preis")</div>
-                    <div class="price-value">@GetLocalized(Model.PriceRu, Model.PriceEng, Model.PriceGer)</div>
-                    <div class="price-note">@GetLocalized("*включая все работы и настройки", "*including all works and tuning", "*inklusive aller Arbeiten und Einstellungen")</div>
-                </div>
+            <!-- Кнопки действий внизу -->
+            <div class="actions-bottom">
+                <a href="/" class="btn btn-back">← @GetLocalized("Вернуться к выбору", "Back to selection", "Zurück zur Auswahl")</a>
+                <button class="btn" onclick="alert('@GetLocalized("Функция заказа временно недоступна", "Order function temporarily unavailable", "Bestellfunktion vorübergehend nicht verfügbar")')">
+                    @GetLocalized("Заказать чип-тюнинг", "Order chip tuning", "Chip-Tuning bestellen")
+                </button>
             </div>
-        </div>
-
-        <!-- Кнопки действий -->
-        <div class="actions">
-            <a href="/" class="btn btn-back">← @GetLocalized("Вернуться к выбору", "Back to selection", "Zurück zur Auswahl")</a>
-            <button class="btn" onclick="alert('@GetLocalized("Функция заказа временно недоступна", "Order function temporarily unavailable", "Bestellfunktion vorübergehend nicht verfügbar")')">
-                @GetLocalized("Заказать чип-тюнинг", "Order chip tuning", "Chip-Tuning bestellen")
-            </button>
         </div>
     </div>
 
@@ -399,7 +551,7 @@
                 });
             });
 
-            // Плавная прокрутка для якорных ссылок (если понадобится)
+            // Плавная прокрутка для якорных ссылок
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
                     e.preventDefault();
@@ -415,6 +567,247 @@
                 });
             });
         });
+
+        // Текущее состояние машины
+        let currentCar = {
+            brand: '@Model.Brand',
+            model: '@Model.Model',
+            generation: '@Model.Generation',
+            engine: '@Model.Engine'
+        };
+
+        // Загрузка при старте
+        document.addEventListener('DOMContentLoaded', async function () {
+            await loadInitialData();
+
+            // Проверяем, если все поля уже заполнены, показываем кнопку
+            if (isCarComplete()) {
+                showSuccessButton();
+            }
+        });
+
+        // Проверка, что все поля автомобиля заполнены
+        function isCarComplete() {
+            return currentCar.brand &&
+                   currentCar.model &&
+                   currentCar.generation &&
+                   currentCar.engine;
+        }
+
+        // Показать кнопку успешного завершения
+        function showSuccessButton() {
+            const successButton = document.getElementById('successButton');
+            if (successButton) {
+                successButton.style.display = 'inline-block';
+
+                // Плавное появление
+                setTimeout(() => {
+                    successButton.style.opacity = '1';
+                    successButton.style.transform = 'scale(1)';
+                }, 10);
+            }
+        }
+
+        // Скрыть кнопку успешного завершения
+        function hideSuccessButton() {
+            const successButton = document.getElementById('successButton');
+            if (successButton) {
+                successButton.style.display = 'none';
+            }
+        }
+
+        // Обработка нажатия на кнопку "Готово"
+        function onSuccessButtonClick() {
+            if (!isCarComplete()) {
+                alert('Пожалуйста, заполните все поля перед продолжением.');
+                return;
+            }
+
+            // Создаем параметры для URL
+            const params = new URLSearchParams({
+                brand: currentCar.brand,
+                model: currentCar.model,
+                generation: currentCar.generation,
+                engine: currentCar.engine
+            });
+
+            // Делаем редирект на страницу Success
+            window.location.href = `/Home/Car?${params.toString()}`;
+        }
+
+        // Загрузка начальных данных
+        async function loadInitialData() {
+            try {
+                const response = await fetch('/Home/GetInitialData');
+                const result = await response.json();
+
+                // Обновляем состояние
+                updateCar(result.car);
+
+                // Заполняем первый дропдаун
+                updateDropdown(result.nextField, result.options);
+
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+            }
+        }
+
+        // Обработчик изменения дропдауна
+        async function handleChange(fieldName, newValue) {
+            try {
+                // Отправляем на сервер
+                const response = await fetch('/Home/ProcessSelection', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        car: currentCar,
+                        changedField: fieldName,
+                        newValue: newValue
+                    })
+                });
+
+                const result = await response.json();
+
+                // Обновляем состояние
+                updateCar(result.car);
+
+                // Обновляем UI
+                updateUI(result);
+
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+
+        // Обновление состояния машины
+        function updateCar(newCar) {
+            currentCar = {
+                brand: newCar.brand || '',
+                model: newCar.model || '',
+                generation: newCar.generation || '',
+                engine: newCar.engine || ''
+            };
+
+            console.log('Машина обновлена:', currentCar);
+        }
+
+        // Обновление UI на основе ответа сервера
+        function updateUI(result) {
+            // 1. Обновляем значения в дропдаунах
+            updateDropdownValues();
+
+            // 2. Если есть следующий дропдаун - заполняем его
+            if (result.nextField && result.nextField !== 'complete') {
+                updateDropdown(result.nextField, result.options);
+            }
+
+            // 3. Если все заполнено - показываем кнопку "Готово"
+            if (result.nextField === 'complete') {
+                showSuccessButton();
+            } else {
+                // Если выбор еще не завершен - скрываем кнопку
+                hideSuccessButton();
+            }
+
+            // 4. Сбрасываем только следующие дропдауны
+            if (result.nextField && result.nextField !== 'complete') {
+                resetDropdownsAfter(result.nextField);
+            }
+        }
+
+        // Обновление значений в дропдаунах
+        function updateDropdownValues() {
+            if (currentCar.brand) {
+                document.getElementById('brandDropdown').value = currentCar.brand;
+            }
+            if (currentCar.model) {
+                document.getElementById('modelDropdown').value = currentCar.model;
+            }
+            if (currentCar.generation) {
+                document.getElementById('generationDropdown').value = currentCar.generation;
+            }
+            if (currentCar.engine) {
+                document.getElementById('engineDropdown').value = currentCar.engine;
+            }
+        }
+
+        // Заполнение конкретного дропдауна
+        function updateDropdown(fieldName, options) {
+            const dropdownId = fieldName + 'Dropdown';
+            const dropdown = document.getElementById(dropdownId);
+
+            if (!dropdown) return;
+
+            // Сохраняем текущее выбранное значение
+            const currentValue = dropdown.value;
+
+            // Очищаем и заполняем новыми опциями
+            dropdown.innerHTML = '';
+
+            // Добавляем пустую опцию
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            emptyOption.textContent = getPlaceholder(fieldName);
+            dropdown.appendChild(emptyOption);
+
+            // Добавляем опции из списка
+            if (options && options.length > 0) {
+                options.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option;
+                    dropdown.appendChild(opt);
+                });
+            }
+
+            // Восстанавливаем предыдущее значение
+            if (currentValue && options && options.includes(currentValue)) {
+                dropdown.value = currentValue;
+            } else {
+                dropdown.value = currentCar[fieldName] || '';
+            }
+
+            // Активируем дропдаун
+            dropdown.disabled = false;
+
+            // Устанавливаем обработчик
+            dropdown.onchange = function() {
+                handleChange(fieldName, this.value);
+            };
+
+            setTimeout(() => dropdown.focus(), 50);
+        }
+
+        // Сброс дропдаунов после указанного поля
+        function resetDropdownsAfter(fieldName) {
+            const fields = ['brand', 'model', 'generation', 'engine'];
+            const startIndex = fields.indexOf(fieldName) + 1;
+
+            for (let i = startIndex; i < fields.length; i++) {
+                const dropdownId = fields[i] + 'Dropdown';
+                const dropdown = document.getElementById(dropdownId);
+
+                if (dropdown) {
+                    if (!currentCar[fields[i]] || i > startIndex) {
+                        dropdown.innerHTML = `<option value="">-- ${getPlaceholder(fields[i])} --</option>`;
+                        dropdown.disabled = true;
+                        dropdown.onchange = null;
+                        currentCar[fields[i]] = '';
+                    }
+                }
+            }
+        }
+
+        // Получение текста для пустой опции
+        function getPlaceholder(fieldName) {
+            const placeholders = {
+                'brand': 'Выберите бренд',
+                'model': 'Выберите модель',
+                'generation': 'Выберите поколение',
+                'engine': 'Выберите двигатель'
+            };
+            return placeholders[fieldName] || 'Выберите';
+        }
     </script>
 </body>
 </html>

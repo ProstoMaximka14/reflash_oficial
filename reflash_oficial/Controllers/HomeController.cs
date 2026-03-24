@@ -413,12 +413,14 @@ namespace reflash_oficial.Controllers
                                     Id = reader.GetInt32("id"),
                                     name = reader.IsDBNull(reader.GetOrdinal("name")) ? "" : reader.GetString("name"),
                                     phone = reader.IsDBNull(reader.GetOrdinal("phone")) ? "" : reader.GetString("phone"),
-                                    photo = photoFileName, // Сохраняем только имя файла
+                                    photo = photoFileName, // Только имя файла
                                     vk = reader.IsDBNull(reader.GetOrdinal("vk_url")) ? "" : reader.GetString("vk_url"),
                                     website = reader.IsDBNull(reader.GetOrdinal("website_url")) ? "" : reader.GetString("website_url"),
                                     city = reader.IsDBNull(reader.GetOrdinal("city")) ? "" : reader.GetString("city"),
                                     street = reader.IsDBNull(reader.GetOrdinal("street")) ? "" : reader.GetString("street"),
-                                    house = reader.IsDBNull(reader.GetOrdinal("house")) ? "" : reader.GetString("house")
+                                    house = reader.IsDBNull(reader.GetOrdinal("house")) ? "" : reader.GetString("house"),
+                                    longitude = reader.IsDBNull(reader.GetOrdinal("longitude")) ? "" : reader.GetString("longitude"),
+                                    latitude = reader.IsDBNull(reader.GetOrdinal("latitude")) ? "" : reader.GetString("latitude")
                                 });
                             }
                         }
