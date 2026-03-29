@@ -48,7 +48,7 @@
     .dropdowns-sidebar {
         flex: 0 0 25%;
         min-width: 250px;
-        position: sticky;
+        position: static;
         top: 2%;
         align-self: flex-start;
     }
@@ -394,71 +394,80 @@
     }
 
     /* Адаптация для мобильных устройств (телефонов) */
-    @@media (max-width: 768px) {
-        .page-wrapper {
-            flex-direction: column;
-            gap: 5%;
-        }
-        
-        /* На телефонах дропдауны идут после информации */
-        .dropdowns-sidebar {
-            flex: 0 0 auto;
-            width: 100%;
-            position: static;
-            order: 2; /* Дропдауны будут после контейнера */
-        }
-        
-        .container {
-            order: 1; /* Информация будет первой */
-        }
-        
-        .dropdowns-row {
-            flex-direction: row; /* На телефонах дропдауны в строку */
-            flex-wrap: wrap;
-            gap: 3%;
-        }
-        
-        .dropdown-section {
-            flex: 1;
-            min-width: 150px;
-        }
-        
-        .content-grid {
-            grid-template-columns: 1fr;
-            gap: 8%;
-        }
-        
-        .basic-info-grid {
-            grid-template-columns: 1fr;
-            gap: 2%;
-        }
-        
-        .actions-bottom {
-            flex-direction: column;
-            align-items: center;
-            gap: 3%;
-        }
-        
-        .btn {
-            width: 100%;
-            max-width: 300px;
-        }
-        
-        .language-switcher {
-            margin-top: 3%;
-        }
-        
-        .header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .title-section {
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
+    @@media (max-width: 768px)
+{
+    
+
+    .page-wrapper {
+        flex-direction: column;
+        gap: 5%;
     }
+        
+    /* На телефонах дропдауны идут после информации */
+    .dropdowns-sidebar {
+        flex: 0 0 auto;
+        width: 100%;
+        position: static;
+        order: 2; /* Дропдауны будут после контейнера */
+    }
+        
+    .container {
+        order: 1; /* Информация будет первой */
+    }
+        
+    .dropdowns-row {
+        flex-direction: row; /* На телефонах дропдауны в строку */
+        flex-wrap: wrap;
+        gap: 3%;
+    }
+        
+    .dropdown-section {
+        flex: 1;
+        min-width: 150px;
+    }
+        
+    .content-grid {
+        grid-template-columns: 1fr;
+        gap: 8%;
+    }
+        
+    .basic-info-grid {
+        grid-template-columns: 1fr;
+        gap: 2%;
+    }
+
+    .price-block {
+        margin-bottom: 45%; /* Отступ после цены */
+        margin-top: 5%;
+    }
+ 
+    .actions-bottom {
+        flex-direction: column;
+        align-items: center;
+        gap: 3%;
+        
+    }
+        
+    .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+        
+    .language-switcher {
+        margin-top: 3%;
+    }
+        
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+        
+    .title-section {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+}
 </style>
 </head>
 <body>
@@ -709,21 +718,37 @@
         }
 
         // Загрузка начальных данных
-        async function loadInitialData() {
-            try {
-                const response = await fetch('/Home/GetInitialData');
-                const result = await response.json();
+   async function loadInitialData() 
+   {
+    try {
+        const response = await fetch('/Home/GetInitialData');
+        const result = await response.json();
 
-                // Обновляем состояние
-                updateCar(result.car);
+        updateCar(result.car);
 
-                // Заполняем первый дропдаун
-                updateDropdown(result.nextField, result.options);
-
-            } catch (error) {
-                console.error('Ошибка загрузки:', error);
+        // Вместо updateDropdown, просто активируем дропдаун без выбора
+        if (result.nextField === 'brand') {
+            // Заполняем опции, но НЕ устанавливаем значение
+            const dropdown = document.getElementById('brandDropdown');
+            dropdown.innerHTML = '<option value="">-- Выберите бренд --</option>';
+            if (result.options && result.options.length > 0) {
+                result.options.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option;
+                    dropdown.appendChild(opt);
+                });
             }
+            dropdown.disabled = false;
+            dropdown.onchange = function() {
+                handleChange('brand', this.value);
+            };
         }
+
+    } catch (error) {
+        console.error('Ошибка загрузки:', error);
+    }
+}
 
         // Обработчик изменения дропдауна
         async function handleChange(fieldName, newValue) {
