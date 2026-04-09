@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+п»їusing Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using reflash_oficial.Models;
@@ -25,7 +25,7 @@ namespace reflash_oficial.Controllers
             _configuration = configuration;
         }
 
-        // Метод для получения списка автомобилей
+        // РњРµС‚РѕРґ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЃРїРёСЃРєР° Р°РІС‚РѕРјРѕР±РёР»РµР№
         private List<ReflashCarModel> GetCarsFromDatabase()
         {
             List<ReflashCarModel> cars = new List<ReflashCarModel>();
@@ -77,12 +77,12 @@ namespace reflash_oficial.Controllers
             }
             catch (MySqlException ex)
             {
-                TempData["Error"] = $"Ошибка MySQL при загрузке автомобилей: {ex.Message}";
+                TempData["Error"] = $"РћС€РёР±РєР° MySQL РїСЂРё Р·Р°РіСЂСѓР·РєРµ Р°РІС‚РѕРјРѕР±РёР»РµР№: {ex.Message}";
             }
 
             return cars;
         }
-        // метод для получение столбцов таблицы с предыдущем столбцом таблицы в виде списка 
+        // РјРµС‚РѕРґ РґР»СЏ РїРѕР»СѓС‡РµРЅРёРµ СЃС‚РѕР»Р±С†РѕРІ С‚Р°Р±Р»РёС†С‹ СЃ РїСЂРµРґС‹РґСѓС‰РµРј СЃС‚РѕР»Р±С†РѕРј С‚Р°Р±Р»РёС†С‹ РІ РІРёРґРµ СЃРїРёСЃРєР° 
         private List<SortDatabaseModel> Get_Sort_Cars(string Type_now, List<ReflashCarModel> cars)
         {
             List<SortDatabaseModel> type = new List<SortDatabaseModel>();
@@ -158,8 +158,8 @@ namespace reflash_oficial.Controllers
             }
             return type;
         }
-        // получение списка для drod daun
-        public List<string> spisok_to_dropdown(string type, string pre_type, string for_engin )
+        // РїРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° РґР»СЏ drod daun
+        public  List<string> spisok_to_dropdown(string type, string pre_type, string for_engin )
         {
             List<string> spisok = new List<string>();
             if (type == "brand")
@@ -218,10 +218,29 @@ namespace reflash_oficial.Controllers
             }
             return spisok;
         }
-        //вызов первой страницы с прочтением базы данных и отделением столбцов при первом переходе на страницу
+        //РІС‹Р·РѕРІ РїРµСЂРІРѕР№ СЃС‚СЂР°РЅРёС†С‹ СЃ РїСЂРѕС‡С‚РµРЅРёРµРј Р±Р°Р·С‹ РґР°РЅРЅС‹С… Рё РѕС‚РґРµР»РµРЅРёРµРј СЃС‚РѕР»Р±С†РѕРІ РїСЂРё РїРµСЂРІРѕРј РїРµСЂРµС…РѕРґРµ РЅР° СЃС‚СЂР°РЅРёС†Сѓ
+
+        public static void RefreshData()
+        {
+            Console.WriteLine($"рџ”„ [{DateTime.Now}] РћР±РЅРѕРІР»РµРЅРёРµ РґР°РЅРЅС‹С… РёР· Р‘Р”...");
+
+            DatabaseModel.Cars = null;
+            DatabaseModel.Partners = null;
+            DatabaseModel.Brand_l = null;
+            DatabaseModel.Model_l = null;
+            DatabaseModel.Generation_l = null;
+            DatabaseModel.Engine_l = null;
+            DatabaseModel.Engine_with_model = null;
+            DatabaseModel.News = null;
+
+
+            Console.WriteLine($"вњ… [{DateTime.Now}] database rewrite");
+        }
+
+
         public IActionResult Index()
         {
-            if (DatabaseModel.Cars.Count == 0)
+            if (DatabaseModel.Cars == null || DatabaseModel.Cars.Count == 0)
             {
                 DatabaseModel.Cars = GetCarsFromDatabase();
                 DatabaseModel.Partners = GetPartnersFromDatabase();
@@ -230,17 +249,18 @@ namespace reflash_oficial.Controllers
                 DatabaseModel.Generation_l = Get_Sort_Cars("generation", DatabaseModel.Cars);
                 DatabaseModel.Engine_l = Get_Sort_Cars("engine", DatabaseModel.Cars);
                 DatabaseModel.Engine_with_model = Get_Sort_Cars("engine_with_model", DatabaseModel.Cars);
-                DatabaseModel.News= Get_News_from_data();
+                DatabaseModel.News = Get_News_from_data();
+
             }
             return View(new ReflashCarModel());
         }
 
         
-        // Единственный API метод для обработки ВСЕХ изменений
+        // Р•РґРёРЅСЃС‚РІРµРЅРЅС‹Р№ API РјРµС‚РѕРґ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё Р’РЎР•РҐ РёР·РјРµРЅРµРЅРёР№
         [HttpPost]
         public IActionResult ProcessSelection([FromBody] SelectionRequest request)
         {
-            // 1. Копируем текущее состояние из запроса
+            // 1. РљРѕРїРёСЂСѓРµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РёР· Р·Р°РїСЂРѕСЃР°
             var updatedCar = new ReflashCarModel
             {
                 Brand = request.Car.Brand,
@@ -249,42 +269,42 @@ namespace reflash_oficial.Controllers
                 Engine = request.Car.Engine
             };
 
-            // 2. Обрабатываем изменение
+            // 2. РћР±СЂР°Р±Р°С‚С‹РІР°РµРј РёР·РјРµРЅРµРЅРёРµ
 
             switch (request.ChangedField)
             {
                 case "brand":
-                    // Обновляем бренд
+                    // РћР±РЅРѕРІР»СЏРµРј Р±СЂРµРЅРґ
                     updatedCar.Brand = request.NewValue;
-                    // Сбрасываем все что после бренда
+                    // РЎР±СЂР°СЃС‹РІР°РµРј РІСЃРµ С‡С‚Рѕ РїРѕСЃР»Рµ Р±СЂРµРЅРґР°
                     updatedCar.Model = "";
                     updatedCar.Generation = "";
                     updatedCar.Engine = "";
                     break;
 
                 case "model":
-                    // Обновляем модель
+                    // РћР±РЅРѕРІР»СЏРµРј РјРѕРґРµР»СЊ
                     updatedCar.Model = request.NewValue;
-                    // Сбрасываем все что после модели
+                    // РЎР±СЂР°СЃС‹РІР°РµРј РІСЃРµ С‡С‚Рѕ РїРѕСЃР»Рµ РјРѕРґРµР»Рё
                     updatedCar.Generation = "";
                     updatedCar.Engine = "";
                     break;
 
                 case "generation":
-                    // Обновляем поколение
+                    // РћР±РЅРѕРІР»СЏРµРј РїРѕРєРѕР»РµРЅРёРµ
                     updatedCar.Generation = request.NewValue;
-                    // Сбрасываем все что после поколения
+                    // РЎР±СЂР°СЃС‹РІР°РµРј РІСЃРµ С‡С‚Рѕ РїРѕСЃР»Рµ РїРѕРєРѕР»РµРЅРёСЏ
                     updatedCar.Engine = "";
                     break;
 
                 case "engine":
-                    // Обновляем двигатель
+                    // РћР±РЅРѕРІР»СЏРµРј РґРІРёРіР°С‚РµР»СЊ
                     updatedCar.Engine = request.NewValue;
                     break;
 
                 default:
 
-                    // Ничего не меняем (начальный запрос)
+                    // РќРёС‡РµРіРѕ РЅРµ РјРµРЅСЏРµРј (РЅР°С‡Р°Р»СЊРЅС‹Р№ Р·Р°РїСЂРѕСЃ)
                     break;
             }
             if (string.IsNullOrEmpty(request.NewValue))
@@ -304,7 +324,7 @@ namespace reflash_oficial.Controllers
                         break;
                 }
             }
-            // 3. Определяем какой дропдаун заполнять следующим
+            // 3. РћРїСЂРµРґРµР»СЏРµРј РєР°РєРѕР№ РґСЂРѕРїРґР°СѓРЅ Р·Р°РїРѕР»РЅСЏС‚СЊ СЃР»РµРґСѓСЋС‰РёРј
             string nextField = "";
             List<string> nextOptions = new List<string>();
 
@@ -335,7 +355,7 @@ namespace reflash_oficial.Controllers
                 nextOptions = new List<string>();
             }
 
-            // 4. Возвращаем ответ
+            // 4. Р’РѕР·РІСЂР°С‰Р°РµРј РѕС‚РІРµС‚
             return Json(new SelectionResponse
             {
                 Car = updatedCar,
@@ -344,7 +364,7 @@ namespace reflash_oficial.Controllers
             });
         }
 
-        // Получение начальных данных (тоже через ProcessSelection)
+        // РџРѕР»СѓС‡РµРЅРёРµ РЅР°С‡Р°Р»СЊРЅС‹С… РґР°РЅРЅС‹С… (С‚РѕР¶Рµ С‡РµСЂРµР· ProcessSelection)
         [HttpGet]
         public IActionResult GetInitialData()
         {
@@ -356,7 +376,7 @@ namespace reflash_oficial.Controllers
             });
         }
 
-        //Вызов странице генерирующейся по выбранной машине из базы данных
+        //Р’С‹Р·РѕРІ СЃС‚СЂР°РЅРёС†Рµ РіРµРЅРµСЂРёСЂСѓСЋС‰РµР№СЃСЏ РїРѕ РІС‹Р±СЂР°РЅРЅРѕР№ РјР°С€РёРЅРµ РёР· Р±Р°Р·С‹ РґР°РЅРЅС‹С…
         public IActionResult Car(ReflashCarModel car)
         {
             foreach (ReflashCarModel neded_car in DatabaseModel.Cars)
@@ -371,14 +391,14 @@ namespace reflash_oficial.Controllers
         }
 
 
-        //Партнёры
+        //РџР°СЂС‚РЅС‘СЂС‹
 
         public IActionResult Partners()
         {
             return View(DatabaseModel.Partners);
         }
 
-        // Метод для получения списка партнеров из БД
+        // РњРµС‚РѕРґ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЃРїРёСЃРєР° РїР°СЂС‚РЅРµСЂРѕРІ РёР· Р‘Р”
         private List<PartnersModel> GetPartnersFromDatabase()
         {
             List<PartnersModel> partners = new List<PartnersModel>();
@@ -401,7 +421,7 @@ namespace reflash_oficial.Controllers
                             {
                                 var photoUrl = reader.IsDBNull(reader.GetOrdinal("photo_url")) ? "" : reader.GetString("photo_url");
 
-                                // ВАЖНО: Если в БД сохранен полный путь, оставляем только имя файла
+                                // Р’РђР–РќРћ: Р•СЃР»Рё РІ Р‘Р” СЃРѕС…СЂР°РЅРµРЅ РїРѕР»РЅС‹Р№ РїСѓС‚СЊ, РѕСЃС‚Р°РІР»СЏРµРј С‚РѕР»СЊРєРѕ РёРјСЏ С„Р°Р№Р»Р°
                                 string photoFileName = photoUrl;
                                 if (!string.IsNullOrEmpty(photoUrl) && photoUrl.Contains("/"))
                                 {
@@ -413,7 +433,7 @@ namespace reflash_oficial.Controllers
                                     Id = reader.GetInt32("id"),
                                     name = reader.IsDBNull(reader.GetOrdinal("name")) ? "" : reader.GetString("name"),
                                     phone = reader.IsDBNull(reader.GetOrdinal("phone")) ? "" : reader.GetString("phone"),
-                                    photo = photoFileName, // Только имя файла
+                                    photo = photoFileName, // РўРѕР»СЊРєРѕ РёРјСЏ С„Р°Р№Р»Р°
                                     vk = reader.IsDBNull(reader.GetOrdinal("vk_url")) ? "" : reader.GetString("vk_url"),
                                     website = reader.IsDBNull(reader.GetOrdinal("website_url")) ? "" : reader.GetString("website_url"),
                                     city = reader.IsDBNull(reader.GetOrdinal("city")) ? "" : reader.GetString("city"),
@@ -429,7 +449,7 @@ namespace reflash_oficial.Controllers
             }
             catch (MySqlException ex)
             {
-                TempData["Error"] = $"Ошибка MySQL при загрузке партнеров: {ex.Message}";
+                TempData["Error"] = $"РћС€РёР±РєР° MySQL РїСЂРё Р·Р°РіСЂСѓР·РєРµ РїР°СЂС‚РЅРµСЂРѕРІ: {ex.Message}";
             }
             return partners;
         }
@@ -440,14 +460,14 @@ namespace reflash_oficial.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        // новости
+        // РЅРѕРІРѕСЃС‚Рё
         
         public IActionResult News()
         {
             return View(DatabaseModel.News);
         }
 
-        // Метод для получения списка нвостей из БД
+        // РњРµС‚РѕРґ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЃРїРёСЃРєР° РЅРІРѕСЃС‚РµР№ РёР· Р‘Р”
         private List<NewsModel> Get_News_from_data()
         {
             List<NewsModel> news = new List<NewsModel>();
@@ -470,7 +490,7 @@ namespace reflash_oficial.Controllers
                             {
                                 var photoUrl = reader.IsDBNull(reader.GetOrdinal("news_url")) ? "" : reader.GetString("news_url");
 
-                                // ВАЖНО: Если в БД сохранен полный путь, оставляем только имя файла
+                                // Р’РђР–РќРћ: Р•СЃР»Рё РІ Р‘Р” СЃРѕС…СЂР°РЅРµРЅ РїРѕР»РЅС‹Р№ РїСѓС‚СЊ, РѕСЃС‚Р°РІР»СЏРµРј С‚РѕР»СЊРєРѕ РёРјСЏ С„Р°Р№Р»Р°
                                 string photoFileName = photoUrl;
                                 if (!string.IsNullOrEmpty(photoUrl) && photoUrl.Contains("/"))
                                 {
@@ -492,26 +512,26 @@ namespace reflash_oficial.Controllers
             }
             catch (MySqlException ex)
             {
-                TempData["Error"] = $"Ошибка MySQL при загрузке партнеров: {ex.Message}";
+                TempData["Error"] = $"РћС€РёР±РєР° MySQL РїСЂРё Р·Р°РіСЂСѓР·РєРµ РїР°СЂС‚РЅРµСЂРѕРІ: {ex.Message}";
             }
             return news;
         }
 
     }
-    // Запрос от клиента: 
+    // Р—Р°РїСЂРѕСЃ РѕС‚ РєР»РёРµРЅС‚Р°: 
     public class SelectionRequest
     {
-        public ReflashCarModel Car { get; set; } = new ReflashCarModel();  // 1. Текущая машина
-        public string ChangedField { get; set; } = "";       // 2. Какое поле изменили
-        public string NewValue { get; set; } = "";           // 3. На что изменили
+        public ReflashCarModel Car { get; set; } = new ReflashCarModel();  // 1. РўРµРєСѓС‰Р°СЏ РјР°С€РёРЅР°
+        public string ChangedField { get; set; } = "";       // 2. РљР°РєРѕРµ РїРѕР»Рµ РёР·РјРµРЅРёР»Рё
+        public string NewValue { get; set; } = "";           // 3. РќР° С‡С‚Рѕ РёР·РјРµРЅРёР»Рё
 
     }
 
-    // Ответ сервера: 
+    // РћС‚РІРµС‚ СЃРµСЂРІРµСЂР°: 
     public class SelectionResponse
     {
-        public ReflashCarModel Car { get; set; } = new ReflashCarModel();  // 1. Обновленная машина
-        public string NextField { get; set; } = "";          // 2. Какое поле заполнять следующим
-        public List<string> Options { get; set; } = new List<string>(); // Список для дропдауна
+        public ReflashCarModel Car { get; set; } = new ReflashCarModel();  // 1. РћР±РЅРѕРІР»РµРЅРЅР°СЏ РјР°С€РёРЅР°
+        public string NextField { get; set; } = "";          // 2. РљР°РєРѕРµ РїРѕР»Рµ Р·Р°РїРѕР»РЅСЏС‚СЊ СЃР»РµРґСѓСЋС‰РёРј
+        public List<string> Options { get; set; } = new List<string>(); // РЎРїРёСЃРѕРє РґР»СЏ РґСЂРѕРїРґР°СѓРЅР°
     }
 }

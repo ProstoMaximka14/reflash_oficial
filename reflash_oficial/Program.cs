@@ -1,4 +1,7 @@
+п»їusing Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
+using reflash_oficial.Controllers;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,27 +14,31 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 
-// ВАЖНО: Порядок имеет значение!
-// 1. Сначала настраиваем доступ к общей папке
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(@"C:\fotos"),
     RequestPath = "/shared-fotos",
-    ServeUnknownFileTypes = true // Разрешаем все типы файлов
+    ServeUnknownFileTypes = true // Р Р°Р·СЂРµС€Р°РµРј РІСЃРµ С‚РёРїС‹ С„Р°Р№Р»РѕРІ
 });
 
-// 2. Затем стандартные статические файлы из wwwroot
+// 2. Р—Р°С‚РµРј СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ СЃС‚Р°С‚РёС‡РµСЃРєРёРµ С„Р°Р№Р»С‹ РёР· wwwroot
 app.UseStaticFiles();
 
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapPost("/api/db-notify", () =>
+{
+    Console.WriteLine($"рџ”” [{DateTime.Now}] РџРћР›РЈР§Р•Рќ РЎРР“РќРђР›: Р‘Р°Р·Р° РґР°РЅРЅС‹С… РёР·РјРµРЅРµРЅР°!");
+    HomeController.RefreshData();
+    return Results.Ok();
+});
 
 app.MapControllerRoute(
     name: "default",
