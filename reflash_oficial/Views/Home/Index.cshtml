@@ -1,184 +1,650 @@
 ﻿@model reflash_oficial.Models.ReflashCarModel
 @{
     ViewData["Title"] = "Выбор автомобиля";
+    
+    // Получаем текущий язык из сессии или cookies
+    var currentLang = Context.Request.Cookies["Language"] ?? "ru";
+    
+    // Получаем данные главной страницы из ViewBag
+    var furstPage = ViewBag.FurstPage as reflash_oficial.Models.FurstPageModel;
 }
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="@currentLang">
 <head>
     <meta charset="utf-8" />
     <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-     body {
-         font-family: Arial, sans-serif;
+     * {
          margin: 0;
          padding: 0;
+         box-sizing: border-box;
+     }
+
+     body {
+         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
          background: #f5f5f5;
          min-height: 100vh;
      }
 
-     .container {
-         max-width: 90%;
-         width: 900px;
-         margin: 2% auto;
-         background: white;
-         background-image: url("/shared-fotos/first_page_images/city.jpeg");
-         background-size: cover;
-         background-position: center;
-         background-repeat: no-repeat;
-         background-attachment: fixed;
-         border-radius: 0.8%;
-         padding: 2.5%;
+     /* Кнопки переключения языка */
+     .language-switcher {
+         position: fixed;
+         top: 20px;
+         right: 20px;
+         display: flex;
+         gap: 10px;
+         z-index: 1000;
+         background: rgba(255,255,255,0.95);
+         padding: 8px 15px;
+         border-radius: 30px;
          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
      }
 
-     h1 {
-         text-align: center;
-         margin-bottom: 5%;
-         font-size: clamp(1.5rem, 5vw, 2.5rem);
+     .lang-btn {
+         background: none;
+         border: none;
+         padding: 8px 16px;
+         cursor: pointer;
+         font-weight: bold;
+         border-radius: 20px;
+         transition: all 0.3s ease;
+         font-size: 14px;
+     }
+
+     .lang-btn:hover {
+         transform: translateY(-2px);
+     }
+
+     .lang-btn.active {
+         background: #4CAF50;
+         color: white;
+     }
+
+     /* Hero секция со слайдером */
+     .hero-section {
+         position: relative;
+         min-height: 100vh;
+         display: flex;
+         flex-direction: column;
+         justify-content: center;
+         align-items: center;
+         overflow: hidden;
+     }
+
+     /* Слайдер */
+     .slider-container {
+         position: absolute;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         overflow: hidden;
+         z-index: 0;
+     }
+
+     .slider {
+         position: relative;
+         width: 100%;
+         height: 100%;
+     }
+
+     .slide {
+         position: absolute;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background-size: cover;
+         background-position: center;
+         background-repeat: no-repeat;
+         opacity: 0;
+         transition: opacity 1s ease-in-out;
+     }
+
+     .slide.active {
+         opacity: 1;
+     }
+
+     /* Кнопки слайдера */
+     .slider-btn {
+         position: absolute;
+         top: 50%;
+         transform: translateY(-50%);
+         background: rgba(255, 255, 255, 0.3);
+         color: white;
+         border: none;
+         padding: 15px 20px;
+         cursor: pointer;
+         font-size: 24px;
+         border-radius: 50%;
+         transition: all 0.3s;
+         z-index: 10;
+     }
+
+     .slider-btn:hover {
+         background: rgba(255, 255, 255, 0.5);
+     }
+
+     .prev {
+         left: 20px;
+     }
+
+     .next {
+         right: 20px;
+     }
+
+     /* Индикаторы */
+     .slider-dots {
+         position: absolute;
+         bottom: 20px;
+         left: 50%;
+         transform: translateX(-50%);
+         display: flex;
+         gap: 10px;
+         z-index: 10;
+     }
+
+     .dot {
+         width: 12px;
+         height: 12px;
+         border-radius: 50%;
+         background: rgba(255, 255, 255, 0.5);
+         cursor: pointer;
+         transition: all 0.3s;
+     }
+
+     .dot.active {
+         background: white;
+         transform: scale(1.2);
+     }
+
+     .dot:hover {
+         background: rgba(255, 255, 255, 0.8);
+     }
+
+     /* Затемнение поверх слайдера */
+     .hero-section .overlay {
+         position: absolute;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background: rgba(0, 0, 0, 0.5);
+         z-index: 1;
+     }
+
+     .content-wrapper {
+         position: relative;
+         z-index: 2;
+         width: 100%;
+         display: flex;
+         flex-direction: column;
+         justify-content: center;
+         align-items: center;
+         min-height: 100vh;
+         padding: 50px 20px;
+     }
+
+     .dropdowns-container {
+         background: transparent;
+         border-radius: 20px;
+         padding: 40px;
+         max-width: 1200px;
+         width: 90%;
+         margin: 0 auto;
+         box-shadow: 0 10px 40px rgba(0,0,0,0.2);
      }
 
      .dropdowns-row {
          display: flex;
-         gap: 2%;
-         margin: 5% 0;
-         align-items: flex-end;
-         flex-wrap: nowrap;
+         gap: 20px;
+         flex-wrap: wrap;
+         justify-content: center;
      }
 
      .dropdown-section {
          flex: 1;
-         min-width: o;
-         
+         min-width: 200px;
      }
 
      .dropdown-label {
          display: block;
          font-weight: bold;
-         margin-bottom: 2%;
-         font-size: 0.9rem;
+         margin-bottom: 8px;
+         color: #333;
+         font-size: 14px;
      }
 
      .dropdown-select {
          width: 100%;
-         padding: 3% 2%;
-         font-size: 0.9rem;
-         border: 1px solid #ddd;
-         border-radius: 4px;
-         box-sizing: border-box;
+         padding: 12px;
+         font-size: 16px;
+         border: 2px solid #ddd;
+         border-radius: 10px;
+         background: white;
+         cursor: pointer;
+         transition: all 0.3s;
      }
 
-         .dropdown-select:disabled {
-             background-color: #f5f5f5;
-             opacity: 0.7;
-         }
+     .dropdown-select:focus {
+         border-color: #4CAF50;
+         outline: none;
+     }
 
-     .actions {
-         margin-top: 5%;
+     .dropdown-select:disabled {
+         background-color: #f5f5f5;
+         cursor: not-allowed;
+     }
+
+     .main-title {
          text-align: center;
+         color: white;
+         margin-top: 60px;
+         font-size: 48px;
+         font-weight: bold;
+         text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+         max-width: 800px;
      }
 
      .btn-success {
-         padding: 3% 6%;
+         margin-top: 30px;
+         padding: 15px 40px;
          background: #4CAF50;
          color: white;
          border: none;
-         border-radius: 4px;
+         border-radius: 50px;
          cursor: pointer;
          font-weight: bold;
+         font-size: 18px;
          transition: all 0.3s;
          display: none;
-         font-size: 1rem;
-         min-width: 120px;
      }
 
-         .btn-success:hover {
-             background: #45a049;
-             transform: translateY(-2px);
-             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-         }
+     .btn-success:hover {
+         background: #45a049;
+         transform: translateY(-2px);
+         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+     }
 
-         .btn-success:active {
-             transform: translateY(0);
-         }
-         
-     /* Медиа-запрос для мобильных устройств */
+     /* Блоки контента */
+     .blocks-section {
+         background: #f8f9fa;
+         padding: 60px 20px;
+     }
+
+     .blocks-container {
+         max-width: 1200px;
+         margin: 0 auto;
+         display: grid;
+         grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+         gap: 30px;
+     }
+
+     .block-card {
+         background: white;
+         padding: 30px;
+         border-radius: 15px;
+         box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+         transition: transform 0.3s;
+         text-align: center;
+     }
+
+     .block-card:hover {
+         transform: translateY(-5px);
+     }
+
+     .block-number {
+         font-size: 24px;
+         font-weight: bold;
+         color: #4CAF50;
+         margin-bottom: 15px;
+     }
+
+     .block-text {
+         font-size: 16px;
+         line-height: 1.6;
+         color: #555;
+     }
+
+     /* Секция с рамкой */
+     .info-section {
+         padding: 60px 20px;
+         background: white;
+     }
+
+     .info-container {
+         max-width: 1200px;
+         margin: 0 auto;
+     }
+
+     .section-title {
+         text-align: center;
+         font-size: 36px;
+         margin-bottom: 40px;
+         color: #333;
+     }
+
+     .image-frame-container {
+         position: relative;
+         background-size: cover;
+         background-position: center;
+         background-repeat: no-repeat;
+         border-radius: 20px;
+         padding: 60px;
+         min-height: 500px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+     }
+
+     .image-frame-container::before {
+         content: '';
+         position: absolute;
+         top: 0;
+         left: 0;
+         right: 0;
+         bottom: 0;
+         background: rgba(0, 0, 0, 0.6);
+         border-radius: 20px;
+         z-index: 1;
+     }
+
+     .frame-content {
+         position: relative;
+         z-index: 2;
+         background: rgba(255, 255, 255, 0.95);
+         border-radius: 15px;
+         padding: 40px;
+         max-width: 800px;
+         width: 100%;
+         text-align: center;
+     }
+
+     .info-text {
+         font-size: 18px;
+         line-height: 1.8;
+         color: #333;
+         margin-bottom: 30px;
+     }
+
+     .images-row {
+         display: flex;
+         gap: 20px;
+         justify-content: center;
+         flex-wrap: wrap;
+         margin-top: 20px;
+     }
+
+     .images-row img {
+         max-width: 200px;
+         max-height: 150px;
+         object-fit: cover;
+         border-radius: 10px;
+         box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+     }
+
+     /* Адаптивность */
      @@media (max-width: 768px) {
-         .dropdowns-row {
-             flex-direction: column;
-             flex-wrap: wrap;
-             gap: 4%;
-         }
-         
-         .dropdown-section {
-             width: 100%;
-             min-width: auto;
-         }
-         
-         .container {
-             max-width: 95%;
-             margin: 3% auto;
-             padding: 4%;
-         }
-         
-         .btn-success {
-             padding: 4% 8%;
-             width: 80%;
-             max-width: 200px;
-         }
+         .dropdowns-container { padding: 20px; }
+         .main-title { font-size: 32px; margin-top: 40px; }
+         .blocks-container { grid-template-columns: 1fr; }
+         .image-frame-container { padding: 20px; }
+         .frame-content { padding: 20px; }
+         .info-text { font-size: 14px; }
+         .section-title { font-size: 28px; }
+         .slider-btn { padding: 10px 15px; font-size: 18px; }
+         .prev { left: 10px; }
+         .next { right: 10px; }
      }
  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Выбор автомобиля</h1>
+    <!-- Кнопки переключения языка -->
+    <div class="language-switcher">
+        <button class="lang-btn lang-ru @(currentLang == "ru" ? "active" : "")" onclick="switchLanguage('ru')">
+            🇷🇺 Русский
+        </button>
+        <button class="lang-btn lang-en @(currentLang == "en" ? "active" : "")" onclick="switchLanguage('en')">
+            🇬🇧 English
+        </button>
+        <button class="lang-btn lang-de @(currentLang == "de" ? "active" : "")" onclick="switchLanguage('de')">
+            🇩🇪 Deutsch
+        </button>
+    </div>
 
-        <!-- 4 дропдауна в строку -->
-        <div class="dropdowns-row">
-            <!-- Бренд -->
-            <div class="dropdown-section">
-                <label class="dropdown-label">Бренд:</label>
-                <select class="dropdown-select" id="brandDropdown" disabled>
-                    <option value="">-- Загрузка... --</option>
-                </select>
-            </div>
-
-            <!-- Модель -->
-            <div class="dropdown-section">
-                <label class="dropdown-label">Модель:</label>
-                <select class="dropdown-select" id="modelDropdown" disabled>
-                    <option value="">-- Сначала бренд --</option>
-                </select>
-            </div>
-
-            <!-- Поколение -->
-            <div class="dropdown-section">
-                <label class="dropdown-label">Поколение:</label>
-                <select class="dropdown-select" id="generationDropdown" disabled>
-                    <option value="">-- Сначала модель --</option>
-                </select>
-            </div>
-
-            <!-- Двигатель -->
-            <div class="dropdown-section">
-                <label class="dropdown-label">Двигатель:</label>
-                <select class="dropdown-select" id="engineDropdown" disabled>
-                    <option value="">-- Сначала поколение --</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Кнопки -->
-        <div class="actions">
+    <!-- Секция со слайдером изображений (image_1, image_2, image_3) -->
+    <!-- Секция со слайдером изображений (image_1, image_2, image_3) -->
+<div class="hero-section" id="heroSection">
+    <!-- Слайдер изображений -->
+    <div class="slider-container">
+        <div class="slider">
+            @{
+                // Функция для получения стиля слайда
+                string GetSlideStyle(string imageUrl, int index)
+                {
+                    if (!string.IsNullOrEmpty(imageUrl))
+                    {
+                        return $"background-image: url('{imageUrl}'); background-size: cover; background-position: center;";
+                    }
+                    else
+                    {
+                        // Разные цвета для каждого слайда
+                        string[] colors = { "#FF6B6B", "#4ECDC4", "#45B7D1" };
+                        return $"background: {colors[index]}; background: linear-gradient(135deg, {colors[index]}, {colors[index]}dd);";
+                    }
+                }
+            }
             
-            <button class="btn-success" id="successButton" onclick="onSuccessButtonClick()">
-                перейти
-            </button>
+            <div class="slide active" style="@GetSlideStyle(furstPage?.image_1, 0)"></div>
+            <div class="slide" style="@GetSlideStyle(furstPage?.image_2, 1)"></div>
+            <div class="slide" style="@GetSlideStyle(furstPage?.image_3, 2)"></div>
+        </div>
+        
+        <!-- Индикаторы -->
+        <div class="slider-dots">
+            <span class="dot active" onclick="currentSlide(0)"></span>
+            <span class="dot" onclick="currentSlide(1)"></span>
+            <span class="dot" onclick="currentSlide(2)"></span>
+        </div>
+    </div>
+        
+        <!-- Затемнение -->
+        <div class="overlay"></div>
+        
+        <!-- Контент поверх слайдера -->
+        <div class="content-wrapper">
+            <div class="dropdowns-container">
+                <div class="dropdowns-row">
+                    <!-- Бренд -->
+                    <div class="dropdown-section">
+                        <label class="dropdown-label">@(currentLang == "ru" ? "Бренд:" : (currentLang == "en" ? "Brand:" : "Marke:"))</label>
+                        <select class="dropdown-select" id="brandDropdown" disabled>
+                            <option value="">-- @(currentLang == "ru" ? "Загрузка..." : (currentLang == "en" ? "Loading..." : "Laden...")) --</option>
+                        </select>
+                    </div>
+
+                    <!-- Модель -->
+                    <div class="dropdown-section">
+                        <label class="dropdown-label">@(currentLang == "ru" ? "Модель:" : (currentLang == "en" ? "Model:" : "Modell:"))</label>
+                        <select class="dropdown-select" id="modelDropdown" disabled>
+                            <option value="">-- @(currentLang == "ru" ? "Сначала бренд" : (currentLang == "en" ? "Select brand first" : "Wählen Sie zuerst die Marke")) --</option>
+                        </select>
+                    </div>
+
+                    <!-- Поколение -->
+                    <div class="dropdown-section">
+                        <label class="dropdown-label">@(currentLang == "ru" ? "Поколение:" : (currentLang == "en" ? "Generation:" : "Generation:"))</label>
+                        <select class="dropdown-select" id="generationDropdown" disabled>
+                            <option value="">-- @(currentLang == "ru" ? "Сначала модель" : (currentLang == "en" ? "Select model first" : "Wählen Sie zuerst das Modell")) --</option>
+                        </select>
+                    </div>
+
+                    <!-- Двигатель -->
+                    <div class="dropdown-section">
+                        <label class="dropdown-label">@(currentLang == "ru" ? "Двигатель:" : (currentLang == "en" ? "Engine:" : "Motor:"))</label>
+                        <select class="dropdown-select" id="engineDropdown" disabled>
+                            <option value="">-- @(currentLang == "ru" ? "Сначала поколение" : (currentLang == "en" ? "Select generation first" : "Wählen Sie zuerst die Generation")) --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Кнопка перехода -->
+                <div style="text-align: center;">
+                    <button class="btn-success" id="successButton" onclick="onSuccessButtonClick()">
+                        @(currentLang == "ru" ? "Далее" : (currentLang == "en" ? "Next" : "Weiter"))
+                    </button>
+                </div>
+            </div>
+
+            <!-- Заголовок head_1 под дропдаунами -->
+            @if (furstPage != null)
+            {
+                string head1 = currentLang == "ru" ? furstPage.head_1_ru :
+                              (currentLang == "en" ? furstPage.head_1_eng :
+                              (currentLang == "de" ? furstPage.head_1_ger : furstPage.head_1_ru));
+                if (!string.IsNullOrEmpty(head1))
+                {
+                    <div class="main-title">@head1</div>
+                }
+            }
         </div>
     </div>
 
+    <!-- Блоки block_1 - block_6 -->
+    @if (furstPage != null)
+    {
+        var blocks = new List<string>();
+        if (currentLang == "ru")
+        {
+            blocks = new List<string> { furstPage.block_1_ru, furstPage.block_2_ru, furstPage.block_3_ru, furstPage.block_4_ru, furstPage.block_5_ru, furstPage.block_6_ru };
+        }
+        else if (currentLang == "en")
+        {
+            blocks = new List<string> { furstPage.block_1_eng, furstPage.block_2_eng, furstPage.block_3_eng, furstPage.block_4_eng, furstPage.block_5_eng, furstPage.block_6_eng };
+        }
+        else
+        {
+            blocks = new List<string> { furstPage.block_1_ger, furstPage.block_2_ger, furstPage.block_3_ger, furstPage.block_4_ger, furstPage.block_5_ger, furstPage.block_6_ger };
+        }
+
+        bool hasAnyBlock = blocks.Any(b => !string.IsNullOrEmpty(b));
+        
+        if (hasAnyBlock)
+        {
+            <div class="blocks-section">
+                <div class="blocks-container">
+                    @for (int i = 0; i < blocks.Count; i++)
+                    {
+                        if (!string.IsNullOrEmpty(blocks[i]))
+                        {
+                            <div class="block-card">
+                                <div class="block-number">Блок @(i + 1)</div>
+                                <div class="block-text">@blocks[i]</div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    }
+
+    <!-- Секция с рамкой, текстом и изображениями -->
+    @if (furstPage != null)
+    {
+        // Получаем заголовок head_2 на текущем языке
+        string head2 = "";
+        if (currentLang == "ru") head2 = furstPage.head_2_ru;
+        else if (currentLang == "en") head2 = furstPage.head_2_eng;
+        else if (currentLang == "de") head2 = furstPage.head_2_ger;
+        else head2 = furstPage.head_2_ru;
+        
+        // Получаем текст на текущем языке
+        string text = "";
+        if (currentLang == "ru") text = furstPage.text_ru;
+        else if (currentLang == "en") text = furstPage.text_eng;
+        else if (currentLang == "de") text = furstPage.text_ger;
+        else text = furstPage.text_ru;
+        
+        <div class="info-section">
+            <div class="info-container">
+                <!-- Заголовок head_2 -->
+                @if (!string.IsNullOrEmpty(head2))
+                {
+                    <div class="section-title">@head2</div>
+                }
+
+                <!-- Контейнер с фоновым изображением -->
+                <div class="image-frame-container" style="background-image: url('@(furstPage.image_4 ?? "/images/default-bg.jpg")'); background-size: cover; background-position: center;">
+                    <div class="frame-content">
+                        <!-- Текст -->
+                        @if (!string.IsNullOrEmpty(text))
+                        {
+                            <div class="info-text">@Html.Raw(text.Replace("\n", "<br/>"))</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <script>
-        // Текущее состояние машины (синхронизируется с сервером)
+        // ========== СЛАЙДЕР ==========
+        let currentSlideIndex = 0;
+        let slideInterval;
+
+        function showSlide(index) {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            
+            if (!slides.length) return;
+            
+            if (index >= slides.length) currentSlideIndex = 0;
+            if (index < 0) currentSlideIndex = slides.length - 1;
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            slides[currentSlideIndex].classList.add('active');
+            if (dots[currentSlideIndex]) dots[currentSlideIndex].classList.add('active');
+        }
+
+        function nextSlide() {
+            currentSlideIndex++;
+            showSlide(currentSlideIndex);
+            resetInterval();
+        }
+
+        function prevSlide() {
+            currentSlideIndex--;
+            showSlide(currentSlideIndex);
+            resetInterval();
+        }
+
+        function currentSlide(index) {
+            currentSlideIndex = index;
+            showSlide(currentSlideIndex);
+            resetInterval();
+        }
+
+        function resetInterval() {
+            if (slideInterval) clearInterval(slideInterval);
+            if (document.querySelectorAll('.slide').length > 1) {
+                slideInterval = setInterval(() => {
+                    currentSlideIndex++;
+                    showSlide(currentSlideIndex);
+                }, 60000);
+            }
+        }
+
+        // ========== ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ==========
+        function switchLanguage(lang) {
+            document.cookie = "Language=" + lang + "; path=/; max-age=" + (365 * 24 * 60 * 60);
+            location.reload();
+        }
+
+        // ========== ДРОПДАУНЫ ==========
         let currentCar = {
             brand: '@Model.Brand',
             model: '@Model.Model',
@@ -186,117 +652,74 @@
             engine: '@Model.Engine'
         };
 
-        // Загрузка при старте
         document.addEventListener('DOMContentLoaded', async function () {
             await loadInitialData();
-
-            // Проверяем, если все поля уже заполнены, показываем кнопку
             if (isCarComplete()) {
                 showSuccessButton();
             }
+            // Запускаем слайдер
+            if (document.querySelectorAll('.slide').length > 1) {
+                resetInterval();
+            }
         });
 
-        // Проверка, что все поля автомобиля заполнены
         function isCarComplete() {
-            return currentCar.brand &&
-                   currentCar.model &&
-                   currentCar.generation &&
-                   currentCar.engine;
+            return currentCar.brand && currentCar.model && currentCar.generation && currentCar.engine;
         }
 
-        // Показать кнопку успешного завершения
         function showSuccessButton() {
             const successButton = document.getElementById('successButton');
-            if (successButton) {
-                successButton.style.display = 'inline-block';
-
-                // Плавное появление
-                setTimeout(() => {
-                    successButton.style.opacity = '1';
-                    successButton.style.transform = 'scale(1)';
-                }, 10);
-            }
+            if (successButton) successButton.style.display = 'inline-block';
         }
 
-        // Скрыть кнопку успешного завершения
         function hideSuccessButton() {
             const successButton = document.getElementById('successButton');
-            if (successButton) {
-                successButton.style.display = 'none';
-            }
+            if (successButton) successButton.style.display = 'none';
         }
 
-        // Обработка нажатия на кнопку "Готово"
-                function onSuccessButtonClick() {
+        function onSuccessButtonClick() {
             if (!isCarComplete()) {
-                alert('Пожалуйста, заполните все поля перед продолжением.');
+                const lang = document.cookie.split('; ').find(row => row.startsWith('Language='))?.split('=')[1] || 'ru';
+                const msg = lang === 'ru' ? 'Пожалуйста, заполните все поля перед продолжением.' :
+                           (lang === 'en' ? 'Please fill in all fields before continuing.' : 'Bitte füllen Sie alle Felder aus.');
+                alert(msg);
                 return;
             }
-
-            // Создаем параметры для URL
             const params = new URLSearchParams({
                 brand: currentCar.brand,
                 model: currentCar.model,
                 generation: currentCar.generation,
                 engine: currentCar.engine
             });
-
-            // Делаем редирект на страницу Success
             window.location.href = `/Home/Car?${params.toString()}`;
         }
 
-        // Загрузка начальных данных
         async function loadInitialData() {
             try {
                 const response = await fetch('/Home/GetInitialData');
                 const result = await response.json();
-
-                // Обновляем состояние
                 updateCar(result.car);
-
-                // Заполняем первый дропдаун
                 updateDropdown(result.nextField, result.options);
-
             } catch (error) {
                 console.error('Ошибка загрузки:', error);
             }
         }
 
-        // Обработчик изменения дропдауна
         async function handleChange(fieldName, newValue) {
             try {
-                // Отправляем на сервер 3 вещи:
-                // 1. Текущую машину (currentCar)
-                // 2. Какое поле изменили (fieldName)
-                // 3. На что изменили (newValue)
                 const response = await fetch('/Home/ProcessSelection', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        car: currentCar,
-                        changedField: fieldName,
-                        newValue: newValue
-                    })
+                    body: JSON.stringify({ car: currentCar, changedField: fieldName, newValue: newValue })
                 });
-
                 const result = await response.json();
-
-                // Получаем от сервера 2 вещи:
-                // 1. Обновленную машину (result.car)
-                // 2. Список для следующего дропдауна (result.options)
-
-                // Обновляем состояние
                 updateCar(result.car);
-
-                // Обновляем UI
                 updateUI(result);
-
             } catch (error) {
                 console.error('Ошибка:', error);
             }
         }
 
-        // Обновление состояния машины
         function updateCar(newCar) {
             currentCar = {
                 brand: newCar.brand || '',
@@ -304,71 +727,40 @@
                 generation: newCar.generation || '',
                 engine: newCar.engine || ''
             };
-
-            console.log('Машина обновлена:', currentCar);
         }
 
-        // Обновление UI на основе ответа сервера
         function updateUI(result) {
-            // 1. Обновляем значения в дропдаунах
             updateDropdownValues();
-
-            // 2. Если есть следующий дропдаун - заполняем его
             if (result.nextField && result.nextField !== 'complete') {
                 updateDropdown(result.nextField, result.options);
             }
-
-            // 3. Если все заполнено - показываем кнопку "Готово"
             if (result.nextField === 'complete') {
                 showSuccessButton();
             } else {
-                // Если выбор еще не завершен - скрываем кнопку
                 hideSuccessButton();
             }
-
-            // 4. Сбрасываем только следующие дропдауны, НЕ очищаем текущий выбор
             if (result.nextField && result.nextField !== 'complete') {
                 resetDropdownsAfter(result.nextField);
             }
         }
 
-        // Обновление значений в дропдаунах
         function updateDropdownValues() {
-            // Устанавливаем значения только если они не пустые
-            if (currentCar.brand) {
-                document.getElementById('brandDropdown').value = currentCar.brand;
-            }
-            if (currentCar.model) {
-                document.getElementById('modelDropdown').value = currentCar.model;
-            }
-            if (currentCar.generation) {
-                document.getElementById('generationDropdown').value = currentCar.generation;
-            }
-            if (currentCar.engine) {
-                document.getElementById('engineDropdown').value = currentCar.engine;
-            }
+            if (currentCar.brand) document.getElementById('brandDropdown').value = currentCar.brand;
+            if (currentCar.model) document.getElementById('modelDropdown').value = currentCar.model;
+            if (currentCar.generation) document.getElementById('generationDropdown').value = currentCar.generation;
+            if (currentCar.engine) document.getElementById('engineDropdown').value = currentCar.engine;
         }
 
-        // Заполнение конкретного дропдауна
         function updateDropdown(fieldName, options) {
             const dropdownId = fieldName + 'Dropdown';
             const dropdown = document.getElementById(dropdownId);
-
             if (!dropdown) return;
-
-            // Сохраняем текущее выбранное значение
             const currentValue = dropdown.value;
-
-            // Очищаем и заполняем новыми опциями
             dropdown.innerHTML = '';
-
-            // Добавляем пустую опцию
             const emptyOption = document.createElement('option');
             emptyOption.value = '';
             emptyOption.textContent = getPlaceholder(fieldName);
             dropdown.appendChild(emptyOption);
-
-            // Добавляем опции из списка
             if (options && options.length > 0) {
                 options.forEach(option => {
                     const opt = document.createElement('option');
@@ -377,60 +769,39 @@
                     dropdown.appendChild(opt);
                 });
             }
-
-            // Восстанавливаем предыдущее значение, если оно есть в новом списке
             if (currentValue && options && options.includes(currentValue)) {
                 dropdown.value = currentValue;
             } else {
-                // Иначе используем значение из состояния
                 dropdown.value = currentCar[fieldName] || '';
             }
-
-            // Активируем дропдаун
             dropdown.disabled = false;
-
-            // Устанавливаем обработчик
-            dropdown.onchange = function() {
-                handleChange(fieldName, this.value);
-            };
-
-            // Фокусируемся на дропдауне
-            setTimeout(() => dropdown.focus(), 50);
+            dropdown.onchange = function() { handleChange(fieldName, this.value); };
         }
 
-        // Сброс дропдаунов после указанного поля (НЕ включая само поле)
         function resetDropdownsAfter(fieldName) {
             const fields = ['brand', 'model', 'generation', 'engine'];
-            const startIndex = fields.indexOf(fieldName) + 1; // +1 чтобы НЕ сбрасывать само поле
-
+            const startIndex = fields.indexOf(fieldName) + 1;
             for (let i = startIndex; i < fields.length; i++) {
                 const dropdownId = fields[i] + 'Dropdown';
                 const dropdown = document.getElementById(dropdownId);
-
-                if (dropdown) {
-                    // Сбрасываем только если поле еще не было заполнено
-                    // или если мы меняем более ранний выбор
-                    if (!currentCar[fields[i]] || i > startIndex) {
-                        dropdown.innerHTML = `<option value="">-- ${getPlaceholder(fields[i])} --</option>`;
-                        dropdown.disabled = true;
-                        dropdown.onchange = null;
-
-                        // Сбрасываем значение в состоянии только для этих полей
-                        currentCar[fields[i]] = '';
-                    }
+                if (dropdown && !currentCar[fields[i]]) {
+                    dropdown.innerHTML = `<option value="">-- ${getPlaceholder(fields[i])} --</option>`;
+                    dropdown.disabled = true;
+                    dropdown.onchange = null;
+                    currentCar[fields[i]] = '';
                 }
             }
         }
 
-        // Получение текста для пустой опции
         function getPlaceholder(fieldName) {
+            const lang = document.cookie.split('; ').find(row => row.startsWith('Language='))?.split('=')[1] || 'ru';
             const placeholders = {
-                'brand': 'Выберите бренд',
-                'model': 'Выберите модель',
-                'generation': 'Выберите поколение',
-                'engine': 'Выберите двигатель'
+                'brand': { 'ru': 'Выберите бренд', 'en': 'Select brand', 'de': 'Marke wählen' },
+                'model': { 'ru': 'Выберите модель', 'en': 'Select model', 'de': 'Modell wählen' },
+                'generation': { 'ru': 'Выберите поколение', 'en': 'Select generation', 'de': 'Generation wählen' },
+                'engine': { 'ru': 'Выберите двигатель', 'en': 'Select engine', 'de': 'Motor wählen' }
             };
-            return placeholders[fieldName] || 'Выберите';
+            return placeholders[fieldName]?.[lang] || 'Выберите';
         }
     </script>
 </body>

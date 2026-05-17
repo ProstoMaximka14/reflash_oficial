@@ -10,5 +10,6 @@
         public static List<SortDatabaseModel> Engine_l = new List<SortDatabaseModel>();
         public static List<SortDatabaseModel> Engine_with_model = new List<SortDatabaseModel>();
         public static List<NewsModel> News = new List<NewsModel>();
+        public static FurstPageModel furst_page = new FurstPageModel();
     }
 }

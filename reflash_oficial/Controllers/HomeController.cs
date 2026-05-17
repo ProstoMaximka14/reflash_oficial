@@ -218,6 +218,8 @@ namespace reflash_oficial.Controllers
             }
             return spisok;
         }
+
+        
         //вызов первой страницы с прочтением базы данных и отделением столбцов при первом переходе на страницу
 
         public static void RefreshData()
@@ -232,7 +234,7 @@ namespace reflash_oficial.Controllers
             DatabaseModel.Engine_l = null;
             DatabaseModel.Engine_with_model = null;
             DatabaseModel.News = null;
-
+            DatabaseModel.furst_page = null;
 
             Console.WriteLine($"✅ [{DateTime.Now}] database rewrite");
         }
@@ -250,8 +252,10 @@ namespace reflash_oficial.Controllers
                 DatabaseModel.Engine_l = Get_Sort_Cars("engine", DatabaseModel.Cars);
                 DatabaseModel.Engine_with_model = Get_Sort_Cars("engine_with_model", DatabaseModel.Cars);
                 DatabaseModel.News = Get_News_from_data();
+                DatabaseModel.furst_page = GetFurstPageFromDatabase();
 
             }
+            ViewBag.FurstPage = DatabaseModel.furst_page;
             return View(new ReflashCarModel());
         }
 
@@ -517,6 +521,95 @@ namespace reflash_oficial.Controllers
             return news;
         }
 
+        // главная страница
+        //Полуение данных главной странцицы из бд
+        private FurstPageModel GetFurstPageFromDatabase()
+        {
+            FurstPageModel furst_page = null;
+            string connectionString = _configuration.GetConnectionString("DefaultConnection")
+                ?? "server=localhost;port=3306;database=first_page_content;user=root;password=;";
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM first_page_content LIMIT 1";
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                furst_page = new FurstPageModel
+                                {
+                                    // Изображения
+                                    image_1 = reader.IsDBNull(reader.GetOrdinal("image_1")) ? "" : reader.GetString("image_1"),
+                                    image_2 = reader.IsDBNull(reader.GetOrdinal("image_2")) ? "" : reader.GetString("image_2"),
+                                    image_3 = reader.IsDBNull(reader.GetOrdinal("image_3")) ? "" : reader.GetString("image_3"),
+                                    image_4 = reader.IsDBNull(reader.GetOrdinal("image_4")) ? "" : reader.GetString("image_4"),
+
+                                    // Заголовки (первый блок)
+                                    head_1_ru = reader.IsDBNull(reader.GetOrdinal("head_1_ru")) ? "" : reader.GetString("head_1_ru"),
+                                    head_1_eng = reader.IsDBNull(reader.GetOrdinal("head_1_eng")) ? "" : reader.GetString("head_1_eng"),
+                                    head_1_ger = reader.IsDBNull(reader.GetOrdinal("head_1_ger")) ? "" : reader.GetString("head_1_ger"),
+
+                                    // Заголовки (второй блок)
+                                    head_2_ru = reader.IsDBNull(reader.GetOrdinal("head_2_ru")) ? "" : reader.GetString("head_2_ru"),
+                                    head_2_eng = reader.IsDBNull(reader.GetOrdinal("head_2_eng")) ? "" : reader.GetString("head_2_eng"),
+                                    head_2_ger = reader.IsDBNull(reader.GetOrdinal("head_2_ger")) ? "" : reader.GetString("head_2_ger"),
+
+                                    // Основной текст
+                                    text_ru = reader.IsDBNull(reader.GetOrdinal("text_ru")) ? "" : reader.GetString("text_ru"),
+                                    text_eng = reader.IsDBNull(reader.GetOrdinal("text_eng")) ? "" : reader.GetString("text_eng"),
+                                    text_ger = reader.IsDBNull(reader.GetOrdinal("text_ger")) ? "" : reader.GetString("text_ger"),
+
+                                    // Блок 1
+                                    block_1_ru = reader.IsDBNull(reader.GetOrdinal("block_1_ru")) ? "" : reader.GetString("block_1_ru"),
+                                    block_1_eng = reader.IsDBNull(reader.GetOrdinal("block_1_eng")) ? "" : reader.GetString("block_1_eng"),
+                                    block_1_ger = reader.IsDBNull(reader.GetOrdinal("block_1_ger")) ? "" : reader.GetString("block_1_ger"),
+
+                                    // Блок 2
+                                    block_2_ru = reader.IsDBNull(reader.GetOrdinal("block_2_ru")) ? "" : reader.GetString("block_2_ru"),
+                                    block_2_eng = reader.IsDBNull(reader.GetOrdinal("block_2_eng")) ? "" : reader.GetString("block_2_eng"),
+                                    block_2_ger = reader.IsDBNull(reader.GetOrdinal("block_2_ger")) ? "" : reader.GetString("block_2_ger"),
+
+                                    // Блок 3
+                                    block_3_ru = reader.IsDBNull(reader.GetOrdinal("block_3_ru")) ? "" : reader.GetString("block_3_ru"),
+                                    block_3_eng = reader.IsDBNull(reader.GetOrdinal("block_3_eng")) ? "" : reader.GetString("block_3_eng"),
+                                    block_3_ger = reader.IsDBNull(reader.GetOrdinal("block_3_ger")) ? "" : reader.GetString("block_3_ger"),
+
+                                    // Блок 4
+                                    block_4_ru = reader.IsDBNull(reader.GetOrdinal("block_4_ru")) ? "" : reader.GetString("block_4_ru"),
+                                    block_4_eng = reader.IsDBNull(reader.GetOrdinal("block_4_eng")) ? "" : reader.GetString("block_4_eng"),
+                                    block_4_ger = reader.IsDBNull(reader.GetOrdinal("block_4_ger")) ? "" : reader.GetString("block_4_ger"),
+
+                                    // Блок 5
+                                    block_5_ru = reader.IsDBNull(reader.GetOrdinal("block_5_ru")) ? "" : reader.GetString("block_5_ru"),
+                                    block_5_eng = reader.IsDBNull(reader.GetOrdinal("block_5_eng")) ? "" : reader.GetString("block_5_eng"),
+                                    block_5_ger = reader.IsDBNull(reader.GetOrdinal("block_5_ger")) ? "" : reader.GetString("block_5_ger"),
+
+                                    // Блок 6
+                                    block_6_ru = reader.IsDBNull(reader.GetOrdinal("block_6_ru")) ? "" : reader.GetString("block_6_ru"),
+                                    block_6_eng = reader.IsDBNull(reader.GetOrdinal("block_6_eng")) ? "" : reader.GetString("block_6_eng"),
+                                    block_6_ger = reader.IsDBNull(reader.GetOrdinal("block_6_ger")) ? "" : reader.GetString("block_6_ger")
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                // Логирование ошибки
+                Console.WriteLine($"Ошибка MySQL при загрузке данных главной страницы: {ex.Message}");
+                // Если используете TempData в контроллере
+                // TempData["Error"] = $"Ошибка MySQL: {ex.Message}";
+            }
+
+            return furst_page;
+        }
     }
     // Запрос от клиента: 
     public class SelectionRequest
