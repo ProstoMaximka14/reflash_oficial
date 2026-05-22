@@ -242,6 +242,7 @@ namespace reflash_oficial.Controllers
 
         public IActionResult Index()
         {
+            DatabaseModel.furst_page = GetFurstPageFromDatabase();
             if (DatabaseModel.Cars == null || DatabaseModel.Cars.Count == 0)
             {
                 DatabaseModel.Cars = GetCarsFromDatabase();
@@ -252,7 +253,7 @@ namespace reflash_oficial.Controllers
                 DatabaseModel.Engine_l = Get_Sort_Cars("engine", DatabaseModel.Cars);
                 DatabaseModel.Engine_with_model = Get_Sort_Cars("engine_with_model", DatabaseModel.Cars);
                 DatabaseModel.News = Get_News_from_data();
-                DatabaseModel.furst_page = GetFurstPageFromDatabase();
+                
 
             }
             ViewBag.FurstPage = DatabaseModel.furst_page;
@@ -527,14 +528,14 @@ namespace reflash_oficial.Controllers
         {
             FurstPageModel furst_page = null;
             string connectionString = _configuration.GetConnectionString("DefaultConnection")
-                ?? "server=localhost;port=3306;database=first_page_content;user=root;password=;";
+                ?? "server=localhost;port=3306;database=reflash ;user=root;password=;";
 
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
-                    string query = "SELECT * FROM first_page_content LIMIT 1";
+                    string query = "SELECT SQL_NO_CACHE * FROM first_page_content LIMIT 1";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
