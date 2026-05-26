@@ -73,9 +73,13 @@ app.Map("/api/db-notify", async (HttpContext context) =>
     }
 });
 
+app.MapControllerRoute(
+    name: "car_details",
+    pattern: "Home/Car/{brand}/{model}/{generation}/{engine}",
+    defaults: new { controller = "Home", action = "Car" });
+
 // Стандартные маршруты для контроллеров
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
 app.Run();

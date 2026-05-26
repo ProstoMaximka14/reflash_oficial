@@ -1,18 +1,17 @@
 ﻿@model reflash_oficial.Models.ReflashCarModel
 @{
     ViewData["Title"] = "Автомобиль выбран!";
-    var language = Context.Request.Query["lang"].ToString();
-    if (string.IsNullOrEmpty(language))
-    {
-        language = "ru";
-    }
+    
+    // Читаем язык из URL или cookie
+    var language = Context.Request.Cookies["Language"];
+    if (string.IsNullOrEmpty(language)) language = "ru";
 
     string GetLocalized(string ru, string eng, string ger)
     {
         return language switch
         {
-            "eng" => eng,
-            "ger" => ger,
+            "en" => eng,
+            "de" => ger,
             _ => ru
         };
     }
@@ -522,8 +521,8 @@
             <div class="header">
                 <div class="language-switcher">
                     <button class="lang-btn @(language == "ru" ? "active" : "")" onclick="switchLanguage('ru')">RU</button>
-                    <button class="lang-btn @(language == "eng" ? "active" : "")" onclick="switchLanguage('eng')">EN</button>
-                    <button class="lang-btn @(language == "ger" ? "active" : "")" onclick="switchLanguage('ger')">DE</button>
+                    <button class="lang-btn @(language == "en" ? "active" : "")" onclick="switchLanguage('en')">EN</button>
+                    <button class="lang-btn @(language == "de" ? "active" : "")" onclick="switchLanguage('de')">DE</button>
                 </div>
             </div>
 
@@ -614,298 +613,236 @@
     </div>
 
     <script>
-        function switchLanguage(lang) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('lang', lang);
-            window.location.href = url.toString();
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedLang = localStorage.getItem('preferredLanguage');
-            if (savedLang && !window.location.search.includes('lang=')) {
-                switchLanguage(savedLang);
-            }
-
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const lang = this.getAttribute('onclick').match(/'([^']+)'/)[1];
-                    localStorage.setItem('preferredLanguage', lang);
-                });
-            });
-
-            // Плавная прокрутка для якорных ссылок
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    if(targetId === '#') return;
-
-                    const targetElement = document.querySelector(targetId);
-                    if(targetElement) {
-                        targetElement.scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
-        });
-
-        // Текущее состояние машины
-        let currentCar = {
-            brand: '@Model.Brand',
-            model: '@Model.Model',
-            generation: '@Model.Generation',
-            engine: '@Model.Engine'
-        };
-
-        // Загрузка при старте
-        document.addEventListener('DOMContentLoaded', async function () {
-            await loadInitialData();
-
-            // Проверяем, если все поля уже заполнены, показываем кнопку
-            if (isCarComplete()) {
-                showSuccessButton();
-            }
-        });
-
-        // Проверка, что все поля автомобиля заполнены
-        function isCarComplete() {
-            return currentCar.brand &&
-                   currentCar.model &&
-                   currentCar.generation &&
-                   currentCar.engine;
-        }
-
-        // Показать кнопку успешного завершения
-        function showSuccessButton() {
-            const successButton = document.getElementById('successButton');
-            if (successButton) {
-                successButton.style.display = 'inline-block';
-
-                // Плавное появление
-                setTimeout(() => {
-                    successButton.style.opacity = '1';
-                    successButton.style.transform = 'scale(1)';
-                }, 10);
-            }
-        }
-
-        // Скрыть кнопку успешного завершения
-        function hideSuccessButton() {
-            const successButton = document.getElementById('successButton');
-            if (successButton) {
-                successButton.style.display = 'none';
-            }
-        }
-
-        // Обработка нажатия на кнопку "Готово"
-        function onSuccessButtonClick() {
-            if (!isCarComplete()) {
-                alert('Пожалуйста, заполните все поля перед продолжением.');
-                return;
-            }
-
-            // Создаем параметры для URL
-            const params = new URLSearchParams({
-                brand: currentCar.brand,
-                model: currentCar.model,
-                generation: currentCar.generation,
-                engine: currentCar.engine
-            });
-
-            // Делаем редирект на страницу Success
-            window.location.href = `/Home/Car?${params.toString()}`;
-        }
-
-        // Загрузка начальных данных
-   async function loadInitialData() 
-   {
-    try {
-        const response = await fetch('/Home/GetInitialData');
-        const result = await response.json();
-
-        updateCar(result.car);
-
-        // Вместо updateDropdown, просто активируем дропдаун без выбора
-        if (result.nextField === 'brand') {
-            // Заполняем опции, но НЕ устанавливаем значение
-            const dropdown = document.getElementById('brandDropdown');
-            dropdown.innerHTML = '<option value="">-- Выберите бренд --</option>';
-            if (result.options && result.options.length > 0) {
-                result.options.forEach(option => {
-                    const opt = document.createElement('option');
-                    opt.value = option;
-                    opt.textContent = option;
-                    dropdown.appendChild(opt);
-                });
-            }
-            dropdown.disabled = false;
-            dropdown.onchange = function() {
-                handleChange('brand', this.value);
-            };
-        }
-
-    } catch (error) {
-        console.error('Ошибка загрузки:', error);
+    // ========== ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ==========
+    function switchLanguage(lang) {
+        // Сохраняем язык в cookie (на 365 дней)
+        document.cookie = "Language=" + lang + "; path=/; max-age=" + (365 * 24 * 60 * 60);
+        console.log("Язык сохранён:", lang);
+        // Перезагружаем страницу
+        location.reload();
     }
+
+    // ========== ДРОПДАУНЫ ==========
+    let currentCar = {
+        brand: '@Model.Brand',
+        model: '@Model.Model',
+        generation: '@Model.Generation',
+        engine: '@Model.Engine'
+    };
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        await loadInitialData();
+        if (isCarComplete()) {
+            showSuccessButton();
+        }
+    });
+
+    function isCarComplete() {
+        return currentCar.brand && currentCar.model && currentCar.generation && currentCar.engine;
+    }
+
+    function showSuccessButton() {
+        const successButton = document.getElementById('successButton');
+        if (successButton) {
+            successButton.style.display = 'inline-block';
+            setTimeout(() => {
+                successButton.style.opacity = '1';
+                successButton.style.transform = 'scale(1)';
+            }, 10);
+        }
+    }
+
+    function hideSuccessButton() {
+        const successButton = document.getElementById('successButton');
+        if (successButton) {
+            successButton.style.display = 'none';
+        }
+    }
+
+    function onSuccessButtonClick() {
+    if (!isCarComplete()) {
+        alert('Пожалуйста, заполните все поля перед продолжением.');
+        return;
+    }
+
+    // Получаем текущий язык из cookie (просто для информации, но в URL не добавляем)
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return 'ru';
+    };
+    
+    const currentLang = getCookie('Language');
+    console.log("Язык из cookie:", currentLang); // Только для лога
+
+    // Формируем ЧПУ-ссылку БЕЗ параметра языка
+    const brand = encodeURIComponent(currentCar.brand);
+    const model = encodeURIComponent(currentCar.model);
+    const generation = encodeURIComponent(currentCar.generation);
+    const engine = encodeURIComponent(currentCar.engine);
+    
+    // ✅ Без ?lang= - язык только из cookie
+    window.location.href = `/Home/Car/${brand}/${model}/${generation}/${engine}`;
 }
 
-        // Обработчик изменения дропдауна
-        async function handleChange(fieldName, newValue) {
-            try {
-                // Отправляем на сервер
-                const response = await fetch('/Home/ProcessSelection', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        car: currentCar,
-                        changedField: fieldName,
-                        newValue: newValue
-                    })
-                });
-
-                const result = await response.json();
-
-                // Обновляем состояние
-                updateCar(result.car);
-
-                // Обновляем UI
-                updateUI(result);
-
-            } catch (error) {
-                console.error('Ошибка:', error);
-            }
-        }
-
-        // Обновление состояния машины
-        function updateCar(newCar) {
-            currentCar = {
-                brand: newCar.brand || '',
-                model: newCar.model || '',
-                generation: newCar.generation || '',
-                engine: newCar.engine || ''
-            };
-
-            console.log('Машина обновлена:', currentCar);
-        }
-
-        // Обновление UI на основе ответа сервера
-        function updateUI(result) {
-            // 1. Обновляем значения в дропдаунах
-            updateDropdownValues();
-
-            // 2. Если есть следующий дропдаун - заполняем его
-            if (result.nextField && result.nextField !== 'complete') {
-                updateDropdown(result.nextField, result.options);
-            }
-
-            // 3. Если все заполнено - показываем кнопку "Готово"
-            if (result.nextField === 'complete') {
-                showSuccessButton();
-            } else {
-                // Если выбор еще не завершен - скрываем кнопку
-                hideSuccessButton();
-            }
-
-            // 4. Сбрасываем только следующие дропдауны
-            if (result.nextField && result.nextField !== 'complete') {
-                resetDropdownsAfter(result.nextField);
-            }
-        }
-
-        // Обновление значений в дропдаунах
-        function updateDropdownValues() {
-            if (currentCar.brand) {
-                document.getElementById('brandDropdown').value = currentCar.brand;
-            }
-            if (currentCar.model) {
-                document.getElementById('modelDropdown').value = currentCar.model;
-            }
-            if (currentCar.generation) {
-                document.getElementById('generationDropdown').value = currentCar.generation;
-            }
-            if (currentCar.engine) {
-                document.getElementById('engineDropdown').value = currentCar.engine;
-            }
-        }
-
-        // Заполнение конкретного дропдауна
-        function updateDropdown(fieldName, options) {
-            const dropdownId = fieldName + 'Dropdown';
-            const dropdown = document.getElementById(dropdownId);
-
-            if (!dropdown) return;
-
-            // Сохраняем текущее выбранное значение
-            const currentValue = dropdown.value;
-
-            // Очищаем и заполняем новыми опциями
-            dropdown.innerHTML = '';
-
-            // Добавляем пустую опцию
-            const emptyOption = document.createElement('option');
-            emptyOption.value = '';
-            emptyOption.textContent = getPlaceholder(fieldName);
-            dropdown.appendChild(emptyOption);
-
-            // Добавляем опции из списка
-            if (options && options.length > 0) {
-                options.forEach(option => {
-                    const opt = document.createElement('option');
-                    opt.value = option;
-                    opt.textContent = option;
-                    dropdown.appendChild(opt);
-                });
-            }
-
-            // Восстанавливаем предыдущее значение
-            if (currentValue && options && options.includes(currentValue)) {
-                dropdown.value = currentValue;
-            } else {
-                dropdown.value = currentCar[fieldName] || '';
-            }
-
-            // Активируем дропдаун
-            dropdown.disabled = false;
-
-            // Устанавливаем обработчик
-            dropdown.onchange = function() {
-                handleChange(fieldName, this.value);
-            };
-
-            setTimeout(() => dropdown.focus(), 50);
-        }
-
-        // Сброс дропдаунов после указанного поля
-        function resetDropdownsAfter(fieldName) {
-            const fields = ['brand', 'model', 'generation', 'engine'];
-            const startIndex = fields.indexOf(fieldName) + 1;
-
-            for (let i = startIndex; i < fields.length; i++) {
-                const dropdownId = fields[i] + 'Dropdown';
-                const dropdown = document.getElementById(dropdownId);
-
-                if (dropdown) {
-                    if (!currentCar[fields[i]] || i > startIndex) {
-                        dropdown.innerHTML = `<option value="">-- ${getPlaceholder(fields[i])} --</option>`;
-                        dropdown.disabled = true;
-                        dropdown.onchange = null;
-                        currentCar[fields[i]] = '';
-                    }
+    async function loadInitialData() {
+        try {
+            const response = await fetch('/Home/GetInitialData');
+            const result = await response.json();
+            updateCar(result.car);
+            if (result.nextField === 'brand') {
+                const dropdown = document.getElementById('brandDropdown');
+                const placeholder = getPlaceholder('brand');
+                dropdown.innerHTML = `<option value="">-- ${placeholder} --</option>`;
+                if (result.options && result.options.length > 0) {
+                    result.options.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option;
+                        opt.textContent = option;
+                        dropdown.appendChild(opt);
+                    });
                 }
+                dropdown.disabled = false;
+                dropdown.onchange = function() {
+                    handleChange('brand', this.value);
+                };
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+        }
+    }
+
+    async function handleChange(fieldName, newValue) {
+        try {
+            const response = await fetch('/Home/ProcessSelection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    car: currentCar,
+                    changedField: fieldName,
+                    newValue: newValue
+                })
+            });
+            const result = await response.json();
+            updateCar(result.car);
+            updateUI(result);
+        } catch (error) {
+            console.error('Ошибка:', error);
+        }
+    }
+
+    function updateCar(newCar) {
+        currentCar = {
+            brand: newCar.brand || '',
+            model: newCar.model || '',
+            generation: newCar.generation || '',
+            engine: newCar.engine || ''
+        };
+        console.log('Машина обновлена:', currentCar);
+    }
+
+    function updateUI(result) {
+        updateDropdownValues();
+        if (result.nextField && result.nextField !== 'complete') {
+            updateDropdown(result.nextField, result.options);
+        }
+        if (result.nextField === 'complete') {
+            showSuccessButton();
+        } else {
+            hideSuccessButton();
+        }
+        if (result.nextField && result.nextField !== 'complete') {
+            resetDropdownsAfter(result.nextField);
+        }
+    }
+
+    function updateDropdownValues() {
+        if (currentCar.brand) document.getElementById('brandDropdown').value = currentCar.brand;
+        if (currentCar.model) document.getElementById('modelDropdown').value = currentCar.model;
+        if (currentCar.generation) document.getElementById('generationDropdown').value = currentCar.generation;
+        if (currentCar.engine) document.getElementById('engineDropdown').value = currentCar.engine;
+    }
+
+    function updateDropdown(fieldName, options) {
+        const dropdownId = fieldName + 'Dropdown';
+        const dropdown = document.getElementById(dropdownId);
+        if (!dropdown) return;
+        const currentValue = dropdown.value;
+        dropdown.innerHTML = '';
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.textContent = getPlaceholder(fieldName);
+        dropdown.appendChild(emptyOption);
+        if (options && options.length > 0) {
+            options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option;
+                opt.textContent = option;
+                dropdown.appendChild(opt);
+            });
+        }
+        if (currentValue && options && options.includes(currentValue)) {
+            dropdown.value = currentValue;
+        } else {
+            dropdown.value = currentCar[fieldName] || '';
+        }
+        dropdown.disabled = false;
+        dropdown.onchange = function() { handleChange(fieldName, this.value); };
+        setTimeout(() => dropdown.focus(), 50);
+    }
+
+    function resetDropdownsAfter(fieldName) {
+        const fields = ['brand', 'model', 'generation', 'engine'];
+        const startIndex = fields.indexOf(fieldName) + 1;
+        for (let i = startIndex; i < fields.length; i++) {
+            const dropdownId = fields[i] + 'Dropdown';
+            const dropdown = document.getElementById(dropdownId);
+            if (dropdown && !currentCar[fields[i]]) {
+                const placeholder = getPlaceholder(fields[i]);
+                dropdown.innerHTML = `<option value="">-- ${placeholder} --</option>`;
+                dropdown.disabled = true;
+                dropdown.onchange = null;
+                currentCar[fields[i]] = '';
             }
         }
+    }
 
-        // Получение текста для пустой опции
-        function getPlaceholder(fieldName) {
-            const placeholders = {
-                'brand': 'Выберите бренд',
-                'model': 'Выберите модель',
-                'generation': 'Выберите поколение',
-                'engine': 'Выберите двигатель'
-            };
-            return placeholders[fieldName] || 'Выберите';
+    function getPlaceholder(fieldName) {
+    // Получаем язык из cookie
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return 'ru';
+    };
+    const lang = getCookie('Language');
+    
+    const placeholders = {
+        'brand': {
+            'ru': 'Выберите бренд',
+            'en': 'Select brand',
+            'de': 'Marke wählen'
+        },
+        'model': {
+            'ru': 'Выберите модель',
+            'en': 'Select model',
+            'de': 'Modell wählen'
+        },
+        'generation': {
+            'ru': 'Выберите поколение',
+            'en': 'Select generation',
+            'de': 'Generation wählen'
+        },
+        'engine': {
+            'ru': 'Выберите двигатель',
+            'en': 'Select engine',
+            'de': 'Motor wählen'
         }
+    };
+    
+    return placeholders[fieldName]?.[lang] || 'Выберите';
+}
     </script>
 </body>
 </html>

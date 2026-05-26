@@ -678,21 +678,33 @@
         }
 
         function onSuccessButtonClick() {
-            if (!isCarComplete()) {
-                const lang = document.cookie.split('; ').find(row => row.startsWith('Language='))?.split('=')[1] || 'ru';
-                const msg = lang === 'ru' ? 'Пожалуйста, заполните все поля перед продолжением.' :
-                           (lang === 'en' ? 'Please fill in all fields before continuing.' : 'Bitte füllen Sie alle Felder aus.');
-                alert(msg);
-                return;
-            }
-            const params = new URLSearchParams({
-                brand: currentCar.brand,
-                model: currentCar.model,
-                generation: currentCar.generation,
-                engine: currentCar.engine
-            });
-            window.location.href = `/Home/Car?${params.toString()}`;
-        }
+    if (!isCarComplete()) {
+        const lang = document.cookie.split('; ').find(row => row.startsWith('Language='))?.split('=')[1] || 'ru';
+        const msg = lang === 'ru' ? 'Пожалуйста, заполните все поля' : 
+                   (lang === 'en' ? 'Please fill all fields' : 'Bitte füllen Sie alle Felder aus');
+        alert(msg);
+        return;
+    }
+
+    // Получаем язык из cookie
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return 'ru';
+    };
+    
+    const currentLang = getCookie('Language');
+
+    // Кодируем значения
+    const brand = encodeURIComponent(currentCar.brand);
+    const model = encodeURIComponent(currentCar.model);
+    const generation = encodeURIComponent(currentCar.generation);
+    const engine = encodeURIComponent(currentCar.engine);
+    
+    // Переход с передачей языка в URL
+    window.location.href = `/Home/Car/${brand}/${model}/${generation}/${engine}`;
+}
 
         async function loadInitialData() {
             try {

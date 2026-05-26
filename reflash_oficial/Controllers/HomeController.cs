@@ -385,15 +385,27 @@ namespace reflash_oficial.Controllers
         //Вызов странице генерирующейся по выбранной машине из базы данных
         public IActionResult Car(ReflashCarModel car)
         {
-            foreach (ReflashCarModel neded_car in DatabaseModel.Cars)
+            // Декодируем значения (на случай если были спецсимволы)
+            car.Brand = Uri.UnescapeDataString(car.Brand ?? "");
+            car.Model = Uri.UnescapeDataString(car.Model ?? "");
+            car.Generation = Uri.UnescapeDataString(car.Generation ?? "");
+            car.Engine = Uri.UnescapeDataString(car.Engine ?? "");
+
+            // Ищем автомобиль
+            foreach (ReflashCarModel needed_car in DatabaseModel.Cars)
             {
-                if ((neded_car.Brand == car.Brand) && (neded_car.Model == car.Model) && (neded_car.Generation == car.Generation) && (neded_car.Engine == car.Engine))
+                if ((needed_car.Brand == car.Brand) &&
+                    (needed_car.Model == car.Model) &&
+                    (needed_car.Generation == car.Generation) &&
+                    (needed_car.Engine == car.Engine))
                 {
-                    return View(neded_car);
+                    return View(needed_car);
                 }
             }
-            car = new ReflashCarModel();
-            return View(car);
+
+            // Если не нашли
+            TempData["Error"] = "Автомобиль не найден";
+            return RedirectToAction("Index");
         }
 
 
