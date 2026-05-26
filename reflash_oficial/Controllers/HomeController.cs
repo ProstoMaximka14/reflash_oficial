@@ -4,7 +4,8 @@ using MySql.Data.MySqlClient;
 using reflash_oficial.Models;
 using System.Collections.Generic;
 using System.Configuration;
-
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 //using System.Configuration;
 using System.Diagnostics;
 using static System.Net.Mime.MediaTypeNames;
@@ -611,7 +612,33 @@ namespace reflash_oficial.Controllers
 
             return furst_page;
         }
+        // Добавьте этот метод в конец класса HomeController (перед последней скобкой)
+
+        [HttpPost("/api/db-notify")]
+        public IActionResult DbNotify()
+        {
+            try
+            {
+                Console.WriteLine($"📡 [{DateTime.Now}] Сигнал от админки получен");
+
+                // Сбрасываем кэш
+                RefreshData();
+
+                // Перезагружаем главную страницу
+                DatabaseModel.furst_page = GetFurstPageFromDatabase();
+
+                Console.WriteLine($"✅ [{DateTime.Now}] Кэш очищен");
+
+                return Ok(new { success = true, message = "Cache cleared" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Ошибка: {ex.Message}");
+                return StatusCode(500, new { success = false, error = ex.Message });
+            }
+        }
     }
+
     // Запрос от клиента: 
     public class SelectionRequest
     {
@@ -628,4 +655,5 @@ namespace reflash_oficial.Controllers
         public string NextField { get; set; } = "";          // 2. Какое поле заполнять следующим
         public List<string> Options { get; set; } = new List<string>(); // Список для дропдауна
     }
+
 }
