@@ -3,35 +3,76 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@ViewData["Title"] - reflash_oficial</title>
+    <title>@ViewData["Title"] - ReFlash Official</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/reflash_oficial.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ========== ФИКСАЦИЯ НАВБАРА ========== */
+        /* ========== ОБЩИЕ СТИЛИ ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0A0A0F;
+            color: #E8E8F0;
+        }
+
+        /* ========== НАВБАР В СТИЛЕ DARK TECH ========== */
         header {
             position: sticky;
             top: 0;
             z-index: 1000;
-            background-color: white;
         }
         
         .navbar {
-            padding: 10px 15px;
-            margin-bottom: 0 !important;
-            background-color: white !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 0;
+            margin: 0;
+            background: rgba(10, 10, 15, 0.95) !important;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 58, 47, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
         
+        .container-fluid {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            width: 100%;
+        }
+        
+        /* Логотип */
         .navbar-brand {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #FFB5A0 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
             white-space: nowrap;
+            transition: opacity 0.2s;
         }
         
-        /* Навбар всегда отображается */
+        .navbar-brand:hover {
+            opacity: 0.85;
+            color: transparent;
+        }
+        
+        /* Нав-меню */
         .navbar-collapse {
             display: flex !important;
-            flex-grow: 1;
+            flex-grow: 0;
         }
         
         /* Скрываем кнопку-бургер */
@@ -41,107 +82,168 @@
         
         /* Меню всегда горизонтальное */
         .navbar-nav {
+            display: flex;
             flex-direction: row !important;
-            gap: 20px;
+            gap: 8px;
             margin: 0;
             padding: 0;
+            list-style: none;
         }
         
-        /* Логотип и меню на одной строке */
-        .container-fluid {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: nowrap;
+        .nav-item {
+            position: relative;
         }
         
-        /* Добавляем отступ для основного контента */
+        .nav-link {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #C0C0D0 !important;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
+            border-radius: 40px;
+        }
+        
+        .nav-link:hover {
+            color: #FF3A2F !important;
+            background: rgba(255, 58, 47, 0.1);
+        }
+        
+        /* Активная ссылка */
+        .nav-link.active {
+            color: #FF3A2F !important;
+            background: rgba(255, 58, 47, 0.15);
+        }
+        
+        /* Индикатор активной ссылки (красная точка снизу) */
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 2px;
+            background: #FF3A2F;
+            border-radius: 2px;
+        }
+        
+        /* ========== ОСНОВНОЙ КОНТЕНТ ========== */
         .container {
-            margin-top: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
         }
         
-        /* ========== АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ (СДВИГ ВЛЕВО) ========== */
+        main {
+            min-height: calc(100vh - 80px);
+        }
+        
+        /* ========== АДАПТАЦИЯ ДЛЯ ПЛАНШЕТОВ ========== */
         @@media (max-width: 768px) {
-            .navbar {
-                padding: 8px 12px;
-            }
-            
-            /* Прижимаем всё содержимое к левому краю */
             .container-fluid {
-                justify-content: flex-start !important;
-                gap: 15px;
+                padding: 10px 16px;
                 flex-wrap: wrap;
+                justify-content: flex-start;
+                gap: 12px;
             }
             
             .navbar-brand {
-                font-size: 0.9rem;
-                white-space: nowrap;
-                flex-shrink: 0;
-            }
-            
-            .navbar-collapse {
-                justify-content: flex-start;
-                flex-shrink: 1;
+                font-size: 1.1rem;
             }
             
             .navbar-nav {
-                gap: 8px;
-                justify-content: flex-start;
+                gap: 4px;
                 flex-wrap: wrap;
             }
             
             .nav-link {
-                padding: 6px 10px;
+                padding: 6px 14px;
                 font-size: 12px;
-                white-space: nowrap;
+            }
+            
+            .nav-link.active::after {
+                width: 18px;
+                bottom: 0;
+            }
+            
+            .container {
+                padding: 24px 16px;
             }
         }
         
-        /* Для маленьких телефонов */
+        /* ========== ДЛЯ МАЛЕНЬКИХ ТЕЛЕФОНОВ ========== */
         @@media (max-width: 480px) {
             .navbar-brand {
-                font-size: 0.8rem;
-            }
-            
-            .navbar-nav {
-                gap: 5px;
+                font-size: 0.95rem;
             }
             
             .nav-link {
+                padding: 5px 10px;
                 font-size: 10px;
-                padding: 4px 8px;
+            }
+            
+            .nav-link.active::after {
+                width: 14px;
+                height: 1.5px;
+            }
+            
+            .container {
+                padding: 20px 12px;
             }
         }
         
-        /* Для очень узких экранов */
+        /* ========== ДЛЯ ОЧЕНЬ УЗКИХ ЭКРАНОВ ========== */
         @@media (max-width: 360px) {
             .navbar-brand {
-                font-size: 0.7rem;
+                font-size: 0.85rem;
             }
             
             .nav-link {
+                padding: 4px 8px;
                 font-size: 9px;
-                padding: 4px 6px;
             }
+        }
+        
+        /* ========== КАСТОМНЫЙ СКРОЛЛ ========== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #14141C;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FF3A2F;
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">reflash_oficial</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-microchip" style="color: #FF3A2F; margin-right: 8px;"></i>
+                    ReFlash Official
+                </a>
                 <div class="navbar-collapse">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")" 
+                               asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home" style="margin-right: 6px;"></i>
+                                Home
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Partners">Partners</a>
+                            <a class="nav-link text-dark @(ViewContext.RouteData.Values["action"]?.ToString() == "Partners" ? "active" : "")" 
+                               asp-area="" asp-controller="Home" asp-action="Partners">
+                                <i class="fas fa-handshake" style="margin-right: 6px;"></i>
+                                Partners
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="News">News</a>
-                        </li>
+                        
                     </ul>
                 </div>
             </div>
