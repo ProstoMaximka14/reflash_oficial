@@ -48,9 +48,11 @@
         ::-webkit-scrollbar {
             width: 6px;
         }
+
         ::-webkit-scrollbar-track {
             background: #14141C;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #FF3A2F;
             border-radius: 10px;
@@ -84,16 +86,16 @@
             letter-spacing: 0.3px;
         }
 
-        .lang-btn:hover {
-            color: white;
-            background: rgba(255,58,47,0.2);
-        }
+            .lang-btn:hover {
+                color: white;
+                background: rgba(255,58,47,0.2);
+            }
 
-        .lang-btn.active {
-            background: #FF3A2F;
-            color: white;
-            box-shadow: 0 0 8px rgba(255,58,47,0.5);
-        }
+            .lang-btn.active {
+                background: #FF3A2F;
+                color: white;
+                box-shadow: 0 0 8px rgba(255,58,47,0.5);
+            }
 
         .page-wrapper {
             display: flex;
@@ -131,9 +133,9 @@
             margin-bottom: 20px;
         }
 
-        .dropdown-section:last-of-type {
-            margin-bottom: 0;
-        }
+            .dropdown-section:last-of-type {
+                margin-bottom: 0;
+            }
 
         .dropdown-label {
             display: block;
@@ -159,18 +161,18 @@
             font-family: 'Inter', monospace;
         }
 
-        .dropdown-select:focus {
-            border-color: #FF3A2F;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(255,58,47,0.2);
-        }
+            .dropdown-select:focus {
+                border-color: #FF3A2F;
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(255,58,47,0.2);
+            }
 
-        .dropdown-select:disabled {
-            background: #0A0A0F;
-            color: #5A5A6E;
-            cursor: not-allowed;
-            border-color: #22222B;
-        }
+            .dropdown-select:disabled {
+                background: #0A0A0F;
+                color: #5A5A6E;
+                cursor: not-allowed;
+                border-color: #22222B;
+            }
 
         .btn-next {
             width: 100%;
@@ -190,10 +192,10 @@
             box-shadow: 0 4px 15px rgba(255,58,47,0.3);
         }
 
-        .btn-next:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255,58,47,0.4);
-        }
+            .btn-next:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(255,58,47,0.4);
+            }
 
         .container {
             flex: 1;
@@ -251,10 +253,10 @@
             transition: all 0.2s;
         }
 
-        .spec-item:hover {
-            border-color: #FF3A2F;
-            transform: translateY(-2px);
-        }
+            .spec-item:hover {
+                border-color: #FF3A2F;
+                transform: translateY(-2px);
+            }
 
         .spec-label {
             font-size: 11px;
@@ -281,10 +283,10 @@
             transition: all 0.25s;
         }
 
-        .info-block:hover {
-            border-color: #FF3A2F;
-            transform: translateY(-3px);
-        }
+            .info-block:hover {
+                border-color: #FF3A2F;
+                transform: translateY(-3px);
+            }
 
         .info-title {
             font-size: 20px;
@@ -301,6 +303,18 @@
             font-size: 15px;
             line-height: 1.7;
         }
+
+        .info-content-item {
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+        }
+
+            .info-content-item:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
 
         .price-block {
             background: linear-gradient(135deg, #FF3A2F, #B8251A);
@@ -329,6 +343,98 @@
         .price-note {
             font-size: 12px;
             opacity: 0.7;
+        }
+
+        .price-table-wrapper {
+            margin-top: 15px;
+            overflow-x: auto;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 4px;
+        }
+
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+            .price-table thead tr {
+                background: rgba(255, 255, 255, 0.08);
+            }
+
+            .price-table thead th {
+                padding: 14px 20px;
+                text-align: left;
+                font-weight: 700;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                color: #FFB5A0;
+                border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            }
+
+                .price-table thead th:not(:first-child) {
+                    text-align: center;
+                }
+
+            .price-table tbody tr {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                transition: background 0.2s ease;
+            }
+
+                .price-table tbody tr:last-child {
+                    border-bottom: none;
+                }
+
+                .price-table tbody tr:hover {
+                    background: rgba(255, 255, 255, 0.05);
+                }
+
+            .price-table tbody td {
+                padding: 14px 20px;
+                text-align: left;
+                font-weight: 500;
+                color: #F0F0F8;
+            }
+
+                .price-table tbody td:not(:first-child) {
+                    text-align: center;
+                    font-weight: 700;
+                    font-size: 18px;
+                }
+
+                .price-table tbody td:last-child {
+                    color: #FFB5A0;
+                }
+
+        .price-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .price-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #FF3A2F;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .price-base {
+            color: #4CAF50;
+        }
+
+        .price-pro {
+            color: #FFB5A0;
+        }
+
+        .price-empty {
+            font-size: 18px;
+            color: #A0A0B0;
         }
 
         .actions-bottom {
@@ -360,10 +466,10 @@
             box-shadow: 0 4px 15px rgba(255,58,47,0.3);
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255,58,47,0.4);
-        }
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(255,58,47,0.4);
+            }
 
         .btn-secondary {
             background: transparent;
@@ -371,11 +477,11 @@
             border: 1px solid #3A3A45;
         }
 
-        .btn-secondary:hover {
-            border-color: #FF3A2F;
-            color: #FF3A2F;
-            transform: translateY(-2px);
-        }
+            .btn-secondary:hover {
+                border-color: #FF3A2F;
+                color: #FF3A2F;
+                transform: translateY(-2px);
+            }
 
         .highlight {
             border-left: 3px solid #FF3A2F;
@@ -386,6 +492,7 @@
                 width: 95%;
                 gap: 24px;
             }
+
             .dropdowns-sidebar {
                 flex: 0 0 260px;
             }
@@ -395,18 +502,26 @@
             .page-wrapper {
                 flex-direction: column;
             }
+
             .dropdowns-sidebar {
                 display: none;
             }
+
             .dropdowns-mobile {
                 display: block;
             }
+
             .car-header-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
+
             .price-value {
                 font-size: 32px;
+            }
+
+            .price-table tbody td:not(:first-child) {
+                font-size: 16px;
             }
         }
 
@@ -414,42 +529,67 @@
             body {
                 padding: 0;
             }
+
             .page-wrapper {
                 width: 100%;
                 padding: 80px 16px 40px;
             }
+
             .language-switcher {
                 top: 12px;
                 right: 12px;
                 padding: 4px 10px;
             }
+
             .lang-btn {
                 padding: 4px 10px;
                 font-size: 11px;
             }
+
             .car-header {
                 padding: 20px;
             }
+
             .info-block {
                 padding: 20px;
             }
+
             .info-title {
                 font-size: 18px;
             }
+
             .specs-grid {
                 gap: 12px;
                 padding: 16px;
             }
+
             .spec-item {
                 padding: 12px;
             }
+
             .actions-bottom {
                 flex-direction: column;
                 align-items: center;
             }
+
             .btn {
                 width: 100%;
                 max-width: 280px;
+            }
+
+            .price-table thead th,
+            .price-table tbody td {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+                .price-table tbody td:not(:first-child) {
+                    font-size: 15px;
+                }
+
+            .info-content-item {
+                margin-bottom: 10px;
+                padding-bottom: 10px;
             }
         }
 
@@ -457,8 +597,23 @@
             .specs-grid {
                 grid-template-columns: 1fr;
             }
+
             .price-value {
                 font-size: 28px;
+            }
+
+            .price-table thead th,
+            .price-table tbody td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+                .price-table tbody td:not(:first-child) {
+                    font-size: 14px;
+                }
+
+            .price-name-cell span {
+                font-size: 13px;
             }
         }
     </style>
@@ -541,30 +696,117 @@
                 </div>
             </div>
 
-            <div class="info-block">
-                <div class="info-title">📈 @GetLocalized("Результаты чип-тюнинга", "Chip Tuning Results", "Chip-Tuning Ergebnisse")</div>
-                <div class="info-content">@Html.Raw(AddLineBreaks(GetLocalized(Model.ResultRu, Model.ResultEng, Model.ResultGer)))</div>
-            </div>
-
+            <!-- ===== ABOUT (О автомобиле) ===== -->
             <div class="info-block highlight">
                 <div class="info-title">ℹ️ @GetLocalized("О автомобиле", "About the Car", "Über das Auto")</div>
-                <div class="info-content">@GetLocalized(Model.AboutRu, Model.AboutEng, Model.AboutGer)</div>
+                <div class="info-content">
+                    @if (Model.Abouts != null && Model.Abouts.Any())
+                    {
+                        @foreach (var item in Model.Abouts)
+                        {
+                            <div class="info-content-item">
+                                <div>@GetLocalized(item.text_ru, item.text_eng, item.text_ger)</div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div>@Model.AboutRu</div>
+                    }
+                </div>
             </div>
 
+            <!-- ===== RESULT (Результаты чип-тюнинга) ===== -->
+            <div class="info-block">
+                <div class="info-title">📈 @GetLocalized("Результаты чип-тюнинга", "Chip Tuning Results", "Chip-Tuning Ergebnisse")</div>
+                <div class="info-content">
+                    @if (Model.PriResults != null && Model.PriResults.Any())
+                    {
+                        @foreach (var item in Model.PriResults)
+                        {
+                            <div class="info-content-item">
+                                <div>@GetLocalized(item.text_ru, item.text_eng, item.text_ger)</div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div>@Html.Raw(AddLineBreaks(Model.ResultRu))</div>
+                    }
+                </div>
+            </div>
+
+            <!-- ===== ENGINE CONTROL (Управление двигателем) ===== -->
             <div class="info-block">
                 <div class="info-title">⚙️ @GetLocalized("Управление двигателем", "Engine Control", "Motorsteuerung")</div>
-                <div class="info-content">@Html.Raw(AddLineBreaks(GetLocalized(Model.EngineControlRu, Model.EngineControlEng, Model.EngineControlGer)))</div>
+                <div class="info-content">
+                    @if (Model.Engine_controlers != null && Model.Engine_controlers.Any())
+                    {
+                        @foreach (var item in Model.Engine_controlers)
+                        {
+                            <div class="info-content-item">
+                                <div>@GetLocalized(item.text_ru, item.text_eng, item.text_ger)</div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div>@Html.Raw(AddLineBreaks(Model.EngineControlRu))</div>
+                    }
+                </div>
             </div>
 
-            <div class="info-block">
-                <div class="info-title">🎯 @GetLocalized("Дополнительные опции", "Additional Options", "Zusätzliche Optionen")</div>
-                <div class="info-content">@Html.Raw(AddLineBreaks(GetLocalized(Model.OptionsRu, Model.OptionsEng, Model.OptionsGer)))</div>
-            </div>
 
+            <!-- ===== PRICE (Цены) ===== -->
             <div class="price-block">
                 <div class="price-label">💰 @GetLocalized("СТОИМОСТЬ", "PRICE", "PREIS")</div>
-                <div class="price-value">@GetLocalized(Model.PriceRu, Model.PriceEng, Model.PriceGer)</div>
-                <div class="price-note">@GetLocalized("*включая все работы и настройки", "*including all works and tuning", "*inklusive aller Arbeiten")</div>
+
+                @if (Model.Prices != null && Model.Prices.Any())
+                {
+                    <div class="price-table-wrapper">
+                        <table class="price-table">
+                            <thead>
+                                <tr>
+                                    <th>@GetLocalized("Пакет", "Package", "Paket")</th>
+                                    <th>BASE</th>
+                                    <th>PRO</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var priceItem in Model.Prices)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="price-name-cell">
+                                                <span class="price-dot"></span>
+                                                <span>@GetLocalized(priceItem.name_ru, priceItem.name_eng, priceItem.name_ger)</span>
+                                            </div>
+                                        </td>
+                                        <td class="price-base">@priceItem.base_price.ToString("N0") ₽</td>
+                                        <td class="price-pro">@priceItem.pro_price.ToString("N0") ₽</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="price-empty">
+                        @if (!string.IsNullOrEmpty(Model.PriceRu))
+                        {
+                            @Model.PriceRu
+                        }
+                        else
+                        {
+                            @GetLocalized("Цены не указаны", "No prices available", "Keine Preise verfügbar")
+                        }
+                    </div>
+                }
+
+                <div class="price-note" style="margin-top: 15px;">
+                    *@GetLocalized("включая все работы и настройки", "including all works and tuning", "inklusive aller Arbeiten")
+                </div>
             </div>
 
             <div class="actions-bottom">
