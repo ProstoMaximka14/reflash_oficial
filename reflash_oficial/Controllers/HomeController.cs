@@ -57,18 +57,9 @@ namespace reflash_oficial.Controllers
                                     Generation = reader.IsDBNull(reader.GetOrdinal("generation")) ? "" : reader.GetString("generation"),
                                     Engine = reader.IsDBNull(reader.GetOrdinal("engine")) ? "" : reader.GetString("engine"),
                                     Image = reader.IsDBNull(reader.GetOrdinal("image")) ? "" : reader.GetString("image"),
-                                    AboutRu = reader.IsDBNull(reader.GetOrdinal("about_ru")) ? "" : reader.GetString("about_ru"),
-                                    AboutEng = reader.IsDBNull(reader.GetOrdinal("about_eng")) ? "" : reader.GetString("about_eng"),
-                                    AboutGer = reader.IsDBNull(reader.GetOrdinal("about_ger")) ? "" : reader.GetString("about_ger"),
-                                    ResultRu = reader.IsDBNull(reader.GetOrdinal("result_ru")) ? "" : reader.GetString("result_ru"),
-                                    ResultEng = reader.IsDBNull(reader.GetOrdinal("result_eng")) ? "" : reader.GetString("result_eng"),
-                                    ResultGer = reader.IsDBNull(reader.GetOrdinal("result_ger")) ? "" : reader.GetString("result_ger"),
-                                    EngineControlRu = reader.IsDBNull(reader.GetOrdinal("engine_control_ru")) ? "" : reader.GetString("engine_control_ru"),
-                                    EngineControlEng = reader.IsDBNull(reader.GetOrdinal("engine_control_eng")) ? "" : reader.GetString("engine_control_eng"),
-                                    EngineControlGer = reader.IsDBNull(reader.GetOrdinal("engine_control_ger")) ? "" : reader.GetString("engine_control_ger"),
-                                    OptionsRu = reader.IsDBNull(reader.GetOrdinal("options_ru")) ? "" : reader.GetString("options_ru"),
-                                    OptionsEng = reader.IsDBNull(reader.GetOrdinal("options_eng")) ? "" : reader.GetString("options_eng"),
-                                    OptionsGer = reader.IsDBNull(reader.GetOrdinal("options_ger")) ? "" : reader.GetString("options_ger"),
+                                    AboutRu = reader.IsDBNull(reader.GetOrdinal("about_ru")) ? "" : reader.GetString("about_ru"),                                    
+                                    ResultRu = reader.IsDBNull(reader.GetOrdinal("result_ru")) ? "" : reader.GetString("result_ru"),                                   
+                                    EngineControlRu = reader.IsDBNull(reader.GetOrdinal("engine_control_ru")) ? "" : reader.GetString("engine_control_ru"),                      
                                     PriceRu = reader.IsDBNull(reader.GetOrdinal("price_ru")) ? "" : reader.GetString("price_ru")
                                 });
                             }
@@ -382,7 +373,7 @@ namespace reflash_oficial.Controllers
             });
         }
 
-        //Вызов странице генерирующейся по выбранной машине из базы данных
+
         //Вызов странице генерирующейся по выбранной машине из базы данных
         public async Task<IActionResult> Car(ReflashCarModel car)
         {
@@ -412,10 +403,30 @@ namespace reflash_oficial.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Загружаем цены из PriceRu
+            // ===== ЗАГРУЖАЕМ ВСЕ ДАННЫЕ =====
+
+            // 1. Цены (из PriceRu)
             if (!string.IsNullOrEmpty(neededCar.PriceRu))
             {
                 neededCar.Prices = await GetPriceListByIdsAsync(neededCar.PriceRu);
+            }
+
+            // 2. About (из AboutRu)
+            if (!string.IsNullOrEmpty(neededCar.AboutRu))
+            {
+                neededCar.Abouts = await GetAboutListByIdsAsync(neededCar.AboutRu);
+            }
+
+            // 3. Result (из ResultRu)
+            if (!string.IsNullOrEmpty(neededCar.ResultRu))
+            {
+                neededCar.PriResults = await GetResultListByIdsAsync(neededCar.ResultRu);
+            }
+
+            // 4. EngineControl (из EngineControlRu)
+            if (!string.IsNullOrEmpty(neededCar.EngineControlRu))
+            {
+                neededCar.Engine_controlers = await GetEngineControlListByIdsAsync(neededCar.EngineControlRu);
             }
 
             return View(neededCar);
@@ -539,6 +550,287 @@ namespace reflash_oficial.Controllers
                 }
             }
 
+            return null;
+        }
+
+        // ==========================================
+        // МЕТОДЫ ДЛЯ ABOUT
+        // ==========================================
+
+        /// <summary>
+        /// Получить список About по строке ID (раскрывает template_about до about)
+        /// </summary>
+        private async Task<List<AboutModel>> GetAboutListByIdsAsync(string idsString)
+        {
+            var result = new List<AboutModel>();
+            if (string.IsNullOrEmpty(idsString)) return result;
+
+            var ids = idsString.Split(',').Select(int.Parse).ToList();
+            string connectionString = _configuration.GetConnectionString("DefaultConnection")
+                ?? "server=localhost;port=3306;database=reflash;user=root;password=QaZmLp2414;CharSet=utf8;";
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+                var cache = new Dictionary<int, AboutModel>();
+
+                foreach (var id in ids)
+                {
+                    string sourceTable = null;
+                    using (var cmd = new MySqlCommand("SELECT source_table FROM global_ids WHERE id = @id", connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        sourceTable = (await cmd.ExecuteScalarAsync())?.ToString();
+                    }
+
+                    if (string.IsNullOrEmpty(sourceTable)) continue;
+
+                    if (sourceTable == "about")
+                    {
+                        if (!cache.ContainsKey(id))
+                        {
+                            var item = await GetAboutByIdAsync(connection, id);
+                            if (item != null) cache[id] = item;
+                        }
+                        if (cache.ContainsKey(id)) result.Add(cache[id]);
+                    }
+                    else if (sourceTable == "template_about")
+                    {
+                        string linkedIds = null;
+                        using (var cmd = new MySqlCommand("SELECT ids FROM template_about WHERE id = @id", connection))
+                        {
+                            cmd.Parameters.AddWithValue("@id", id);
+                            linkedIds = (await cmd.ExecuteScalarAsync())?.ToString();
+                        }
+
+                        if (!string.IsNullOrEmpty(linkedIds))
+                        {
+                            foreach (var linkedId in linkedIds.Split(',').Select(int.Parse))
+                            {
+                                if (!cache.ContainsKey(linkedId))
+                                {
+                                    var item = await GetAboutByIdAsync(connection, linkedId);
+                                    if (item != null) cache[linkedId] = item;
+                                }
+                                if (cache.ContainsKey(linkedId)) result.Add(cache[linkedId]);
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Получить один About по ID
+        /// </summary>
+        private async Task<AboutModel> GetAboutByIdAsync(MySqlConnection connection, int id)
+        {
+            using (var cmd = new MySqlCommand("SELECT id, text_ru, text_eng, text_ger FROM about WHERE id = @id", connection))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new AboutModel
+                        {
+                            id = reader.GetInt32("id"),
+                            text_ru = reader.IsDBNull(reader.GetOrdinal("text_ru")) ? "" : reader.GetString("text_ru"),
+                            text_eng = reader.IsDBNull(reader.GetOrdinal("text_eng")) ? "" : reader.GetString("text_eng"),
+                            text_ger = reader.IsDBNull(reader.GetOrdinal("text_ger")) ? "" : reader.GetString("text_ger")
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
+
+        // ==========================================
+        // МЕТОДЫ ДЛЯ RESULT
+        // ==========================================
+
+        /// <summary>
+        /// Получить список Result по строке ID (раскрывает template_result до result)
+        /// </summary>
+        private async Task<List<ResultModel>> GetResultListByIdsAsync(string idsString)
+        {
+            var result = new List<ResultModel>();
+            if (string.IsNullOrEmpty(idsString)) return result;
+
+            var ids = idsString.Split(',').Select(int.Parse).ToList();
+            string connectionString = _configuration.GetConnectionString("DefaultConnection")
+                ?? "server=localhost;port=3306;database=reflash;user=root;password=QaZmLp2414;CharSet=utf8;";
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+                var cache = new Dictionary<int, ResultModel>();
+
+                foreach (var id in ids)
+                {
+                    string sourceTable = null;
+                    using (var cmd = new MySqlCommand("SELECT source_table FROM global_ids WHERE id = @id", connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        sourceTable = (await cmd.ExecuteScalarAsync())?.ToString();
+                    }
+
+                    if (string.IsNullOrEmpty(sourceTable)) continue;
+
+                    if (sourceTable == "result")
+                    {
+                        if (!cache.ContainsKey(id))
+                        {
+                            var item = await GetResultByIdAsync(connection, id);
+                            if (item != null) cache[id] = item;
+                        }
+                        if (cache.ContainsKey(id)) result.Add(cache[id]);
+                    }
+                    else if (sourceTable == "template_result")
+                    {
+                        string linkedIds = null;
+                        using (var cmd = new MySqlCommand("SELECT ids FROM template_result WHERE id = @id", connection))
+                        {
+                            cmd.Parameters.AddWithValue("@id", id);
+                            linkedIds = (await cmd.ExecuteScalarAsync())?.ToString();
+                        }
+
+                        if (!string.IsNullOrEmpty(linkedIds))
+                        {
+                            foreach (var linkedId in linkedIds.Split(',').Select(int.Parse))
+                            {
+                                if (!cache.ContainsKey(linkedId))
+                                {
+                                    var item = await GetResultByIdAsync(connection, linkedId);
+                                    if (item != null) cache[linkedId] = item;
+                                }
+                                if (cache.ContainsKey(linkedId)) result.Add(cache[linkedId]);
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Получить один Result по ID
+        /// </summary>
+        private async Task<ResultModel> GetResultByIdAsync(MySqlConnection connection, int id)
+        {
+            using (var cmd = new MySqlCommand("SELECT id, text_ru, text_eng, text_ger FROM result WHERE id = @id", connection))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new ResultModel
+                        {
+                            id = reader.GetInt32("id"),
+                            text_ru = reader.IsDBNull(reader.GetOrdinal("text_ru")) ? "" : reader.GetString("text_ru"),
+                            text_eng = reader.IsDBNull(reader.GetOrdinal("text_eng")) ? "" : reader.GetString("text_eng"),
+                            text_ger = reader.IsDBNull(reader.GetOrdinal("text_ger")) ? "" : reader.GetString("text_ger")
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
+
+        // ==========================================
+        // МЕТОДЫ ДЛЯ ENGINE_CONTROL
+        // ==========================================
+
+        /// <summary>
+        /// Получить список EngineControl по строке ID (раскрывает template_engine_control до engine_control)
+        /// </summary>
+        private async Task<List<EngineControlModel>> GetEngineControlListByIdsAsync(string idsString)
+        {
+            var result = new List<EngineControlModel>();
+            if (string.IsNullOrEmpty(idsString)) return result;
+
+            var ids = idsString.Split(',').Select(int.Parse).ToList();
+            string connectionString = _configuration.GetConnectionString("DefaultConnection")
+                ?? "server=localhost;port=3306;database=reflash;user=root;password=QaZmLp2414;CharSet=utf8;";
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+                var cache = new Dictionary<int, EngineControlModel>();
+
+                foreach (var id in ids)
+                {
+                    string sourceTable = null;
+                    using (var cmd = new MySqlCommand("SELECT source_table FROM global_ids WHERE id = @id", connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        sourceTable = (await cmd.ExecuteScalarAsync())?.ToString();
+                    }
+
+                    if (string.IsNullOrEmpty(sourceTable)) continue;
+
+                    if (sourceTable == "engine_control")
+                    {
+                        if (!cache.ContainsKey(id))
+                        {
+                            var item = await GetEngineControlByIdAsync(connection, id);
+                            if (item != null) cache[id] = item;
+                        }
+                        if (cache.ContainsKey(id)) result.Add(cache[id]);
+                    }
+                    else if (sourceTable == "template_engine_control")
+                    {
+                        string linkedIds = null;
+                        using (var cmd = new MySqlCommand("SELECT ids FROM template_engine_control WHERE id = @id", connection))
+                        {
+                            cmd.Parameters.AddWithValue("@id", id);
+                            linkedIds = (await cmd.ExecuteScalarAsync())?.ToString();
+                        }
+
+                        if (!string.IsNullOrEmpty(linkedIds))
+                        {
+                            foreach (var linkedId in linkedIds.Split(',').Select(int.Parse))
+                            {
+                                if (!cache.ContainsKey(linkedId))
+                                {
+                                    var item = await GetEngineControlByIdAsync(connection, linkedId);
+                                    if (item != null) cache[linkedId] = item;
+                                }
+                                if (cache.ContainsKey(linkedId)) result.Add(cache[linkedId]);
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Получить один EngineControl по ID
+        /// </summary>
+        private async Task<EngineControlModel> GetEngineControlByIdAsync(MySqlConnection connection, int id)
+        {
+            using (var cmd = new MySqlCommand("SELECT id, text_ru, text_eng, text_ger FROM engine_control WHERE id = @id", connection))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new EngineControlModel
+                        {
+                            id = reader.GetInt32("id"),
+                            text_ru = reader.IsDBNull(reader.GetOrdinal("text_ru")) ? "" : reader.GetString("text_ru"),
+                            text_eng = reader.IsDBNull(reader.GetOrdinal("text_eng")) ? "" : reader.GetString("text_eng"),
+                            text_ger = reader.IsDBNull(reader.GetOrdinal("text_ger")) ? "" : reader.GetString("text_ger")
+                        };
+                    }
+                }
+            }
             return null;
         }
 

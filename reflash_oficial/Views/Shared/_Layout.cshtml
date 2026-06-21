@@ -29,7 +29,7 @@
             top: 0;
             z-index: 1000;
         }
-        
+
         .navbar {
             padding: 0;
             margin: 0;
@@ -38,7 +38,7 @@
             border-bottom: 1px solid rgba(255, 58, 47, 0.3);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
-        
+
         .container-fluid {
             display: flex;
             justify-content: space-between;
@@ -49,7 +49,14 @@
             padding: 12px 24px;
             width: 100%;
         }
-        
+
+        /* Левая часть: логотип + соцсети */
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
         /* Логотип */
         .navbar-brand {
             font-size: 1.4rem;
@@ -63,23 +70,74 @@
             white-space: nowrap;
             transition: opacity 0.2s;
         }
-        
-        .navbar-brand:hover {
-            opacity: 0.85;
-            color: transparent;
+
+            .navbar-brand:hover {
+                opacity: 0.85;
+                color: transparent;
+            }
+
+        /* Социальные иконки */
+        .social-icons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            color: #A0A0B0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+            .social-link:hover {
+                transform: translateY(-2px);
+                background: rgba(255, 58, 47, 0.15);
+                border-color: #FF3A2F;
+                color: #FF3A2F;
+                box-shadow: 0 4px 15px rgba(255, 58, 47, 0.2);
+            }
+
+            /* Telegram - синий */
+            .social-link.telegram:hover {
+                background: rgba(0, 136, 204, 0.2);
+                border-color: #0088CC;
+                color: #0088CC;
+            }
+
+            /* VK - синий */
+            .social-link.vk:hover {
+                background: rgba(69, 112, 169, 0.2);
+                border-color: #4C75A3;
+                color: #4C75A3;
+            }
+
+            /* WhatsApp - зеленый */
+            .social-link.whatsapp:hover {
+                background: rgba(37, 211, 102, 0.2);
+                border-color: #25D366;
+                color: #25D366;
+            }
+
         /* Нав-меню */
         .navbar-collapse {
             display: flex !important;
             flex-grow: 0;
         }
-        
+
         /* Скрываем кнопку-бургер */
         .navbar-toggler {
             display: none !important;
         }
-        
+
         /* Меню всегда горизонтальное */
         .navbar-nav {
             display: flex;
@@ -89,11 +147,11 @@
             padding: 0;
             list-style: none;
         }
-        
+
         .nav-item {
             position: relative;
         }
-        
+
         .nav-link {
             padding: 10px 20px;
             font-size: 14px;
@@ -104,42 +162,42 @@
             letter-spacing: 0.3px;
             border-radius: 40px;
         }
-        
-        .nav-link:hover {
-            color: #FF3A2F !important;
-            background: rgba(255, 58, 47, 0.1);
-        }
-        
-        /* Активная ссылка */
-        .nav-link.active {
-            color: #FF3A2F !important;
-            background: rgba(255, 58, 47, 0.15);
-        }
-        
-        /* Индикатор активной ссылки (красная точка снизу) */
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: 2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 24px;
-            height: 2px;
-            background: #FF3A2F;
-            border-radius: 2px;
-        }
-        
+
+            .nav-link:hover {
+                color: #FF3A2F !important;
+                background: rgba(255, 58, 47, 0.1);
+            }
+
+            /* Активная ссылка */
+            .nav-link.active {
+                color: #FF3A2F !important;
+                background: rgba(255, 58, 47, 0.15);
+            }
+
+                /* Индикатор активной ссылки (красная точка снизу) */
+                .nav-link.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 2px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 24px;
+                    height: 2px;
+                    background: #FF3A2F;
+                    border-radius: 2px;
+                }
+
         /* ========== ОСНОВНОЙ КОНТЕНТ ========== */
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 40px 24px;
         }
-        
+
         main {
             min-height: calc(100vh - 80px);
         }
-        
+
         /* ========== АДАПТАЦИЯ ДЛЯ ПЛАНШЕТОВ ========== */
         @@media (max-width: 768px) {
             .container-fluid {
@@ -148,71 +206,104 @@
                 justify-content: flex-start;
                 gap: 12px;
             }
-            
+
+            .navbar-left {
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
             .navbar-brand {
                 font-size: 1.1rem;
             }
-            
+
+            .social-link {
+                width: 30px;
+                height: 30px;
+                font-size: 13px;
+            }
+
+            .social-icons {
+                gap: 8px;
+            }
+
             .navbar-nav {
                 gap: 4px;
                 flex-wrap: wrap;
             }
-            
+
             .nav-link {
                 padding: 6px 14px;
                 font-size: 12px;
             }
-            
-            .nav-link.active::after {
-                width: 18px;
-                bottom: 0;
-            }
-            
+
+                .nav-link.active::after {
+                    width: 18px;
+                    bottom: 0;
+                }
+
             .container {
                 padding: 24px 16px;
             }
         }
-        
+
         /* ========== ДЛЯ МАЛЕНЬКИХ ТЕЛЕФОНОВ ========== */
         @@media (max-width: 480px) {
             .navbar-brand {
                 font-size: 0.95rem;
             }
-            
+
+            .social-link {
+                width: 26px;
+                height: 26px;
+                font-size: 11px;
+            }
+
+            .social-icons {
+                gap: 6px;
+            }
+
             .nav-link {
                 padding: 5px 10px;
                 font-size: 10px;
             }
-            
-            .nav-link.active::after {
-                width: 14px;
-                height: 1.5px;
-            }
-            
+
+                .nav-link.active::after {
+                    width: 14px;
+                    height: 1.5px;
+                }
+
             .container {
                 padding: 20px 12px;
             }
         }
-        
+
         /* ========== ДЛЯ ОЧЕНЬ УЗКИХ ЭКРАНОВ ========== */
         @@media (max-width: 360px) {
             .navbar-brand {
                 font-size: 0.85rem;
             }
-            
+
+            .social-link {
+                width: 22px;
+                height: 22px;
+                font-size: 10px;
+            }
+
             .nav-link {
                 padding: 4px 8px;
                 font-size: 9px;
             }
         }
-        
+
         /* ========== КАСТОМНЫЙ СКРОЛЛ ========== */
         ::-webkit-scrollbar {
             width: 6px;
         }
+
         ::-webkit-scrollbar-track {
             background: #14141C;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #FF3A2F;
             border-radius: 10px;
@@ -223,27 +314,47 @@
     <header>
         <nav class="navbar">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="fas fa-microchip" style="color: #FF3A2F; margin-right: 8px;"></i>
-                    ReFlash Official
-                </a>
+                <!-- Левая часть: Логотип + соцсети -->
+                <div class="navbar-left">
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-microchip" style="color: #FF3A2F; margin-right: 8px;"></i>
+                        ReFlash Official
+                    </a>
+
+                    <!-- Социальные иконки -->
+                    <div class="social-icons">
+                        <!-- Telegram -->
+                        <a href="#" class="social-link telegram" target="_blank" title="Telegram">
+                            <i class="fab fa-telegram-plane"></i>
+                        </a>
+                        <!-- VK -->
+                        <a href="#" class="social-link vk" target="_blank" title="VK">
+                            <i class="fab fa-vk"></i>
+                        </a>
+                        <!-- WhatsApp -->
+                        <a href="#" class="social-link whatsapp" target="_blank" title="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Правая часть: Навигация -->
                 <div class="navbar-collapse">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")" 
+                            <a class="nav-link text-dark @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                                asp-area="" asp-controller="Home" asp-action="Index">
                                 <i class="fas fa-home" style="margin-right: 6px;"></i>
                                 Home
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark @(ViewContext.RouteData.Values["action"]?.ToString() == "Partners" ? "active" : "")" 
+                            <a class="nav-link text-dark @(ViewContext.RouteData.Values["action"]?.ToString() == "Partners" ? "active" : "")"
                                asp-area="" asp-controller="Home" asp-action="Partners">
                                 <i class="fas fa-handshake" style="margin-right: 6px;"></i>
                                 Partners
                             </a>
                         </li>
-                        
                     </ul>
                 </div>
             </div>
