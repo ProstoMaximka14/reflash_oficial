@@ -20,8 +20,12 @@
         public string OptionsRu { get; set; }
         public string OptionsEng { get; set; }
         public string OptionsGer { get; set; }
+
+        // Только одно поле для цен (на русском)
+        // Хранит строку с ID через запятую, например "1,2,3"
         public string PriceRu { get; set; }
-        public string PriceEng { get; set; }
-        public string PriceGer { get; set; }
+
+        // Загруженные цены (заполняется в контроллере)
+        public List<PriceModel> Prices { get; set; } = new List<PriceModel>();
     }
 }

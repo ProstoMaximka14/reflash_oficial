@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using reflash_oficial.Models;
 using System.Collections.Generic;
 using System.Configuration;
-using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
+using System.Data;
 //using System.Configuration;
 using System.Diagnostics;
+using System.Text.Json;
 using static System.Net.Mime.MediaTypeNames;
 
 
@@ -47,6 +48,7 @@ namespace reflash_oficial.Controllers
                         {
                             while (reader.Read())
                             {
+                                
                                 cars.Add(new ReflashCarModel
                                 {
                                     Id = reader.GetInt32("id"),
@@ -67,9 +69,7 @@ namespace reflash_oficial.Controllers
                                     OptionsRu = reader.IsDBNull(reader.GetOrdinal("options_ru")) ? "" : reader.GetString("options_ru"),
                                     OptionsEng = reader.IsDBNull(reader.GetOrdinal("options_eng")) ? "" : reader.GetString("options_eng"),
                                     OptionsGer = reader.IsDBNull(reader.GetOrdinal("options_ger")) ? "" : reader.GetString("options_ger"),
-                                    PriceRu = reader.IsDBNull(reader.GetOrdinal("price_ru")) ? "" : reader.GetString("price_ru"),
-                                    PriceEng = reader.IsDBNull(reader.GetOrdinal("price_eng")) ? "" : reader.GetString("price_eng"),
-                                    PriceGer = reader.IsDBNull(reader.GetOrdinal("price_ger")) ? "" : reader.GetString("price_ger")
+                                    PriceRu = reader.IsDBNull(reader.GetOrdinal("price_ru")) ? "" : reader.GetString("price_ru")
                                 });
                             }
                         }
@@ -383,7 +383,8 @@ namespace reflash_oficial.Controllers
         }
 
         //Вызов странице генерирующейся по выбранной машине из базы данных
-        public IActionResult Car(ReflashCarModel car)
+        //Вызов странице генерирующейся по выбранной машине из базы данных
+        public async Task<IActionResult> Car(ReflashCarModel car)
         {
             // Декодируем значения (на случай если были спецсимволы)
             car.Brand = Uri.UnescapeDataString(car.Brand ?? "");
@@ -392,22 +393,154 @@ namespace reflash_oficial.Controllers
             car.Engine = Uri.UnescapeDataString(car.Engine ?? "");
 
             // Ищем автомобиль
-            foreach (ReflashCarModel needed_car in DatabaseModel.Cars)
+            ReflashCarModel neededCar = null;
+            foreach (var dbCar in DatabaseModel.Cars)
             {
-                if ((needed_car.Brand == car.Brand) &&
-                    (needed_car.Model == car.Model) &&
-                    (needed_car.Generation == car.Generation) &&
-                    (needed_car.Engine == car.Engine))
+                if ((dbCar.Brand == car.Brand) &&
+                    (dbCar.Model == car.Model) &&
+                    (dbCar.Generation == car.Generation) &&
+                    (dbCar.Engine == car.Engine))
                 {
-                    return View(needed_car);
+                    neededCar = dbCar;
+                    break;
                 }
             }
 
-            // Если не нашли
-            TempData["Error"] = "Автомобиль не найден";
-            return RedirectToAction("Index");
+            if (neededCar == null)
+            {
+                TempData["Error"] = "Автомобиль не найден";
+                return RedirectToAction("Index");
+            }
+
+            // Загружаем цены из PriceRu
+            if (!string.IsNullOrEmpty(neededCar.PriceRu))
+            {
+                neededCar.Prices = await GetPriceListByIdsAsync(neededCar.PriceRu);
+            }
+
+            return View(neededCar);
         }
 
+        // ==========================================
+        // МЕТОДЫ ДЛЯ РАБОТЫ С ЦЕНАМИ
+        // ==========================================
+
+        /// <summary>
+        /// Получить список Price по строке ID (раскрывает template_price до price)
+        /// </summary>
+        private async Task<List<PriceModel>> GetPriceListByIdsAsync(string idsString)
+        {
+            var result = new List<PriceModel>();
+
+            if (string.IsNullOrEmpty(idsString))
+                return result;
+
+            var ids = idsString.Split(',')
+                               .Select(id => int.Parse(id.Trim()))
+                               .ToList();
+
+            string connectionString = _configuration.GetConnectionString("DefaultConnection")
+                ?? "server=localhost;port=3306;database=reflash;user=root;password=QaZmLp2414;CharSet=utf8;";
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                var priceCache = new Dictionary<int, PriceModel>();
+
+                foreach (var id in ids)
+                {
+                    // 1. Определяем тип записи (price или template_price)
+                    string sourceTable = null;
+                    using (var cmd = new MySqlCommand("SELECT source_table FROM global_ids WHERE id = @id", connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        var resultScalar = await cmd.ExecuteScalarAsync();
+                        sourceTable = resultScalar?.ToString();
+                    }
+
+                    if (string.IsNullOrEmpty(sourceTable))
+                        continue;
+
+                    if (sourceTable == "price")
+                    {
+                        // 2. Это прямая цена из таблицы price
+                        if (!priceCache.ContainsKey(id))
+                        {
+                            var price = await GetPriceByIdAsync(connection, id);
+                            if (price != null)
+                                priceCache[id] = price;
+                        }
+
+                        if (priceCache.ContainsKey(id))
+                            result.Add(priceCache[id]);
+                    }
+                    else if (sourceTable == "template_price")
+                    {
+                        // 3. Это шаблон - нужно получить связанные цены
+                        string linkedPriceIds = null;
+                        using (var cmd = new MySqlCommand("SELECT prices FROM template_price WHERE id = @id", connection))
+                        {
+                            cmd.Parameters.AddWithValue("@id", id);
+                            linkedPriceIds = (await cmd.ExecuteScalarAsync())?.ToString();
+                        }
+
+                        if (!string.IsNullOrEmpty(linkedPriceIds))
+                        {
+                            var linkedIds = linkedPriceIds.Split(',')
+                                                           .Select(x => int.Parse(x.Trim()))
+                                                           .ToList();
+
+                            foreach (var linkedId in linkedIds)
+                            {
+                                if (!priceCache.ContainsKey(linkedId))
+                                {
+                                    var price = await GetPriceByIdAsync(connection, linkedId);
+                                    if (price != null)
+                                        priceCache[linkedId] = price;
+                                }
+
+                                if (priceCache.ContainsKey(linkedId))
+                                    result.Add(priceCache[linkedId]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Получить одну цену по ID из таблицы price
+        /// </summary>
+        private async Task<PriceModel> GetPriceByIdAsync(MySqlConnection connection, int id)
+        {
+            using (var cmd = new MySqlCommand(
+                "SELECT id, name_ru, name_eng, name_ger, base_price, pro_price FROM price WHERE id = @id",
+                connection))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new PriceModel
+                        {
+                            id = reader.GetInt32("id"),
+                            name_ru = reader.IsDBNull(reader.GetOrdinal("name_ru")) ? "" : reader.GetString("name_ru"),
+                            name_eng = reader.IsDBNull(reader.GetOrdinal("name_eng")) ? "" : reader.GetString("name_eng"),
+                            name_ger = reader.IsDBNull(reader.GetOrdinal("name_ger")) ? "" : reader.GetString("name_ger"),
+                            base_price = reader.IsDBNull(reader.GetOrdinal("base_price")) ? 0 : reader.GetInt32("base_price"),
+                            pro_price = reader.IsDBNull(reader.GetOrdinal("pro_price")) ? 0 : reader.GetInt32("pro_price")
+                        };
+                    }
+                }
+            }
+
+            return null;
+        }
 
         //Партнёры
 
