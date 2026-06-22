@@ -697,7 +697,7 @@
             </div>
 
             <!-- ===== ABOUT (О автомобиле) ===== -->
-            <div class="info-block highlight">
+            <div class="info-block">
                 <div class="info-title">ℹ️ @GetLocalized("О автомобиле", "About the Car", "Über das Auto")</div>
                 <div class="info-content">
                     @if (Model.Abouts != null && Model.Abouts.Any())
@@ -758,6 +758,7 @@
 
 
             <!-- ===== PRICE (Цены) ===== -->
+            <!-- ===== PRICE (Цены) ===== -->
             <div class="price-block">
                 <div class="price-label">💰 @GetLocalized("СТОИМОСТЬ", "PRICE", "PREIS")</div>
 
@@ -767,9 +768,9 @@
                         <table class="price-table">
                             <thead>
                                 <tr>
-                                    <th>@GetLocalized("Пакет", "Package", "Paket")</th>
-                                    <th>BASE</th>
-                                    <th>PRO</th>
+                                    <th>@GetLocalized("Название опции", "Option Name", "Optionsbezeichnung")</th>
+                                    <th>@GetLocalized("Цена на стоке", "Stock Price", "Aktienkurs")</th>
+                                    <th>@GetLocalized("Доплата при тюнинге", "Tuning Surcharge", "Tuning-Aufpreis")</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -782,8 +783,34 @@
                                                 <span>@GetLocalized(priceItem.name_ru, priceItem.name_eng, priceItem.name_ger)</span>
                                             </div>
                                         </td>
-                                        <td class="price-base">@priceItem.base_price.ToString("N0") ₽</td>
-                                        <td class="price-pro">@priceItem.pro_price.ToString("N0") ₽</td>
+                                        <td class="price-base">
+                                            @if (string.IsNullOrEmpty(priceItem.base_price))
+                                            {
+                                                <text>—</text>
+                                            }
+                                            else if (int.TryParse(priceItem.base_price, out int baseNum))
+                                            {
+                                                @baseNum.ToString("N0") <text>₽</text>
+                                            }
+                                            else
+                                            {
+                                                @priceItem.base_price
+                                            }
+                                        </td>
+                                        <td class="price-pro">
+                                            @if (string.IsNullOrEmpty(priceItem.pro_price))
+                                            {
+                                                <text>—</text>
+                                            }
+                                            else if (int.TryParse(priceItem.pro_price, out int proNum))
+                                            {
+                                                @proNum.ToString("N0") <text>₽</text>
+                                            }
+                                            else
+                                            {
+                                                @priceItem.pro_price
+                                            }
+                                        </td>
                                     </tr>
                                 }
                             </tbody>

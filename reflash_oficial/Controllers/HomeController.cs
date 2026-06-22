@@ -543,8 +543,8 @@ namespace reflash_oficial.Controllers
                             name_ru = reader.IsDBNull(reader.GetOrdinal("name_ru")) ? "" : reader.GetString("name_ru"),
                             name_eng = reader.IsDBNull(reader.GetOrdinal("name_eng")) ? "" : reader.GetString("name_eng"),
                             name_ger = reader.IsDBNull(reader.GetOrdinal("name_ger")) ? "" : reader.GetString("name_ger"),
-                            base_price = reader.IsDBNull(reader.GetOrdinal("base_price")) ? 0 : reader.GetInt32("base_price"),
-                            pro_price = reader.IsDBNull(reader.GetOrdinal("pro_price")) ? 0 : reader.GetInt32("pro_price")
+                            base_price = reader.IsDBNull(reader.GetOrdinal("base_price")) ? "" : reader.GetString("base_price"),
+                            pro_price = reader.IsDBNull(reader.GetOrdinal("pro_price")) ? "" : reader.GetString("pro_price")
                         };
                     }
                 }
