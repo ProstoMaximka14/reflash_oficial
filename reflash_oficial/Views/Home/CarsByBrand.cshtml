@@ -1,0 +1,550 @@
+﻿@model List<reflash_oficial.Models.ReflashCarModel>
+@{
+    ViewData["Title"] = $"{ViewBag.Brand} — все модели";
+    var brand = ViewBag.Brand as string ?? "";
+    var language = Context.Request.Cookies["Language"] ?? "ru";
+
+    string GetLocalized(string ru, string eng, string ger)
+    {
+        return language switch
+        {
+            "en" => eng,
+            "de" => ger,
+            _ => ru
+        };
+    }
+
+    // Группируем по модели
+    var groupedByModel = Model
+        .GroupBy(c => c.Model)
+        .OrderBy(g => g.Key)
+        .ToList();
+}
+
+<!DOCTYPE html>
+<html lang="@language" data-theme="@(Context.Request.Cookies["Theme"] ?? "dark")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ==========================================
+                           CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ
+                           ========================================== */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-card: #ffffff;
+            --bg-input: #f0f0f0;
+            --bg-overlay: rgba(255, 255, 255, 0.9);
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a5e;
+            --text-muted: #88889a;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --shadow-hover: rgba(0, 0, 0, 0.15);
+            --accent-color: #2196F3;
+            --accent-hover: #1976D2;
+            --logo-color-start: #0D47A1;
+            --logo-color-end: #42A5F5;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0A0A0F;
+            --bg-secondary: #14141C;
+            --bg-card: #111118;
+            --bg-input: #1a1a24;
+            --bg-overlay: rgba(10, 10, 15, 0.9);
+            --text-primary: #E8E8F0;
+            --text-secondary: #C0C0D0;
+            --text-muted: #88889a;
+            --border-color: #2A2A35;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --shadow-hover: rgba(0, 0, 0, 0.5);
+            --accent-color: #FF3A2F;
+            --accent-hover: #D62B1F;
+            --logo-color-start: #FFB5A0;
+            --logo-color-end: #FFD4C4;
+        }
+
+        /* ==========================================
+                           ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА
+                           ========================================== */
+        .language-switcher {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            display: flex;
+            gap: 8px;
+            z-index: 1100;
+            background: var(--bg-overlay);
+            backdrop-filter: blur(12px);
+            padding: 6px 12px;
+            border-radius: 60px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 20px var(--shadow-color);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 14px;
+            cursor: pointer;
+            font-weight: 600;
+            border-radius: 40px;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+        }
+
+            .lang-btn:hover {
+                color: var(--text-primary);
+                background: rgba(255,58,47,0.1);
+            }
+
+            .lang-btn.active {
+                background: var(--accent-color);
+                color: white;
+                box-shadow: 0 0 8px rgba(255,58,47,0.5);
+            }
+
+        /* ==========================================
+                           ОСНОВНЫЕ СТИЛИ
+                           ========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 24px 60px;
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 12px;
+            transition: color 0.2s;
+        }
+
+            .back-link:hover {
+                color: var(--accent-hover);
+            }
+
+            .back-link i {
+                margin-right: 8px;
+            }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--logo-color-start), var(--logo-color-end));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+            .page-title i {
+                color: var(--accent-color);
+                margin-right: 12px;
+            }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-top: 8px;
+        }
+
+        /* ========== СЕКЦИЯ МОДЕЛИ ========== */
+        .model-section {
+            margin-bottom: 40px;
+        }
+
+            .model-section:last-child {
+                margin-bottom: 0;
+            }
+
+        .model-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .model-header .model-name {
+                font-size: 24px;
+                font-weight: 700;
+                color: var(--text-primary);
+            }
+
+                .model-header .model-name i {
+                    color: var(--accent-color);
+                    margin-right: 10px;
+                }
+
+            .model-header .model-count {
+                font-size: 14px;
+                color: var(--text-muted);
+                background: var(--bg-card);
+                padding: 4px 16px;
+                border-radius: 20px;
+                border: 1px solid var(--border-color);
+            }
+
+        /* ========== ПОДЗАГОЛОВОК ПОКОЛЕНИЯ ========== */
+        .generation-subheader {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            margin: 12px 0 12px 10px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border-left: 3px solid var(--accent-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .generation-subheader .gen-icon {
+                color: var(--accent-color);
+                font-size: 14px;
+            }
+
+            .generation-subheader .gen-name {
+                font-size: 16px;
+                font-weight: 600;
+                color: var(--text-primary);
+            }
+
+            .generation-subheader .gen-count {
+                font-size: 13px;
+                color: var(--text-muted);
+                margin-left: auto;
+            }
+
+        .model-cars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding-left: 20px;
+        }
+
+        /* ========== КАРТОЧКА АВТОМОБИЛЯ ========== */
+        .car-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+            .car-card:hover {
+                transform: translateY(-4px);
+                border-color: var(--accent-color);
+                box-shadow: 0 20px 30px -12px var(--shadow-hover);
+            }
+
+            .car-card .car-image-container {
+                width: 100%;
+                height: 180px;
+                overflow: hidden;
+                background: var(--bg-secondary);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .car-card .car-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.4s ease;
+            }
+
+            .car-card:hover .car-image {
+                transform: scale(1.05);
+            }
+
+            .car-card .no-image {
+                font-size: 40px;
+                color: var(--text-muted);
+            }
+
+            .car-card .car-info {
+                padding: 16px 18px;
+            }
+
+            .car-card .car-model-name {
+                font-size: 16px;
+                font-weight: 600;
+                color: var(--text-primary);
+            }
+
+            .car-card .car-details {
+                color: var(--text-secondary);
+                font-size: 13px;
+                margin-top: 4px;
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+            .empty-state i {
+                font-size: 56px;
+                display: block;
+                margin-bottom: 16px;
+                color: var(--text-muted);
+            }
+
+            .empty-state h3 {
+                color: var(--text-primary);
+                margin-bottom: 8px;
+            }
+
+        .alert {
+            background: rgba(255, 58, 47, 0.1);
+            border: 1px solid #FF3A2F;
+            color: #FF3A2F;
+            padding: 16px 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* ==========================================
+                           АДАПТИВНОСТЬ
+                           ========================================== */
+        @@media (max-width: 768px) {
+            .language-switcher {
+                top: 16px;
+                right: 16px;
+                padding: 4px 10px;
+                gap: 4px;
+            }
+
+            .lang-btn {
+                padding: 4px 10px;
+                font-size: 10px;
+            }
+
+            .container {
+                padding: 80px 16px 40px;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            .model-header .model-name {
+                font-size: 20px;
+            }
+
+            .model-cars-grid {
+                grid-template-columns: 1fr 1fr;
+                padding-left: 0;
+            }
+
+            .car-card .car-image-container {
+                height: 140px;
+            }
+
+            .generation-subheader {
+                margin-left: 0;
+                flex-wrap: wrap;
+            }
+
+                .generation-subheader .gen-count {
+                    margin-left: 0;
+                    width: 100%;
+                }
+        }
+
+        @@media (max-width: 480px) {
+            .language-switcher {
+                top: 12px;
+                right: 12px;
+                padding: 3px 8px;
+                gap: 4px;
+            }
+
+            .lang-btn {
+                padding: 3px 8px;
+                font-size: 9px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .model-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+                .model-header .model-name {
+                    font-size: 18px;
+                }
+
+            .model-cars-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .car-card .car-model-name {
+                font-size: 15px;
+            }
+
+            .car-card .car-image-container {
+                height: 120px;
+            }
+
+            .generation-subheader .gen-name {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА ===== -->
+    <div class="language-switcher">
+        <button class="lang-btn lang-ru @(language == "ru" ? "active" : "")" onclick="switchLanguage('ru')">
+            RU
+        </button>
+        <button class="lang-btn lang-en @(language == "en" ? "active" : "")" onclick="switchLanguage('en')">
+            EN
+        </button>
+        <button class="lang-btn lang-de @(language == "de" ? "active" : "")" onclick="switchLanguage('de')">
+            DE
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <a href="@Url.Action("Index", "Home")" class="back-link">
+                <i class="fas fa-arrow-left"></i> @GetLocalized("К выбору бренда", "Back to brands", "Zurück zur Markenauswahl")
+            </a>
+            <h1 class="page-title">
+                <i class="fas fa-car"></i> @brand
+            </h1>
+            <p class="page-subtitle">
+                @Model.Count @GetLocalized("автомобилей", "cars", "Autos")
+            </p>
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert">
+                <i class="fas fa-exclamation-triangle"></i> @TempData["Error"]
+            </div>
+        }
+
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var modelGroup in groupedByModel)
+            {
+                // Группируем внутри модели по поколению
+                var generationGroups = modelGroup
+                .GroupBy(c => c.Generation)
+                .OrderBy(g => g.Key)
+                .ToList();
+
+                <div class="model-section">
+                    <div class="model-header">
+                        <span class="model-name">
+                            <i class="fas fa-chevron-right"></i> @modelGroup.Key
+                        </span>
+                        <span class="model-count">
+                            <i class="fas fa-car"></i> @modelGroup.Count()
+                        </span>
+                    </div>
+
+                    @foreach (var genGroup in generationGroups)
+                    {
+                        <div class="generation-subheader">
+                            <span class="gen-icon"><i class="fas fa-calendar-alt"></i></span>
+                            <span class="gen-name">@GetLocalized("Поколение", "Generation", "Generation") @genGroup.Key</span>
+                            <span class="gen-count">@genGroup.Count() @GetLocalized("вариантов", "variants", "Varianten")</span>
+                        </div>
+
+                        <div class="model-cars-grid">
+                            @foreach (var car in genGroup.OrderBy(c => c.Engine))
+                            {
+                                <a href="@Url.Action("Car", "Home", new { brand = car.Brand, model = car.Model, generation = car.Generation, engine = car.Engine })" class="car-card">
+                                    <div class="car-image-container">
+                                        @if (!string.IsNullOrEmpty(car.Image))
+                                        {
+                                            <img src="@car.Image" alt="@car.Brand @car.Model" class="car-image" />
+                                        }
+                                        else
+                                        {
+                                            <div class="no-image">
+                                                <i class="fas fa-car"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="car-info">
+                                        <div class="car-model-name">@car.Model</div>
+                                        <div class="car-details">
+                                            @car.Generation · @car.Engine
+                                        </div>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-car"></i>
+                <h3>@GetLocalized("Нет доступных моделей", "No available models", "Keine verfügbaren Modelle")</h3>
+                <p>@GetLocalized("Для бренда", "For brand", "Für die Marke") @brand @GetLocalized("пока нет автомобилей", "no cars yet", "gibt es noch keine Autos")</p>
+            </div>
+        }
+    </div>
+
+    <script>
+        // ==========================================
+        // ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА
+        // ==========================================
+        function switchLanguage(lang) {
+            document.cookie = "Language=" + lang + "; path=/; max-age=" + (365 * 24 * 60 * 60);
+            location.reload();
+        }
+    </script>
+</body>
+</html>

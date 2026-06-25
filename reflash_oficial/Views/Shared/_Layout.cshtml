@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,11 +19,56 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #0A0A0F;
-            color: #E8E8F0;
+            background: var(--bg-primary, #0A0A0F);
+            color: var(--text-primary, #E8E8F0);
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* ========== НАВБАР В СТИЛЕ DARK TECH ========== */
+        /* ==========================================
+                           CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ
+                           ========================================== */
+
+        /* Светлая тема */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-card: #ffffff;
+            --bg-input: #f0f0f0;
+            --bg-navbar: rgba(255, 255, 255, 0.95);
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a5e;
+            --text-muted: #88889a;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --accent-color: #FF3A2F;
+            --accent-hover: #D62B1F;
+            --navbar-border: rgba(255, 58, 47, 0.3);
+            /* ===== ЦВЕТ ЛОГОТИПА (СВЕТЛАЯ ТЕМА) ===== */
+            --logo-color-start: #0D47A1;
+            --logo-color-end: #42A5F5;
+        }
+
+        /* Тёмная тема */
+        [data-theme="dark"] {
+            --bg-primary: #0A0A0F;
+            --bg-secondary: #14141C;
+            --bg-card: #111118;
+            --bg-input: #1a1a24;
+            --bg-navbar: rgba(10, 10, 15, 0.95);
+            --text-primary: #E8E8F0;
+            --text-secondary: #C0C0D0;
+            --text-muted: #88889a;
+            --border-color: #2A2A35;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accent-color: #FF3A2F;
+            --accent-hover: #D62B1F;
+            --navbar-border: rgba(255, 58, 47, 0.3);
+            /* ===== ЦВЕТ ЛОГОТИПА (ТЁМНАЯ ТЕМА) ===== */
+            --logo-color-start: #FFB5A0;
+            --logo-color-end: #FFD4C4;
+        }
+
+        /* ========== НАВБАР ========== */
         header {
             position: sticky;
             top: 0;
@@ -33,10 +78,11 @@
         .navbar {
             padding: 0;
             margin: 0;
-            background: rgba(10, 10, 15, 0.95) !important;
+            background: var(--bg-navbar) !important;
             backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 58, 47, 0.3);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            border-bottom: 1px solid var(--navbar-border);
+            box-shadow: 0 4px 20px var(--shadow-color);
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         .container-fluid {
@@ -50,25 +96,25 @@
             width: 100%;
         }
 
-        /* Левая часть: логотип + соцсети */
         .navbar-left {
             display: flex;
             align-items: center;
             gap: 20px;
+            flex-wrap: wrap;
         }
 
-        /* Логотип */
+        /* ===== ЛОГОТИП С ПЕРЕМЕННЫМИ ЦВЕТАМИ ===== */
         .navbar-brand {
             font-size: 1.4rem;
             font-weight: 800;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #FFFFFF 0%, #FFB5A0 100%);
+            background: linear-gradient(135deg, var(--logo-color-start) 0%, var(--logo-color-end) 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             text-decoration: none;
             white-space: nowrap;
-            transition: opacity 0.2s;
+            transition: background 0.3s ease, opacity 0.2s;
         }
 
             .navbar-brand:hover {
@@ -76,11 +122,53 @@
                 color: transparent;
             }
 
-        /* Социальные иконки */
+        /* ========== НАВ-ССЫЛКИ ========== */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-link-custom {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary) !important;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
+            border-radius: 40px;
+            position: relative;
+        }
+
+            .nav-link-custom:hover {
+                color: var(--accent-color) !important;
+                background: rgba(255, 58, 47, 0.1);
+            }
+
+            .nav-link-custom.active {
+                color: var(--accent-color) !important;
+                background: rgba(255, 58, 47, 0.15);
+            }
+
+                .nav-link-custom.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 2px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 20px;
+                    height: 2px;
+                    background: var(--accent-color);
+                    border-radius: 2px;
+                }
+
+        /* ========== СОЦИАЛЬНЫЕ ИКОНКИ ========== */
         .social-icons {
             display: flex;
             align-items: center;
             gap: 12px;
+            margin-left: 8px;
         }
 
         .social-link {
@@ -90,9 +178,9 @@
             width: 34px;
             height: 34px;
             border-radius: 50%;
-            color: #A0A0B0;
+            color: var(--text-muted);
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
             text-decoration: none;
             font-size: 15px;
@@ -101,91 +189,73 @@
             .social-link:hover {
                 transform: translateY(-2px);
                 background: rgba(255, 58, 47, 0.15);
-                border-color: #FF3A2F;
-                color: #FF3A2F;
+                border-color: var(--accent-color);
+                color: var(--accent-color);
                 box-shadow: 0 4px 15px rgba(255, 58, 47, 0.2);
             }
 
-            /* Telegram - синий */
             .social-link.telegram:hover {
                 background: rgba(0, 136, 204, 0.2);
                 border-color: #0088CC;
                 color: #0088CC;
             }
 
-            /* VK - синий */
             .social-link.vk:hover {
                 background: rgba(69, 112, 169, 0.2);
                 border-color: #4C75A3;
                 color: #4C75A3;
             }
 
-            /* WhatsApp - зеленый */
             .social-link.whatsapp:hover {
                 background: rgba(37, 211, 102, 0.2);
                 border-color: #25D366;
                 color: #25D366;
             }
 
-        /* Нав-меню */
+        /* ========== ПРАВАЯ ЧАСТЬ ========== */
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
         .navbar-collapse {
             display: flex !important;
             flex-grow: 0;
         }
 
-        /* Скрываем кнопку-бургер */
         .navbar-toggler {
             display: none !important;
         }
 
-        /* Меню всегда горизонтальное */
-        .navbar-nav {
-            display: flex;
-            flex-direction: row !important;
-            gap: 8px;
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .nav-item {
-            position: relative;
-        }
-
-        .nav-link {
-            padding: 10px 20px;
-            font-size: 14px;
+        /* ===== КНОПКА ТЕМЫ ===== */
+        .theme-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
             font-weight: 600;
-            color: #C0C0D0 !important;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            letter-spacing: 0.3px;
             border-radius: 40px;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
         }
 
-            .nav-link:hover {
-                color: #FF3A2F !important;
+            .theme-btn:hover {
+                color: var(--accent-color);
                 background: rgba(255, 58, 47, 0.1);
+                border-color: var(--accent-color);
             }
 
-            /* Активная ссылка */
-            .nav-link.active {
-                color: #FF3A2F !important;
-                background: rgba(255, 58, 47, 0.15);
+            .theme-btn i {
+                font-size: 14px;
             }
-
-                /* Индикатор активной ссылки (красная точка снизу) */
-                .nav-link.active::after {
-                    content: '';
-                    position: absolute;
-                    bottom: 2px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: 24px;
-                    height: 2px;
-                    background: #FF3A2F;
-                    border-radius: 2px;
-                }
 
         /* ========== ОСНОВНОЙ КОНТЕНТ ========== */
         .container {
@@ -198,22 +268,33 @@
             min-height: calc(100vh - 80px);
         }
 
-        /* ========== АДАПТАЦИЯ ДЛЯ ПЛАНШЕТОВ ========== */
-        @@media (max-width: 768px) {
-            .container-fluid {
-                padding: 10px 16px;
-                flex-wrap: wrap;
-                justify-content: flex-start;
-                gap: 12px;
-            }
+        /* ========== СКРОЛЛ ========== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
 
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 10px;
+        }
+
+        /* ========== АДАПТАЦИЯ ========== */
+        @@media (max-width: 992px) {
             .navbar-left {
                 gap: 12px;
-                flex-wrap: wrap;
             }
 
-            .navbar-brand {
-                font-size: 1.1rem;
+            .nav-link-custom {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+
+            .social-icons {
+                margin-left: 4px;
             }
 
             .social-link {
@@ -221,92 +302,110 @@
                 height: 30px;
                 font-size: 13px;
             }
+        }
 
-            .social-icons {
-                gap: 8px;
+        @@media (max-width: 768px) {
+            .container-fluid {
+                padding: 10px 16px;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                gap: 10px;
             }
 
-            .navbar-nav {
-                gap: 4px;
+            .navbar-left {
+                gap: 10px;
                 flex-wrap: wrap;
             }
 
-            .nav-link {
-                padding: 6px 14px;
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+
+            .nav-link-custom {
+                padding: 5px 10px;
                 font-size: 12px;
             }
 
-                .nav-link.active::after {
-                    width: 18px;
+                .nav-link-custom.active::after {
+                    width: 14px;
                     bottom: 0;
                 }
 
-            .container {
-                padding: 24px 16px;
-            }
-        }
-
-        /* ========== ДЛЯ МАЛЕНЬКИХ ТЕЛЕФОНОВ ========== */
-        @@media (max-width: 480px) {
-            .navbar-brand {
-                font-size: 0.95rem;
-            }
-
             .social-link {
-                width: 26px;
-                height: 26px;
-                font-size: 11px;
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
             }
 
             .social-icons {
                 gap: 6px;
             }
 
-            .nav-link {
+            .navbar-right {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .container {
+                padding: 24px 16px;
+            }
+
+            .theme-btn {
                 padding: 5px 10px;
+                font-size: 11px;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .navbar-brand {
+                font-size: 0.95rem;
+            }
+
+            .nav-link-custom {
+                padding: 4px 8px;
                 font-size: 10px;
             }
 
-                .nav-link.active::after {
-                    width: 14px;
-                    height: 1.5px;
-                }
+            .social-link {
+                width: 24px;
+                height: 24px;
+                font-size: 10px;
+            }
+
+            .social-icons {
+                gap: 4px;
+            }
 
             .container {
                 padding: 20px 12px;
             }
+
+            .theme-btn {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
         }
 
-        /* ========== ДЛЯ ОЧЕНЬ УЗКИХ ЭКРАНОВ ========== */
         @@media (max-width: 360px) {
             .navbar-brand {
                 font-size: 0.85rem;
             }
 
-            .social-link {
-                width: 22px;
-                height: 22px;
-                font-size: 10px;
-            }
-
-            .nav-link {
-                padding: 4px 8px;
+            .nav-link-custom {
+                padding: 3px 6px;
                 font-size: 9px;
             }
-        }
 
-        /* ========== КАСТОМНЫЙ СКРОЛЛ ========== */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
+            .social-link {
+                width: 20px;
+                height: 20px;
+                font-size: 9px;
+            }
 
-        ::-webkit-scrollbar-track {
-            background: #14141C;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #FF3A2F;
-            border-radius: 10px;
+            .theme-btn {
+                padding: 3px 6px;
+                font-size: 9px;
+            }
         }
     </style>
 </head>
@@ -314,48 +413,47 @@
     <header>
         <nav class="navbar">
             <div class="container-fluid">
-                <!-- Левая часть: Логотип + соцсети -->
+                <!-- Левая часть: Логотип + ссылки + соцсети -->
                 <div class="navbar-left">
                     <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                        <i class="fas fa-microchip" style="color: #FF3A2F; margin-right: 8px;"></i>
+                        <i class="fas fa-microchip" style="color: var(--accent-color); margin-right: 8px;"></i>
                         ReFlash Official
                     </a>
 
+                    <!-- ===== НАВИГАЦИОННЫЕ ССЫЛКИ (рядом с логотипом) ===== -->
+                    <div class="nav-links">
+                        <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                           asp-area="" asp-controller="Home" asp-action="Index">
+                            <i class="fas fa-home" style="margin-right: 4px;"></i>
+                            Home
+                        </a>
+                        <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "Partners" ? "active" : "")"
+                           asp-area="" asp-controller="Home" asp-action="Partners">
+                            <i class="fas fa-handshake" style="margin-right: 4px;"></i>
+                            Partners
+                        </a>
+                    </div>
+
                     <!-- Социальные иконки -->
                     <div class="social-icons">
-                        <!-- Telegram -->
                         <a href="#" class="social-link telegram" target="_blank" title="Telegram">
                             <i class="fab fa-telegram-plane"></i>
                         </a>
-                        <!-- VK -->
                         <a href="#" class="social-link vk" target="_blank" title="VK">
                             <i class="fab fa-vk"></i>
                         </a>
-                        <!-- WhatsApp -->
                         <a href="#" class="social-link whatsapp" target="_blank" title="WhatsApp">
                             <i class="fab fa-whatsapp"></i>
                         </a>
                     </div>
                 </div>
 
-                <!-- Правая часть: Навигация -->
-                <div class="navbar-collapse">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
-                               asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="fas fa-home" style="margin-right: 6px;"></i>
-                                Home
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark @(ViewContext.RouteData.Values["action"]?.ToString() == "Partners" ? "active" : "")"
-                               asp-area="" asp-controller="Home" asp-action="Partners">
-                                <i class="fas fa-handshake" style="margin-right: 6px;"></i>
-                                Partners
-                            </a>
-                        </li>
-                    </ul>
+                <!-- Правая часть: Кнопка темы -->
+                <div class="navbar-right">
+                    <button class="theme-btn" id="themeToggle" onclick="toggleTheme()" title="Переключить тему">
+                        <i class="fas fa-moon" id="themeIcon"></i>
+                        <span id="themeLabel">Dark</span>
+                    </button>
                 </div>
             </div>
         </nav>
@@ -365,5 +463,59 @@
             @RenderBody()
         </main>
     </div>
+
+    <script>
+        // ==========================================
+        // ПЕРЕКЛЮЧЕНИЕ ТЕМЫ
+        // ==========================================
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            const label = document.getElementById('themeLabel');
+            const currentTheme = html.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            html.setAttribute('data-theme', newTheme);
+
+            if (newTheme === 'dark') {
+                icon.className = 'fas fa-moon';
+                label.textContent = 'Dark';
+            } else {
+                icon.className = 'fas fa-sun';
+                label.textContent = 'Light';
+            }
+
+            document.cookie = "Theme=" + newTheme + "; path=/; max-age=" + (365 * 24 * 60 * 60);
+        }
+
+        // ==========================================
+        // ЗАГРУЗКА ТЕМЫ ИЗ COOKIE
+        // ==========================================
+        function loadTheme() {
+            const getCookie = (name) => {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return null;
+            };
+
+            const theme = getCookie('Theme') || 'light';
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            const label = document.getElementById('themeLabel');
+
+            html.setAttribute('data-theme', theme);
+
+            if (icon) {
+                icon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+            }
+            if (label) {
+                label.textContent = theme === 'dark' ? 'Dark' : 'Light';
+            }
+        }
+
+        // Загружаем тему при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadTheme);
+    </script>
 </body>
 </html>

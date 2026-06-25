@@ -6,6 +6,9 @@
     var language = Context.Request.Cookies["Language"];
     if (string.IsNullOrEmpty(language)) language = "ru";
 
+    // Получаем тему из cookie
+    var currentTheme = Context.Request.Cookies["Theme"] ?? "dark";
+
     string GetLocalized(string ru, string eng, string ger)
     {
         return language switch
@@ -18,7 +21,7 @@
 }
 
 <!DOCTYPE html>
-<html lang="@language">
+<html lang="@language" data-theme="@currentTheme">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -27,6 +30,71 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
     <style>
+        /* ==========================================
+                           CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ
+                           ========================================== */
+
+        /* Светлая тема */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-card: #ffffff;
+            --bg-input: #f0f0f0;
+            --bg-overlay: rgba(255, 255, 255, 0.9);
+            --bg-map-control: rgba(255, 255, 255, 0.95);
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a5e;
+            --text-muted: #88889a;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --shadow-hover: rgba(0, 0, 0, 0.15);
+            --accent-color: #2196F3;
+            --accent-hover: #1976D2;
+            --gradient-start: #f8f9fa;
+            --gradient-end: #e9ecef;
+            --map-header-start: #2196F3;
+            --map-header-end: #1976D2;
+            --partner-border: #e0e0e0;
+            --partner-bg: #ffffff;
+            --partner-hover-border: #2196F3;
+            --partner-address-bg: #f5f5f5;
+            --empty-bg: #ffffff;
+            --empty-border: #e0e0e0;
+            --logo-color-start: #0D47A1;
+            --logo-color-end: #42A5F5;
+        }
+
+        /* Тёмная тема */
+        [data-theme="dark"] {
+            --bg-primary: #0A0A0F;
+            --bg-secondary: #14141C;
+            --bg-card: #111118;
+            --bg-input: #1a1a24;
+            --bg-overlay: rgba(10, 10, 15, 0.9);
+            --bg-map-control: rgba(18, 18, 26, 0.95);
+            --text-primary: #E8E8F0;
+            --text-secondary: #C0C0D0;
+            --text-muted: #88889a;
+            --border-color: #2A2A35;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --shadow-hover: rgba(0, 0, 0, 0.5);
+            --accent-color: #FF3A2F;
+            --accent-hover: #D62B1F;
+            --gradient-start: #111118;
+            --gradient-end: #0D0D14;
+            --map-header-start: #FF3A2F;
+            --map-header-end: #B8251A;
+            --partner-border: #252530;
+            --partner-bg: #111118;
+            --partner-hover-border: #FF3A2F;
+            --partner-address-bg: #0C0C14;
+            --empty-bg: #111118;
+            --empty-border: #252530;
+            --logo-color-start: #FFB5A0;
+            --logo-color-end: #FFD4C4;
+        }
+
+        /* ========== ОБЩИЕ СТИЛИ ========== */
         * {
             margin: 0;
             padding: 0;
@@ -35,21 +103,24 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #0A0A0F;
-            color: #E8E8F0;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             overflow-x: hidden;
             line-height: 1.5;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         /* Кастомный скролл */
         ::-webkit-scrollbar {
             width: 6px;
         }
+
         ::-webkit-scrollbar-track {
-            background: #14141C;
+            background: var(--bg-secondary);
         }
+
         ::-webkit-scrollbar-thumb {
-            background: #FF3A2F;
+            background: var(--accent-color);
             border-radius: 10px;
         }
 
@@ -61,12 +132,13 @@
             display: flex;
             gap: 8px;
             z-index: 1100;
-            background: rgba(10, 10, 15, 0.8);
+            background: var(--bg-overlay);
             backdrop-filter: blur(12px);
             padding: 6px 12px;
             border-radius: 60px;
-            border: 1px solid rgba(255, 58, 47, 0.3);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 20px var(--shadow-color);
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         .lang-btn {
@@ -78,20 +150,20 @@
             border-radius: 40px;
             transition: all 0.2s ease;
             font-size: 13px;
-            color: #A0A0B0;
+            color: var(--text-muted);
             letter-spacing: 0.3px;
         }
 
-        .lang-btn:hover {
-            color: white;
-            background: rgba(255,58,47,0.2);
-        }
+            .lang-btn:hover {
+                color: var(--text-primary);
+                background: rgba(255,58,47,0.1);
+            }
 
-        .lang-btn.active {
-            background: #FF3A2F;
-            color: white;
-            box-shadow: 0 0 8px rgba(255,58,47,0.5);
-        }
+            .lang-btn.active {
+                background: var(--accent-color);
+                color: white;
+                box-shadow: 0 0 8px rgba(255,58,47,0.5);
+            }
 
         /* ========== ОСНОВНОЙ КОНТЕЙНЕР ========== */
         .main-container {
@@ -109,15 +181,16 @@
         .page-title {
             font-size: 42px;
             font-weight: 800;
-            background: linear-gradient(135deg, #FFFFFF 0%, #FFB5A0 100%);
+            background: linear-gradient(135deg, var(--logo-color-start) 0%, var(--logo-color-end) 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             letter-spacing: -1px;
+            transition: background 0.3s ease;
         }
 
         .page-subtitle {
-            color: #A0A0B0;
+            color: var(--text-muted);
             font-size: 16px;
             margin-top: 12px;
         }
@@ -128,31 +201,34 @@
         }
 
         .map-card {
-            background: #111118;
+            background: var(--bg-card);
             border-radius: 28px;
-            border: 1px solid #252530;
+            border: 1px solid var(--border-color);
             overflow: hidden;
             transition: all 0.25s;
+            box-shadow: 0 4px 20px var(--shadow-color);
         }
 
         .map-header {
             padding: 20px 28px;
-            background: linear-gradient(135deg, #FF3A2F, #B8251A);
+            background: linear-gradient(135deg, var(--map-header-start), var(--map-header-end));
             border-bottom: none;
+            transition: background 0.3s ease;
         }
 
-        .map-header h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+            .map-header h3 {
+                font-size: 18px;
+                font-weight: 600;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #ffffff;
+            }
 
-        .map-header h3 i {
-            font-size: 20px;
-        }
+                .map-header h3 i {
+                    font-size: 20px;
+                }
 
         .map-container {
             position: relative;
@@ -179,31 +255,33 @@
         .map-control-btn {
             width: 44px;
             height: 44px;
-            background: rgba(18, 18, 26, 0.95);
+            background: var(--bg-map-control);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 58, 47, 0.3);
+            border: 1px solid var(--border-color);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             font-size: 20px;
-            color: #E8E8F0;
+            color: var(--text-primary);
             transition: all 0.2s;
         }
 
-        .map-control-btn:hover {
-            background: #FF3A2F;
-            border-color: #FF3A2F;
-            transform: scale(1.05);
-        }
+            .map-control-btn:hover {
+                background: var(--accent-color);
+                border-color: var(--accent-color);
+                color: white;
+                transform: scale(1.05);
+            }
 
         .map-footer {
             padding: 14px 28px;
-            background: #0C0C14;
-            border-top: 1px solid #252530;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
             font-size: 13px;
-            color: #6A6A7A;
+            color: var(--text-muted);
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         /* ========== СЕТКА ПАРТНЕРОВ ========== */
@@ -227,12 +305,13 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            color: var(--text-primary);
         }
 
-        .section-title i {
-            color: #FF3A2F;
-            font-size: 28px;
-        }
+            .section-title i {
+                color: var(--accent-color);
+                font-size: 28px;
+            }
 
         .partners-count {
             background: rgba(255, 58, 47, 0.15);
@@ -240,7 +319,7 @@
             border-radius: 40px;
             font-size: 14px;
             font-weight: 500;
-            color: #FF3A2F;
+            color: var(--accent-color);
         }
 
         .partners-grid {
@@ -251,31 +330,32 @@
 
         /* Карточка партнера */
         .partner-card {
-            background: #111118;
+            background: var(--partner-bg);
             border-radius: 24px;
-            border: 1px solid #252530;
+            border: 1px solid var(--partner-border);
             overflow: hidden;
             transition: all 0.3s ease;
             cursor: pointer;
+            box-shadow: 0 4px 20px var(--shadow-color);
         }
 
-        .partner-card:hover {
-            transform: translateY(-6px);
-            border-color: #FF3A2F;
-            box-shadow: 0 20px 30px -12px rgba(255, 58, 47, 0.2);
-        }
+            .partner-card:hover {
+                transform: translateY(-6px);
+                border-color: var(--partner-hover-border);
+                box-shadow: 0 20px 30px -12px var(--shadow-hover);
+            }
 
-        .partner-card.highlight {
-            box-shadow: 0 0 0 2px #FF3A2F, 0 10px 30px -10px rgba(255, 58, 47, 0.3);
-            transform: translateY(-2px);
-        }
+            .partner-card.highlight {
+                box-shadow: 0 0 0 2px var(--accent-color), 0 10px 30px -10px var(--shadow-hover);
+                transform: translateY(-2px);
+            }
 
         /* Фото */
         .partner-photo-container {
             width: 100%;
             height: 240px;
             overflow: hidden;
-            background: linear-gradient(135deg, #1A1A24, #0F0F18);
+            background: var(--bg-secondary);
             position: relative;
         }
 
@@ -296,12 +376,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #1A1A24, #0F0F18);
+            background: var(--bg-secondary);
         }
 
         .no-photo-icon {
             font-size: 64px;
-            color: #3A3A45;
+            color: var(--text-muted);
         }
 
         /* Информация */
@@ -316,15 +396,15 @@
             text-align: center;
         }
 
-        .partner-name a {
-            color: #E8E8F0;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
+            .partner-name a {
+                color: var(--text-primary);
+                text-decoration: none;
+                transition: color 0.2s;
+            }
 
-        .partner-name a:hover {
-            color: #FF3A2F;
-        }
+                .partner-name a:hover {
+                    color: var(--accent-color);
+                }
 
         /* Контакты */
         .contact-info {
@@ -336,70 +416,72 @@
             align-items: center;
             gap: 12px;
             padding: 8px 0;
-            border-bottom: 1px solid #1E1E2A;
+            border-bottom: 1px solid var(--border-color);
             font-size: 14px;
         }
 
-        .contact-item:last-child {
-            border-bottom: none;
-        }
+            .contact-item:last-child {
+                border-bottom: none;
+            }
 
         .contact-icon {
             width: 28px;
-            color: #FF3A2F;
+            color: var(--accent-color);
             text-align: center;
             font-size: 14px;
         }
 
         .contact-text {
             flex: 1;
-            color: #C0C0D0;
+            color: var(--text-secondary);
         }
 
         .contact-link {
-            color: #C0C0D0;
+            color: var(--text-secondary);
             text-decoration: none;
             transition: color 0.2s;
         }
 
-        .contact-link:hover {
-            color: #FF3A2F;
-        }
+            .contact-link:hover {
+                color: var(--accent-color);
+            }
 
         .no-contact {
-            color: #5A5A6E;
+            color: var(--text-muted);
             font-style: italic;
         }
 
         /* Адрес */
         .partner-address {
             padding: 14px 22px;
-            background: #0C0C14;
-            border-top: 1px solid #1E1E2A;
+            background: var(--partner-address-bg);
+            border-top: 1px solid var(--border-color);
             font-size: 13px;
-            color: #8A8A9A;
+            color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 10px;
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
-        .partner-address i {
-            color: #FF3A2F;
-            font-size: 14px;
-        }
+            .partner-address i {
+                color: var(--accent-color);
+                font-size: 14px;
+            }
 
         /* Пустое состояние */
         .empty-state {
             text-align: center;
             padding: 80px 20px;
-            background: #111118;
+            background: var(--empty-bg);
             border-radius: 28px;
-            border: 1px solid #252530;
+            border: 1px solid var(--empty-border);
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         .empty-icon {
             font-size: 64px;
-            color: #3A3A45;
+            color: var(--text-muted);
             margin-bottom: 20px;
         }
 
@@ -407,11 +489,11 @@
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 10px;
-            color: #FF3A2F;
+            color: var(--accent-color);
         }
 
         .empty-text {
-            color: #6A6A7A;
+            color: var(--text-muted);
         }
 
         /* Адаптивность */
@@ -513,22 +595,22 @@
 <body>
 
     <div class="language-switcher">
-        <button class="lang-btn @(language == "ru" ? "active" : "")" onclick="switchLanguage('ru')">🇷🇺 RU</button>
-        <button class="lang-btn @(language == "en" ? "active" : "")" onclick="switchLanguage('en')">🇬🇧 EN</button>
-        <button class="lang-btn @(language == "de" ? "active" : "")" onclick="switchLanguage('de')">🇩🇪 DE</button>
+        <button class="lang-btn @(language == "ru" ? "active" : "")" onclick="switchLanguage('ru')">RU</button>
+        <button class="lang-btn @(language == "en" ? "active" : "")" onclick="switchLanguage('en')">EN</button>
+        <button class="lang-btn @(language == "de" ? "active" : "")" onclick="switchLanguage('de')">DE</button>
     </div>
 
     <div class="main-container">
         <!-- Шапка страницы -->
         <div class="page-header">
             <h1 class="page-title">
-                <i class="fas fa-handshake" style="color: #FF3A2F; margin-right: 12px;"></i>
+                <i class="fas fa-handshake" style="color: var(--accent-color); margin-right: 12px;"></i>
                 @GetLocalized("Наши партнеры", "Our Partners", "Unsere Partner")
             </h1>
             <p class="page-subtitle">
-                @GetLocalized("Сертифицированные центры чип-тюнинга по всему миру", 
-                           "Certified chip tuning centers worldwide", 
-                           "Zertifizierte Chip-Tuning-Zentren weltweit")
+                @GetLocalized("Сертифицированные центры чип-тюнинга по всему миру",
+                "Certified chip tuning centers worldwide",
+                                "Zertifizierte Chip-Tuning-Zentren weltweit")
             </p>
         </div>
 
@@ -554,9 +636,9 @@
                 </div>
                 <div class="map-footer">
                     <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
-                    @GetLocalized("Кликните по карточке партнера — карта приблизится к его локации", 
-                               "Click on a partner card — the map will zoom to their location", 
-                               "Klicken Sie auf eine Partnerkarte — die Karte zoomt zu deren Standort")
+                    @GetLocalized("Кликните по карточке партнера — карта приблизится к его локации",
+                                        "Click on a partner card — the map will zoom to their location",
+                                        "Klicken Sie auf eine Partnerkarte — die Karte zoomt zu deren Standort")
                 </div>
             </div>
         </div>
@@ -583,7 +665,7 @@
                     @foreach (var partner in Model)
                     {
                         var address = string.Join(", ", new[] { partner.city, partner.street, partner.house }
-                            .Where(s => !string.IsNullOrEmpty(s)));
+                        .Where(s => !string.IsNullOrEmpty(s)));
 
                         <div class="partner-card" id="partner-@partner.Id" data-partner-id="@partner.Id">
                             <!-- Фото -->
@@ -609,7 +691,7 @@
                                     @if (!string.IsNullOrEmpty(partner.vk))
                                     {
                                         <a href="@partner.vk" target="_blank">
-                                            <i class="fab fa-vk" style="color: #FF3A2F; margin-right: 8px;"></i>
+                                            <i class="fab fa-vk" style="color: var(--accent-color); margin-right: 8px;"></i>
                                             @partner.name
                                         </a>
                                     }
@@ -688,12 +770,12 @@
                         @GetLocalized("Список партнеров пуст", "No partners yet", "Keine Partner")
                     </div>
                     <div class="empty-text">
-                        @GetLocalized("На данный момент нет активных представителей", 
-                                   "There are no active representatives at the moment", 
-                                   "Derzeit gibt es keine aktiven Vertreter")
-                    </div>
+                        @GetLocalized("На данный момент нет активных представителей",
+                        "There are no active representatives at the moment",
+                                        "Derzeit gibt es keine aktiven Vertreter")
                 </div>
-            }
+            </div>
+                        }
         </div>
     </div>
 
@@ -730,7 +812,7 @@
 
             } catch (error) {
                 console.error('Ошибка инициализации карты:', error);
-                mapElement.innerHTML = '<div style="padding: 40px; text-align: center; color: #FF3A2F;">' +
+                mapElement.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--accent-color);">' +
                     '<i class="fas fa-exclamation-triangle" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>' +
                     'Ошибка загрузки карты</div>';
             }
@@ -739,70 +821,70 @@
         function addPartnersMarkers() {
             @if (Model != null && Model.Count > 0)
             {
-                foreach (var partner in Model)
-                {
-                    if (!string.IsNullOrEmpty(partner.latitude) && !string.IsNullOrEmpty(partner.longitude))
+                    foreach (var partner in Model)
                     {
-                        try
-                        {
-                            var lat = partner.latitude.Replace(',', '.').Trim();
-                            var lon = partner.longitude.Replace(',', '.').Trim();
-                            var name = partner.name?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var phone = partner.phone?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var website = partner.website?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var vk = partner.vk?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var city = partner.city?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var street = partner.street?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var house = partner.house?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                            if (!string.IsNullOrEmpty(partner.latitude) && !string.IsNullOrEmpty(partner.longitude))
+                            {
+                                    try
+                                    {
+                                            var lat = partner.latitude.Replace(',', '.').Trim();
+                                            var lon = partner.longitude.Replace(',', '.').Trim();
+                                            var name = partner.name?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                                            var phone = partner.phone?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                                            var website = partner.website?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                                            var vk = partner.vk?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                                            var city = partner.city?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                                            var street = partner.street?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                                            var house = partner.house?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
 
-                            var address = string.Join(", ", new[] { city, street, house }.Where(s => !string.IsNullOrEmpty(s))).Trim();
+                                            var address = string.Join(", ", new[] { city, street, house }.Where(s => !string.IsNullOrEmpty(s))).Trim();
 
-                            <text>
-                                var coords = [parseFloat("@lat"), parseFloat("@lon")];
-                                if (!isNaN(coords[0]) && !isNaN(coords[1])) {
-                                    var balloonHtml = '<div style="max-width: 280px; font-family: Inter, sans-serif;">' +
-                                        '<strong style="color: #FF3A2F;">@Html.Raw(name)</strong>' +
-                                        '<hr style="margin: 8px 0; border-color: #ddd;">';
+                                            <text>
+                                                var coords = [parseFloat("@lat"), parseFloat("@lon")];
+                                                if (!isNaN(coords[0]) && !isNaN(coords[1])) {
+                                                    var balloonHtml = '<div style="max-width: 280px; font-family: Inter, sans-serif;">' +
+                                                        '<strong style="color: var(--accent-color);">@Html.Raw(name)</strong>' +
+                                                        '<hr style="margin: 8px 0; border-color: var(--border-color);">';
 
-                                @if (!string.IsNullOrEmpty(phone))
-                                {
-                                    <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-phone-alt" style="color: #FF3A2F; width: 24px;"></i> <a href="tel:@phone" style="color: #007bff; text-decoration: none;">@phone</a></div>';</text>
-                                }
+                                                @if (!string.IsNullOrEmpty(phone))
+                                                {
+                                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-phone-alt" style="color: var(--accent-color); width: 24px;"></i> <a href="tel:@phone" style="color: var(--accent-color); text-decoration: none;">@phone</a></div>';</text>
+                                                }
 
-                                @if (!string.IsNullOrEmpty(website))
-                                {
-                                    <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-globe" style="color: #FF3A2F; width: 24px;"></i> <a href="@website" target="_blank" style="color: #007bff; text-decoration: none;">Сайт</a></div>';</text>
-                                }
+                                                @if (!string.IsNullOrEmpty(website))
+                                                {
+                                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-globe" style="color: var(--accent-color); width: 24px;"></i> <a href="@website" target="_blank" style="color: var(--accent-color); text-decoration: none;">Сайт</a></div>';</text>
+                                                }
 
-                                @if (!string.IsNullOrEmpty(vk))
-                                {
-                                    <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fab fa-vk" style="color: #FF3A2F; width: 24px;"></i> <a href="@vk" target="_blank" style="color: #007bff; text-decoration: none;">ВКонтакте</a></div>';</text>
-                                }
+                                                @if (!string.IsNullOrEmpty(vk))
+                                                {
+                                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fab fa-vk" style="color: var(--accent-color); width: 24px;"></i> <a href="@vk" target="_blank" style="color: var(--accent-color); text-decoration: none;">ВКонтакте</a></div>';</text>
+                                                }
 
-                                @if (!string.IsNullOrEmpty(address))
-                                {
-                                    <text>balloonHtml += '<hr style="margin: 8px 0;"><div style="margin: 6px 0;"><i class="fas fa-map-marker-alt" style="color: #FF3A2F; width: 24px;"></i> @address</div>';</text>
-                                }
+                                                @if (!string.IsNullOrEmpty(address))
+                                                {
+                                                        <text>balloonHtml += '<hr style="margin: 8px 0;"><div style="margin: 6px 0;"><i class="fas fa-map-marker-alt" style="color: var(--accent-color); width: 24px;"></i> @address</div>';</text>
+                                                }
 
-                                balloonHtml += '</div>';
+                                                balloonHtml += '</div>';
 
-                                    var placemark = new ymaps.Placemark(coords, {
-                                        hintContent: '@Html.Raw(name)',
-                                        balloonContent: balloonHtml
-                                    }, {
-                                        preset: 'islands#redIcon',
-                                        iconColor: '#FF3A2F'
-                                    });
+                                                    var placemark = new ymaps.Placemark(coords, {
+                                                        hintContent: '@Html.Raw(name)',
+                                                        balloonContent: balloonHtml
+                                                    }, {
+                                                        preset: 'islands#redIcon',
+                                                        iconColor: '#FF3A2F'
+                                                    });
 
-                                    map.geoObjects.add(placemark);
-                                    partnerPlacemarks.push(placemark);
-                                    setupPartnerCardClick(@partner.Id, coords);
-                                }
-                            </text>
-                        }
-                        catch (Exception ex) { }
+                                                    map.geoObjects.add(placemark);
+                                                    partnerPlacemarks.push(placemark);
+                                                    setupPartnerCardClick(@partner.Id, coords);
+                                                }
+                                            </text>
+                                    }
+                                    catch (Exception ex) { }
+                            }
                     }
-                }
             }
 
             if (partnerPlacemarks.length === 0) {

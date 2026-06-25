@@ -16,6 +16,8 @@
         
         public string PriceRu { get; set; }
 
+        public string grafic { get; set; }
+
         public List<AboutModel> Abouts { get; set; } = new List<AboutModel>();
 
         public List<ResultModel> PriResults { get; set; } = new List<ResultModel>();
@@ -24,5 +26,6 @@
 
         public List<PriceModel> Prices { get; set; } = new List<PriceModel>();
 
+        public List<GraficModel> Grafics { get; set; } = new List<GraficModel>();
     }
 }

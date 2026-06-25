@@ -60,7 +60,8 @@ namespace reflash_oficial.Controllers
                                     AboutRu = reader.IsDBNull(reader.GetOrdinal("about_ru")) ? "" : reader.GetString("about_ru"),                                    
                                     ResultRu = reader.IsDBNull(reader.GetOrdinal("result_ru")) ? "" : reader.GetString("result_ru"),                                   
                                     EngineControlRu = reader.IsDBNull(reader.GetOrdinal("engine_control_ru")) ? "" : reader.GetString("engine_control_ru"),                      
-                                    PriceRu = reader.IsDBNull(reader.GetOrdinal("price_ru")) ? "" : reader.GetString("price_ru")
+                                    PriceRu = reader.IsDBNull(reader.GetOrdinal("price_ru")) ? "" : reader.GetString("price_ru"),
+                                    grafic = reader.IsDBNull(reader.GetOrdinal("grafic")) ? "" : reader.GetString("grafic")
                                 });
                             }
                         }
@@ -429,6 +430,11 @@ namespace reflash_oficial.Controllers
                 neededCar.Engine_controlers = await GetEngineControlListByIdsAsync(neededCar.EngineControlRu);
             }
 
+            // 5. GRAFIC (из grafic) ← НОВОЕ
+            if (!string.IsNullOrEmpty(neededCar.grafic))
+            {
+                neededCar.Grafics = await GetGraficListByIdsAsync(neededCar.grafic);
+            }
             return View(neededCar);
         }
 
@@ -834,6 +840,98 @@ namespace reflash_oficial.Controllers
             return null;
         }
 
+        // ==========================================
+        // МЕТОДЫ ДЛЯ GRAFIC
+        // ==========================================
+
+        /// <summary>
+        /// Получить список Grafic по строке ID (раскрывает template_grafic до grafic)
+        /// </summary>
+        private async Task<List<GraficModel>> GetGraficListByIdsAsync(string idsString)
+        {
+            var result = new List<GraficModel>();
+            if (string.IsNullOrEmpty(idsString)) return result;
+
+            var ids = idsString.Split(',').Select(int.Parse).ToList();
+            string connectionString = _configuration.GetConnectionString("DefaultConnection")
+                ?? "server=localhost;port=3306;database=reflash;user=root;password=QaZmLp2414;CharSet=utf8;";
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+                var cache = new Dictionary<int, GraficModel>();
+
+                foreach (var id in ids)
+                {
+                    string sourceTable = null;
+                    using (var cmd = new MySqlCommand("SELECT source_table FROM global_ids WHERE id = @id", connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        sourceTable = (await cmd.ExecuteScalarAsync())?.ToString();
+                    }
+
+                    if (string.IsNullOrEmpty(sourceTable)) continue;
+
+                    if (sourceTable == "grafic")
+                    {
+                        if (!cache.ContainsKey(id))
+                        {
+                            var item = await GetGraficByIdAsync(connection, id);
+                            if (item != null) cache[id] = item;
+                        }
+                        if (cache.ContainsKey(id)) result.Add(cache[id]);
+                    }
+                    else if (sourceTable == "template_grafic")
+                    {
+                        string linkedIds = null;
+                        using (var cmd = new MySqlCommand("SELECT ids FROM template_grafic WHERE id = @id", connection))
+                        {
+                            cmd.Parameters.AddWithValue("@id", id);
+                            linkedIds = (await cmd.ExecuteScalarAsync())?.ToString();
+                        }
+
+                        if (!string.IsNullOrEmpty(linkedIds))
+                        {
+                            foreach (var linkedId in linkedIds.Split(',').Select(int.Parse))
+                            {
+                                if (!cache.ContainsKey(linkedId))
+                                {
+                                    var item = await GetGraficByIdAsync(connection, linkedId);
+                                    if (item != null) cache[linkedId] = item;
+                                }
+                                if (cache.ContainsKey(linkedId)) result.Add(cache[linkedId]);
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Получить один Grafic по ID
+        /// </summary>
+        private async Task<GraficModel> GetGraficByIdAsync(MySqlConnection connection, int id)
+        {
+            using (var cmd = new MySqlCommand("SELECT id, name, image FROM grafic WHERE id = @id", connection))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new GraficModel
+                        {
+                            id = reader.GetInt32("id"),
+                            Name = reader.IsDBNull(reader.GetOrdinal("name")) ? "" : reader.GetString("name"),
+                            image = reader.IsDBNull(reader.GetOrdinal("image")) ? "" : reader.GetString("image")
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
         //Партнёры
 
         public IActionResult Partners()
@@ -1049,6 +1147,25 @@ namespace reflash_oficial.Controllers
 
             return furst_page;
         }
+
+        public IActionResult CarsByBrand(string brand)
+        {
+            if (string.IsNullOrEmpty(brand))
+            {
+                return RedirectToAction("Index");
+            }
+
+            var cars = DatabaseModel.Cars
+                .Where(c => c.Brand == brand)
+                .OrderBy(c => c.Model)
+                .ThenBy(c => c.Generation)
+                .ThenBy(c => c.Engine)
+                .ToList();
+
+            ViewBag.Brand = brand;
+            return View(cars);
+        }
+
         // Добавьте этот метод в конец класса HomeController (перед последней скобкой)
 
         [HttpPost("/api/db-notify")]
