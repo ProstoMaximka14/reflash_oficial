@@ -35,8 +35,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* ==========================================
-                                   CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ
-                                   ========================================== */
+                           CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ
+                           ========================================== */
 
         /* Светлая тема (по умолчанию) */
         :root {
@@ -97,8 +97,8 @@
         }
 
         /* ==========================================
-                                   ОБЩИЕ СТИЛИ
-                                   ========================================== */
+                           ОБЩИЕ СТИЛИ
+                           ========================================== */
 
         * {
             margin: 0;
@@ -158,24 +158,24 @@
             letter-spacing: 0.3px;
         }
 
-            .lang-btn:hover {
-                color: var(--text-primary);
-                background: rgba(255,58,47,0.1);
-            }
+        .lang-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255,58,47,0.1);
+        }
 
-            .lang-btn.active {
-                background: var(--accent-color);
-                color: white;
-                box-shadow: 0 0 8px rgba(255,58,47,0.5);
-            }
+        .lang-btn.active {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 0 8px rgba(255,58,47,0.5);
+        }
 
         .page-wrapper {
             display: flex;
             gap: 30px;
-            max-width: 1600px;
-            width: 92%;
+            
+            width: 100%;
             margin: 0 auto;
-            padding: 20px 0 60px;
+            padding: 0 0 60px;
             align-items: flex-start;
             flex-wrap: wrap;
         }
@@ -206,9 +206,9 @@
             margin-bottom: 20px;
         }
 
-            .dropdown-section:last-of-type {
-                margin-bottom: 0;
-            }
+        .dropdown-section:last-of-type {
+            margin-bottom: 0;
+        }
 
         .dropdown-label {
             display: block;
@@ -234,18 +234,18 @@
             font-family: 'Inter', monospace;
         }
 
-            .dropdown-select:focus {
-                border-color: var(--accent-color);
-                outline: none;
-                box-shadow: 0 0 0 3px rgba(255,58,47,0.2);
-            }
+        .dropdown-select:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255,58,47,0.2);
+        }
 
-            .dropdown-select:disabled {
-                background: var(--bg-secondary);
-                color: var(--text-muted);
-                cursor: not-allowed;
-                border-color: var(--border-color);
-            }
+        .dropdown-select:disabled {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            border-color: var(--border-color);
+        }
 
         .btn-next {
             width: 100%;
@@ -265,10 +265,10 @@
             box-shadow: 0 4px 15px rgba(255,58,47,0.3);
         }
 
-            .btn-next:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(255,58,47,0.4);
-            }
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255,58,47,0.4);
+        }
 
         .container {
             flex: 1;
@@ -278,8 +278,8 @@
         .car-header {
             background: var(--bg-card);
             border-radius: 28px;
-            padding: 30px;
-            margin-bottom: 30px;
+            padding: 20px;
+            margin-bottom: 20px;
             border: 1px solid var(--border-color);
             transition: background 0.3s ease, border-color 0.3s ease;
             box-shadow: 0 4px 20px var(--shadow-color);
@@ -328,10 +328,10 @@
             transition: all 0.2s;
         }
 
-            .spec-item:hover {
-                border-color: var(--accent-color);
-                transform: translateY(-2px);
-            }
+        .spec-item:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
 
         .spec-label {
             font-size: 11px;
@@ -359,10 +359,10 @@
             box-shadow: 0 4px 20px var(--shadow-color);
         }
 
-            .info-block:hover {
-                border-color: var(--accent-color);
-                transform: translateY(-3px);
-            }
+        .info-block:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-3px);
+        }
 
         .info-title {
             font-size: 20px;
@@ -387,11 +387,11 @@
             padding-bottom: 12px;
         }
 
-            .info-content-item:last-child {
-                border-bottom: none;
-                margin-bottom: 0;
-                padding-bottom: 0;
-            }
+        .info-content-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
 
         .price-block {
             background: linear-gradient(135deg, var(--price-bg-start), var(--price-bg-end));
@@ -438,47 +438,47 @@
             overflow: hidden;
         }
 
-            .price-table thead th {
-                padding: 14px 20px;
-                text-align: left;
-                font-weight: 700;
-                font-size: 12px;
-                text-transform: uppercase;
-                letter-spacing: 1.5px;
-                color: var(--text-primary);
-                border-bottom: 2px solid var(--accent-color);
-            }
+        .price-table thead th {
+            padding: 14px 20px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--accent-color);
+        }
 
-                .price-table thead th:not(:first-child) {
-                    text-align: center;
-                }
+        .price-table thead th:not(:first-child) {
+            text-align: center;
+        }
 
-            .price-table tbody tr {
-                border-bottom: 1px solid var(--border-color);
-                transition: background 0.2s ease;
-            }
+        .price-table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+        }
 
-                .price-table tbody tr:last-child {
-                    border-bottom: none;
-                }
+        .price-table tbody tr:last-child {
+            border-bottom: none;
+        }
 
-                .price-table tbody tr:hover {
-                    background: var(--bg-secondary);
-                }
+        .price-table tbody tr:hover {
+            background: var(--bg-secondary);
+        }
 
-            .price-table tbody td {
-                padding: 14px 20px;
-                text-align: left;
-                font-weight: 500;
-                color: var(--text-primary);
-            }
+        .price-table tbody td {
+            padding: 14px 20px;
+            text-align: left;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
 
-                .price-table tbody td:not(:first-child) {
-                    text-align: center;
-                    font-weight: 700;
-                    font-size: 18px;
-                    color: var(--text-secondary);
-                }
+        .price-table tbody td:not(:first-child) {
+            text-align: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
 
         .price-name-cell {
             display: flex;
@@ -529,10 +529,10 @@
             box-shadow: 0 4px 15px rgba(255,58,47,0.3);
         }
 
-            .btn-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(255,58,47,0.4);
-            }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255,58,47,0.4);
+        }
 
         .btn-secondary {
             background: transparent;
@@ -540,19 +540,94 @@
             border: 1px solid var(--border-color);
         }
 
-            .btn-secondary:hover {
-                border-color: var(--accent-color);
-                color: var(--accent-color);
-                transform: translateY(-2px);
-            }
+        .btn-secondary:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            transform: translateY(-2px);
+        }
 
         .highlight {
             border-left: 3px solid var(--accent-color);
         }
 
         /* ==========================================
-                                   МОДАЛЬНОЕ ОКНО ДЛЯ ГРАФИКОВ
-                                   ========================================== */
+        СТИЛИ ДЛЯ ГРАФИКОВ (МИНИ-КАРТОЧКИ)
+        ========================================== */
+        .grafic-section {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .grafic-section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--accent-color);
+            display: inline-block;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+        }
+
+        .grafic-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .grafic-mini-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .grafic-mini-item:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-color);
+            box-shadow: 0 8px 25px var(--shadow-hover);
+        }
+
+        .grafic-mini-item .mini-image {
+            width: 100%;
+            height: 120px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            transition: transform 0.3s ease;
+        }
+
+        .grafic-mini-item:hover .mini-image {
+            transform: scale(1.05);
+        }
+
+        .grafic-mini-item .mini-name {
+            margin-top: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .grafic-mini-item .mini-icon {
+            font-size: 32px;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .grafic-mini-item .click-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* ==========================================
+            МОДАЛЬНОЕ ОКНО ДЛЯ ГРАФИКОВ (ОДИН ГРАФИК)
+         ========================================== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -560,7 +635,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(0, 0, 0, 0.85);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -568,15 +643,15 @@
             animation: fadeIn 0.3s ease;
         }
 
-            .modal-overlay.active {
-                display: flex;
-            }
+        .modal-overlay.active {
+            display: flex;
+        }
 
         .modal-content {
             background: var(--bg-card);
             border-radius: 24px;
             padding: 35px;
-            max-width: 1000px;
+            max-width: 900px;
             width: 95%;
             max-height: 90vh;
             overflow-y: auto;
@@ -606,10 +681,10 @@
             box-shadow: 0 4px 15px rgba(255, 58, 47, 0.3);
         }
 
-            .modal-close:hover {
-                transform: rotate(90deg);
-                box-shadow: 0 6px 25px rgba(255, 58, 47, 0.5);
-            }
+        .modal-close:hover {
+            transform: rotate(90deg);
+            box-shadow: 0 6px 25px rgba(255, 58, 47, 0.5);
+        }
 
         .modal-title {
             color: var(--text-primary);
@@ -619,66 +694,42 @@
             margin-top: 0;
         }
 
-            .modal-title i {
-                color: var(--accent-color);
-                margin-right: 12px;
-            }
-
-            .modal-title span {
-                font-size: 16px;
-                font-weight: 400;
-                color: var(--text-muted);
-                margin-left: 12px;
-            }
-
-        .grafic-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
+        .modal-title i {
+            color: var(--accent-color);
+            margin-right: 12px;
         }
 
-        .grafic-item {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 20px;
+        .modal-title span {
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-left: 12px;
+        }
+
+        .modal-grafic-container {
             text-align: center;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s;
+            padding: 20px 0;
         }
 
-            .grafic-item:hover {
-                transform: translateY(-4px);
-                border-color: var(--accent-color);
-            }
+        .modal-grafic-container img {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
 
-            .grafic-item img {
-                width: 100%;
-                max-height: 200px;
-                object-fit: contain;
-                border-radius: 8px;
-            }
+        .modal-grafic-container .no-image {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
 
-            .grafic-item .no-image {
-                height: 150px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: var(--text-muted);
-                background: var(--bg-input);
-                border-radius: 8px;
-            }
-
-                .grafic-item .no-image i {
-                    font-size: 48px;
-                    opacity: 0.5;
-                }
-
-            .grafic-item .grafic-name {
-                margin-top: 12px;
-                font-weight: 600;
-                color: var(--text-primary);
-                font-size: 16px;
-            }
+        .modal-grafic-container .no-image i {
+            font-size: 64px;
+            opacity: 0.3;
+        }
 
         .modal-footer {
             margin-top: 25px;
@@ -689,15 +740,14 @@
             font-size: 13px;
         }
 
-            .modal-footer i {
-                margin-right: 8px;
-            }
+        .modal-footer i {
+            margin-right: 8px;
+        }
 
         @@keyframes fadeIn {
             from {
                 opacity: 0;
             }
-
             to {
                 opacity: 1;
             }
@@ -708,7 +758,6 @@
                 transform: translateY(30px);
                 opacity: 0;
             }
-
             to {
                 transform: translateY(0);
                 opacity: 1;
@@ -730,14 +779,13 @@
         }
 
         /* ==========================================
-                                   АДАПТИВНОСТЬ
-                                   ========================================== */
+                           АДАПТИВНОСТЬ
+                           ========================================== */
         @@media (max-width: 1024px) {
             .page-wrapper {
                 width: 95%;
                 gap: 24px;
             }
-
             .dropdowns-sidebar {
                 flex: 0 0 260px;
             }
@@ -747,24 +795,19 @@
             .page-wrapper {
                 flex-direction: column;
             }
-
             .dropdowns-sidebar {
                 display: none;
             }
-
             .dropdowns-mobile {
                 display: block;
             }
-
             .car-header-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
-
             .price-value {
                 font-size: 32px;
             }
-
             .price-table tbody td:not(:first-child) {
                 font-size: 16px;
             }
@@ -774,89 +817,81 @@
             body {
                 padding: 0;
             }
-
             .page-wrapper {
                 width: 100%;
                 padding: 80px 16px 40px;
             }
-
             .language-switcher {
                 top: 12px;
                 right: 12px;
                 padding: 4px 10px;
             }
-
             .lang-btn {
                 padding: 4px 10px;
                 font-size: 11px;
             }
-
             .car-header {
                 padding: 20px;
             }
-
             .info-block {
                 padding: 20px;
             }
-
             .info-title {
                 font-size: 18px;
             }
-
             .specs-grid {
                 gap: 12px;
                 padding: 16px;
             }
-
             .spec-item {
                 padding: 12px;
             }
-
             .actions-bottom {
                 flex-direction: column;
                 align-items: center;
             }
-
             .btn {
                 width: 100%;
                 max-width: 280px;
             }
-
             .price-table thead th,
             .price-table tbody td {
                 padding: 10px 12px;
                 font-size: 13px;
             }
-
-                .price-table tbody td:not(:first-child) {
-                    font-size: 15px;
-                }
-
+            .price-table tbody td:not(:first-child) {
+                font-size: 15px;
+            }
             .info-content-item {
                 margin-bottom: 10px;
                 padding-bottom: 10px;
             }
-            /* Модальное окно */
+
+            .grafic-mini-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .grafic-mini-item .mini-image {
+                height: 100px;
+            }
+
             .modal-content {
                 padding: 20px;
                 max-height: 95vh;
                 border-radius: 16px;
                 width: 98%;
             }
-
             .modal-title {
                 font-size: 22px;
             }
-
-            .grafic-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 15px;
-            }
-
             .modal-close {
                 width: 36px;
                 height: 36px;
                 font-size: 18px;
+            }
+            .modal-grafic-container img {
+                max-height: 50vh;
             }
         }
 
@@ -864,60 +899,160 @@
             .specs-grid {
                 grid-template-columns: 1fr;
             }
-
             .price-value {
                 font-size: 28px;
             }
-
             .price-table thead th,
             .price-table tbody td {
                 padding: 8px 10px;
                 font-size: 12px;
             }
-
-                .price-table tbody td:not(:first-child) {
-                    font-size: 14px;
-                }
-
+            .price-table tbody td:not(:first-child) {
+                font-size: 14px;
+            }
             .price-name-cell span {
                 font-size: 13px;
             }
 
-            .grafic-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
+            .grafic-mini-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .grafic-mini-item {
+                padding: 12px;
+            }
+
+            .grafic-mini-item .mini-image {
+                height: 80px;
+            }
+
+            .grafic-mini-item .mini-name {
+                font-size: 12px;
             }
 
             .modal-content {
                 padding: 16px;
             }
-
             .modal-title {
                 font-size: 18px;
             }
-
             .btn {
                 padding: 12px 25px;
                 font-size: 14px;
             }
-
             .modal-close {
                 width: 32px;
                 height: 32px;
                 font-size: 16px;
             }
+            .modal-grafic-container img {
+                max-height: 40vh;
+            }
+        }
+
+        /* ==========================================
+           ОПТИМИЗАЦИЯ ДЛЯ ПК - ВСЁ ПОМЕЩАЕТСЯ БЕЗ СКРОЛА
+           ========================================== */
+        
+        /* Для ПК (ширина >= 1024px и высота >= 800px) */
+        @@media (min-width: 1024px) and (min-height: 800px) {
+            /* Уменьшаем отступы */
+            .page-wrapper { padding: 0 0 20px !important; gap: 20px !important; }
+            
+            /* Шапка с авто */
+            .car-header { padding: 12px 20px !important; margin-bottom: 10px !important; }
+            .car-image { max-height: 160px !important; }
+            .specs-grid { gap: 10px !important; padding: 12px !important; }
+            .spec-item { padding: 10px 14px !important; }
+            .spec-value { font-size: 14px !important; }
+            .spec-label { font-size: 10px !important; }
+            
+            /* Инфо-блоки */
+            .info-block { padding: 12px 20px !important; margin-bottom: 8px !important; }
+            .info-title { font-size: 15px !important; margin-bottom: 6px !important; padding-bottom: 4px !important; }
+            .info-content { font-size: 13px !important; line-height: 1.4 !important; }
+            .info-content-item { margin-bottom: 6px !important; padding-bottom: 6px !important; }
+            
+            /* Цены */
+            .price-label { font-size: 11px !important; margin-bottom: 4px !important; }
+            .price-value { font-size: 30px !important; }
+            .price-table-wrapper { margin-top: 8px !important; }
+            .price-table thead th { padding: 6px 14px !important; font-size: 11px !important; }
+            .price-table tbody td { padding: 6px 14px !important; font-size: 12px !important; }
+            .price-table tbody td:not(:first-child) { font-size: 15px !important; }
+            
+            /* Графики */
+            .grafic-section { margin-top: 8px !important; margin-bottom: 8px !important; }
+            .grafic-section-title { font-size: 15px !important; margin-bottom: 8px !important; padding-bottom: 4px !important; }
+            .grafic-mini-grid { gap: 10px !important; }
+            .grafic-mini-item { padding: 8px !important; }
+            .grafic-mini-item .mini-image { height: 70px !important; }
+            .grafic-mini-item .click-hint { font-size: 9px !important; margin-top: 4px !important; }
+            
+            /* Кнопки */
+            .actions-bottom { margin-top: 6px !important; gap: 12px !important; }
+            .btn { padding: 8px 24px !important; font-size: 13px !important; }
+            
+            /* Сайдбар */
+            .dropdowns-sidebar { flex: 0 0 240px !important; top: 70px !important; }
+            .dropdowns-card { padding: 16px !important; }
+            .dropdown-section { margin-bottom: 10px !important; }
+            .dropdown-select { padding: 8px 12px !important; font-size: 13px !important; }
+            .btn-next { padding: 8px 16px !important; font-size: 12px !important; margin-top: 4px !important; }
+            .dropdown-label { font-size: 10px !important; margin-bottom: 4px !important; }
+            
+            /* Переключатель языка */
+            .language-switcher { top: 12px !important; right: 12px !important; padding: 4px 10px !important; }
+            .lang-btn { padding: 4px 10px !important; font-size: 12px !important; }
+        }
+
+        /* Для больших ПК мониторов (27"+) */
+        @@media (min-width: 1400px) and (min-height: 900px) {
+            .car-image { max-height: 200px !important; }
+            .info-content { font-size: 14px !important; }
+            .grafic-mini-item .mini-image { height: 90px !important; }
+        }
+
+        /* Дополнительное сжатие для ПК с маленьким экраном (высота < 800px) */
+        @@media (min-width: 1024px) and (max-height: 799px) {
+            .page-wrapper { padding: 0 0 10px !important; gap: 10px !important; }
+            .car-header { padding: 8px 12px !important; margin-bottom: 6px !important; }
+            .car-image { max-height: 120px !important; }
+            .specs-grid { gap: 6px !important; padding: 8px !important; }
+            .spec-item { padding: 6px 10px !important; }
+            .spec-value { font-size: 12px !important; }
+            .spec-label { font-size: 9px !important; margin-bottom: 2px !important; }
+            .info-block { padding: 8px 14px !important; margin-bottom: 6px !important; }
+            .info-title { font-size: 13px !important; margin-bottom: 4px !important; padding-bottom: 3px !important; }
+            .info-content { font-size: 12px !important; line-height: 1.3 !important; }
+            .info-content-item { margin-bottom: 4px !important; padding-bottom: 4px !important; }
+            .price-value { font-size: 24px !important; }
+            .price-table thead th { padding: 4px 10px !important; font-size: 10px !important; }
+            .price-table tbody td { padding: 4px 10px !important; font-size: 11px !important; }
+            .price-table tbody td:not(:first-child) { font-size: 13px !important; }
+            .grafic-section { margin-top: 6px !important; margin-bottom: 6px !important; }
+            .grafic-section-title { font-size: 13px !important; margin-bottom: 4px !important; padding-bottom: 3px !important; }
+            .grafic-mini-grid { gap: 6px !important; }
+            .grafic-mini-item { padding: 6px !important; }
+            .grafic-mini-item .mini-image { height: 50px !important; }
+            .grafic-mini-item .click-hint { font-size: 8px !important; }
+            .actions-bottom { margin-top: 4px !important; gap: 8px !important; }
+            .btn { padding: 6px 16px !important; font-size: 11px !important; }
+            .dropdowns-sidebar { flex: 0 0 200px !important; top: 60px !important; }
+            .dropdowns-card { padding: 10px !important; }
+            .dropdown-section { margin-bottom: 6px !important; }
+            .dropdown-select { padding: 6px 10px !important; font-size: 11px !important; }
+            .btn-next { padding: 6px 12px !important; font-size: 11px !important; margin-top: 2px !important; }
+            .dropdown-label { font-size: 9px !important; margin-bottom: 2px !important; }
+            .language-switcher { top: 8px !important; right: 8px !important; padding: 3px 8px !important; }
+            .lang-btn { padding: 3px 8px !important; font-size: 10px !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА ===== -->
-    <div class="language-switcher">
-        <button class="lang-btn @(language == "ru" ? "active" : "")" onclick="switchLanguage('ru')">RU</button>
-        <button class="lang-btn @(language == "en" ? "active" : "")" onclick="switchLanguage('en')">EN</button>
-        <button class="lang-btn @(language == "de" ? "active" : "")" onclick="switchLanguage('de')">DE</button>
-    </div>
-
+    
     <div class="page-wrapper">
         <div class="dropdowns-sidebar">
             <div class="dropdowns-card">
@@ -994,16 +1129,12 @@
                 <div class="info-content">
                     @if (Model.Abouts != null && Model.Abouts.Any())
                     {
-                        @foreach (var item in Model.Abouts)
-                        {
-                            <div class="info-content-item">
-                                <div>@GetLocalized(item.text_ru, item.text_eng, item.text_ger)</div>
-                            </div>
-                        }
+                        var items = Model.Abouts.Select(item => GetLocalized(item.text_ru, item.text_eng, item.text_ger));
+                        <text>@string.Join(" ", items)</text>
                     }
                     else
                     {
-                        <div>@Model.AboutRu</div>
+                        <text>@Model.AboutRu</text>
                     }
                 </div>
             </div>
@@ -1014,16 +1145,12 @@
                 <div class="info-content">
                     @if (Model.PriResults != null && Model.PriResults.Any())
                     {
-                        @foreach (var item in Model.PriResults)
-                        {
-                            <div class="info-content-item">
-                                <div>@GetLocalized(item.text_ru, item.text_eng, item.text_ger)</div>
-                            </div>
-                        }
+                        var items = Model.PriResults.Select(item => GetLocalized(item.text_ru, item.text_eng, item.text_ger));
+                        <text>@string.Join(" ", items)</text>
                     }
                     else
                     {
-                        <div>@Html.Raw(AddLineBreaks(Model.ResultRu))</div>
+                        <text>@Html.Raw(AddLineBreaks(Model.ResultRu))</text>
                     }
                 </div>
             </div>
@@ -1031,41 +1158,22 @@
             <!-- ===== ENGINE CONTROL (Управление двигателем) ===== -->
             <div class="info-block">
                 <div class="info-title">⚙️ @GetLocalized("Управление двигателем", "Engine Control", "Motorsteuerung")</div>
-                <div class="info-content">
+                 <div class="info-content">
                     @if (Model.Engine_controlers != null && Model.Engine_controlers.Any())
                     {
-                        @foreach (var item in Model.Engine_controlers)
-                        {
-                            <div class="info-content-item">
-                                <div>@GetLocalized(item.text_ru, item.text_eng, item.text_ger)</div>
-                            </div>
-                        }
+                        var items = Model.Engine_controlers.Select(item => GetLocalized(item.text_ru, item.text_eng, item.text_ger));
+                        <text>@string.Join(" ", items)</text>
                     }
                     else
                     {
-                        <div>@Html.Raw(AddLineBreaks(Model.EngineControlRu))</div>
+                        <text>@Html.Raw(AddLineBreaks(Model.EngineControlRu))</text>
                     }
                 </div>
             </div>
 
-            <!-- ===== GRAFIC (Графики) ===== -->
-            @if (Model.Grafics != null && Model.Grafics.Any())
-            {
-                <div class="info-block">
-                    <div class="info-title">📊 @GetLocalized("Графики", "Graphs", "Grafiken")</div>
-                    <div style="text-align: center; padding: 15px 0;">
-                        <button class="btn btn-primary" onclick="openGraficModal()" style="padding: 14px 45px; font-size: 16px; border-radius: 50px;">
-                            <i class="fas fa-chart-line" style="margin-right: 10px;"></i>
-                            @GetLocalized("Показать графики", "Show graphs", "Grafiken anzeigen")
-                            <span style="background: rgba(255,255,255,0.2); padding: 2px 12px; border-radius: 20px; margin-left: 10px; font-size: 13px;">@Model.Grafics.Count</span>
-                        </button>
-                    </div>
-                </div>
-            }
-
             <!-- ===== PRICE (Цены) ===== -->
             <div class="info-block">
-                <div class="info-title">💰 @GetLocalized("СТОИМОСТЬ", "PRICE", "PREIS")</div>
+                <div class="price-label">💰 @GetLocalized("СТОИМОСТЬ", "PRICE", "PREIS")</div>
 
                 @if (Model.Prices != null && Model.Prices.Any())
                 {
@@ -1136,8 +1244,35 @@
                     </div>
                 }
 
-                
+                <div class="price-note" style="margin-top: 15px; text-align: center; font-size: 13px; color: var(--text-muted);">
+                    *@GetLocalized("включая все работы и настройки", "including all works and tuning", "inklusive aller Arbeiten")
+                </div>
             </div>
+
+            <!-- ===== GRAFIC (Графики - ВНИЗУ) ===== -->
+            @if (Model.Grafics != null && Model.Grafics.Any())
+            {
+                <div class="grafic-section">
+                    <div class="grafic-section-title">📊 @GetLocalized("Графики", "Graphs", "Grafiken")</div>
+                    <div class="grafic-mini-grid">
+                        @foreach (var grafic in Model.Grafics)
+                        {
+                            <div class="grafic-mini-item" onclick="openGraficModal(@grafic.id)">
+                                @if (!string.IsNullOrEmpty(grafic.image))
+                                {
+                                    <img src="@grafic.image" alt="@grafic.Name" class="mini-image" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <span class="mini-icon"><i class="fas fa-chart-line"></i></span>
+                                }
+                                
+                                <div class="click-hint">@GetLocalized("Нажмите для увеличения", "Click to enlarge", "Zum Vergrößern klicken")</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
 
             <div class="actions-bottom">
                 <a href="/" class="btn btn-secondary">← @GetLocalized("Вернуться к выбору", "Back to Selection", "Zurück zur Auswahl")</a>
@@ -1180,37 +1315,24 @@
         </div>
     </div>
 
-    <!-- ===== МОДАЛЬНОЕ ОКНО ДЛЯ ГРАФИКОВ ===== -->
+    <!-- ===== МОДАЛЬНОЕ ОКНО ДЛЯ ГРАФИКОВ (ОДИН ГРАФИК) ===== -->
     <div class="modal-overlay" id="graficModal">
         <div class="modal-content">
-            <!-- Кнопка закрытия -->
             <button class="modal-close" onclick="closeGraficModal()">
                 <i class="fas fa-times"></i>
             </button>
 
             <h2 class="modal-title">
                 <i class="fas fa-chart-line"></i>
-                @GetLocalized("Графики", "Graphs", "Grafiken")
-                <span>@Model.Brand @Model.Model</span>
+                <span id="modalGraficName">@GetLocalized("График", "Graph", "Grafik")</span>
+                <span style="font-size: 16px; font-weight: 400; color: var(--text-muted); margin-left: 12px;">@Model.Brand @Model.Model</span>
             </h2>
 
-            <div class="grafic-grid">
-                @foreach (var grafic in Model.Grafics)
-                {
-                    <div class="grafic-item">
-                        @if (!string.IsNullOrEmpty(grafic.image))
-                        {
-                            <img src="@grafic.image" alt="@grafic.Name" loading="lazy" />
-                        }
-                        else
-                        {
-                            <div class="no-image">
-                                <i class="fas fa-image"></i>
-                            </div>
-                        }
-                        <div class="grafic-name">@grafic.Name</div>
-                    </div>
-                }
+            <div class="modal-grafic-container">
+                <img id="modalGraficImage" src="" alt="" style="display: none;" />
+                <div id="modalGraficNoImage" class="no-image" style="display: none;">
+                    <i class="fas fa-image"></i>
+                </div>
             </div>
 
             <div class="modal-footer">
@@ -1230,14 +1352,45 @@
         }
 
         // ==========================================
-        // МОДАЛЬНОЕ ОКНО ГРАФИКОВ
+        // МОДАЛЬНОЕ ОКНО ГРАФИКОВ (ОДИН ГРАФИК)
         // ==========================================
-        function openGraficModal() {
+
+        // Получаем список графиков из модели
+        var graficList = @Json.Serialize(Model.Grafics);
+
+        function openGraficModal(graficId) {
             const modal = document.getElementById('graficModal');
-            if (modal) {
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden';
+            if (!modal) return;
+
+            // Находим график по ID
+            const selected = graficList.find(g => g.id === graficId);
+
+            if (!selected) {
+                console.warn('График с ID ' + graficId + ' не найден');
+                return;
             }
+
+            // Обновляем содержимое модального окна
+            const imageEl = document.getElementById('modalGraficImage');
+            const nameEl = document.getElementById('modalGraficName');
+            const noImageEl = document.getElementById('modalGraficNoImage');
+
+            // Обновляем изображение
+            if (selected.image && selected.image !== '') {
+                imageEl.src = selected.image;
+                imageEl.alt = selected.name || 'График';
+                imageEl.style.display = 'block';
+                noImageEl.style.display = 'none';
+            } else {
+                imageEl.style.display = 'none';
+                noImageEl.style.display = 'flex';
+            }
+
+            // 🔥 Обновляем название графика в модальном окне
+            nameEl.textContent = selected.name || '@Html.Raw(GetLocalized("График", "Graph", "Grafik"))';
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
 
         function closeGraficModal() {

@@ -43,9 +43,11 @@
             --accent-color: #FF3A2F;
             --accent-hover: #D62B1F;
             --navbar-border: rgba(255, 58, 47, 0.3);
-            /* ===== ЦВЕТ ЛОГОТИПА (СВЕТЛАЯ ТЕМА) ===== */
             --logo-color-start: #0D47A1;
             --logo-color-end: #42A5F5;
+            /* ===== ЦВЕТ АКТИВНОЙ КНОПКИ ЯЗЫКА (СВЕТЛАЯ ТЕМА) ===== */
+            --lang-active-bg: #2196F3;
+            --lang-active-color: #ffffff;
         }
 
         /* Тёмная тема */
@@ -63,9 +65,11 @@
             --accent-color: #FF3A2F;
             --accent-hover: #D62B1F;
             --navbar-border: rgba(255, 58, 47, 0.3);
-            /* ===== ЦВЕТ ЛОГОТИПА (ТЁМНАЯ ТЕМА) ===== */
             --logo-color-start: #FFB5A0;
             --logo-color-end: #FFD4C4;
+            /* ===== ЦВЕТ АКТИВНОЙ КНОПКИ ЯЗЫКА (ТЁМНАЯ ТЕМА) ===== */
+            --lang-active-bg: #FF3A2F;
+            --lang-active-color: #ffffff;
         }
 
         /* ========== НАВБАР ========== */
@@ -90,7 +94,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: nowrap;
-            max-width: 1400px;
+            max-width: 100%;
             margin: 0 auto;
             padding: 12px 24px;
             width: 100%;
@@ -103,7 +107,6 @@
             flex-wrap: wrap;
         }
 
-        /* ===== ЛОГОТИП С ПЕРЕМЕННЫМИ ЦВЕТАМИ ===== */
         .navbar-brand {
             font-size: 1.4rem;
             font-weight: 800;
@@ -117,10 +120,10 @@
             transition: background 0.3s ease, opacity 0.2s;
         }
 
-            .navbar-brand:hover {
-                opacity: 0.85;
-                color: transparent;
-            }
+        .navbar-brand:hover {
+            opacity: 0.85;
+            color: transparent;
+        }
 
         /* ========== НАВ-ССЫЛКИ ========== */
         .nav-links {
@@ -141,27 +144,27 @@
             position: relative;
         }
 
-            .nav-link-custom:hover {
-                color: var(--accent-color) !important;
-                background: rgba(255, 58, 47, 0.1);
-            }
+        .nav-link-custom:hover {
+            color: var(--accent-color) !important;
+            background: rgba(255, 58, 47, 0.1);
+        }
 
-            .nav-link-custom.active {
-                color: var(--accent-color) !important;
-                background: rgba(255, 58, 47, 0.15);
-            }
+        .nav-link-custom.active {
+            color: var(--accent-color) !important;
+            background: rgba(255, 58, 47, 0.15);
+        }
 
-                .nav-link-custom.active::after {
-                    content: '';
-                    position: absolute;
-                    bottom: 2px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: 20px;
-                    height: 2px;
-                    background: var(--accent-color);
-                    border-radius: 2px;
-                }
+        .nav-link-custom.active::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
 
         /* ========== СОЦИАЛЬНЫЕ ИКОНКИ ========== */
         .social-icons {
@@ -186,53 +189,44 @@
             font-size: 15px;
         }
 
-            .social-link:hover {
-                transform: translateY(-2px);
-                background: rgba(255, 58, 47, 0.15);
-                border-color: var(--accent-color);
-                color: var(--accent-color);
-                box-shadow: 0 4px 15px rgba(255, 58, 47, 0.2);
-            }
+        .social-link:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 58, 47, 0.15);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            box-shadow: 0 4px 15px rgba(255, 58, 47, 0.2);
+        }
 
-            .social-link.telegram:hover {
-                background: rgba(0, 136, 204, 0.2);
-                border-color: #0088CC;
-                color: #0088CC;
-            }
+        .social-link.telegram:hover {
+            background: rgba(0, 136, 204, 0.2);
+            border-color: #0088CC;
+            color: #0088CC;
+        }
 
-            .social-link.vk:hover {
-                background: rgba(69, 112, 169, 0.2);
-                border-color: #4C75A3;
-                color: #4C75A3;
-            }
+        .social-link.vk:hover {
+            background: rgba(69, 112, 169, 0.2);
+            border-color: #4C75A3;
+            color: #4C75A3;
+        }
 
-            .social-link.whatsapp:hover {
-                background: rgba(37, 211, 102, 0.2);
-                border-color: #25D366;
-                color: #25D366;
-            }
+        .social-link.whatsapp:hover {
+            background: rgba(37, 211, 102, 0.2);
+            border-color: #25D366;
+            color: #25D366;
+        }
 
-        /* ========== ПРАВАЯ ЧАСТЬ ========== */
+        /* ========== ПРАВАЯ ЧАСТЬ (ЯЗЫК + ТЕМА) ========== */
         .navbar-right {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 8px;
         }
 
-        .navbar-collapse {
-            display: flex !important;
-            flex-grow: 0;
-        }
-
-        .navbar-toggler {
-            display: none !important;
-        }
-
-        /* ===== КНОПКА ТЕМЫ ===== */
-        .theme-btn {
+        /* ===== КНОПКИ В ПРАВОЙ ЧАСТИ ===== */
+        .nav-btn {
             background: transparent;
             border: none;
-            padding: 8px 16px;
+            padding: 6px 12px;
             cursor: pointer;
             font-weight: 600;
             border-radius: 40px;
@@ -243,23 +237,47 @@
             background: var(--bg-input);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             white-space: nowrap;
         }
 
-            .theme-btn:hover {
-                color: var(--accent-color);
-                background: rgba(255, 58, 47, 0.1);
-                border-color: var(--accent-color);
-            }
+        .nav-btn:hover {
+            color: var(--accent-color);
+            background: rgba(255, 58, 47, 0.1);
+            border-color: var(--accent-color);
+        }
 
-            .theme-btn i {
-                font-size: 14px;
-            }
+        /* ===== АКТИВНАЯ КНОПКА ЯЗЫКА ===== */
+        .nav-btn.lang-btn.active {
+            background: var(--lang-active-bg);
+            color: var(--lang-active-color);
+            border-color: var(--lang-active-bg);
+        }
+
+        /* ===== КНОПКА ТЕМЫ ===== */
+        .nav-btn.theme-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        .nav-btn.theme-btn:hover {
+            color: var(--accent-color);
+            background: rgba(255, 58, 47, 0.1);
+            border-color: var(--accent-color);
+        }
+
+        /* ===== РАЗДЕЛИТЕЛЬ ===== */
+        .nav-divider {
+            width: 1px;
+            height: 28px;
+            background: var(--border-color);
+            opacity: 0.5;
+        }
 
         /* ========== ОСНОВНОЙ КОНТЕНТ ========== */
         .container {
-            max-width: 1400px;
+            max-width: 100%;
             margin: 0 auto;
             padding: 40px 24px;
         }
@@ -326,10 +344,10 @@
                 font-size: 12px;
             }
 
-                .nav-link-custom.active::after {
-                    width: 14px;
-                    bottom: 0;
-                }
+            .nav-link-custom.active::after {
+                width: 14px;
+                bottom: 0;
+            }
 
             .social-link {
                 width: 28px;
@@ -343,15 +361,16 @@
 
             .navbar-right {
                 flex-wrap: wrap;
-                gap: 8px;
+                gap: 4px;
+                margin-left: auto;
             }
 
             .container {
                 padding: 24px 16px;
             }
 
-            .theme-btn {
-                padding: 5px 10px;
+            .nav-btn {
+                padding: 4px 8px;
                 font-size: 11px;
             }
         }
@@ -380,9 +399,13 @@
                 padding: 20px 12px;
             }
 
-            .theme-btn {
-                padding: 4px 8px;
+            .nav-btn {
+                padding: 3px 6px;
                 font-size: 10px;
+            }
+
+            .nav-divider {
+                display: none;
             }
         }
 
@@ -402,8 +425,8 @@
                 font-size: 9px;
             }
 
-            .theme-btn {
-                padding: 3px 6px;
+            .nav-btn {
+                padding: 2px 5px;
                 font-size: 9px;
             }
         }
@@ -420,7 +443,6 @@
                         ReFlash Official
                     </a>
 
-                    <!-- ===== НАВИГАЦИОННЫЕ ССЫЛКИ (рядом с логотипом) ===== -->
                     <div class="nav-links">
                         <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                            asp-area="" asp-controller="Home" asp-action="Index">
@@ -434,7 +456,6 @@
                         </a>
                     </div>
 
-                    <!-- Социальные иконки -->
                     <div class="social-icons">
                         <a href="#" class="social-link telegram" target="_blank" title="Telegram">
                             <i class="fab fa-telegram-plane"></i>
@@ -448,9 +469,23 @@
                     </div>
                 </div>
 
-                <!-- Правая часть: Кнопка темы -->
+                <!-- Правая часть: Язык + Тема -->
                 <div class="navbar-right">
-                    <button class="theme-btn" id="themeToggle" onclick="toggleTheme()" title="Переключить тему">
+                    <!-- Переключатель языка -->
+                    <button class="nav-btn lang-btn" data-lang="ru" onclick="switchLanguage('ru')">
+                        🇷🇺 RU
+                    </button>
+                    <button class="nav-btn lang-btn" data-lang="en" onclick="switchLanguage('en')">
+                        🇬🇧 EN
+                    </button>
+                    <button class="nav-btn lang-btn" data-lang="de" onclick="switchLanguage('de')">
+                        🇩🇪 DE
+                    </button>
+
+                    <span class="nav-divider"></span>
+
+                    <!-- Переключатель темы -->
+                    <button class="nav-btn theme-btn" id="themeToggle" onclick="toggleTheme()" title="Переключить тему">
                         <i class="fas fa-moon" id="themeIcon"></i>
                         <span id="themeLabel">Dark</span>
                     </button>
@@ -465,6 +500,14 @@
     </div>
 
     <script>
+        // ==========================================
+        // ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА
+        // ==========================================
+        function switchLanguage(lang) {
+            document.cookie = "Language=" + lang + "; path=/; max-age=" + (365 * 24 * 60 * 60);
+            location.reload();
+        }
+
         // ==========================================
         // ПЕРЕКЛЮЧЕНИЕ ТЕМЫ
         // ==========================================
@@ -514,8 +557,33 @@
             }
         }
 
-        // Загружаем тему при загрузке страницы
-        document.addEventListener('DOMContentLoaded', loadTheme);
+        // ==========================================
+        // ПОДСВЕТКА АКТИВНОЙ КНОПКИ ЯЗЫКА
+        // ==========================================
+        function updateActiveLanguage() {
+            const getCookie = (name) => {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return 'ru';
+            };
+
+            const currentLang = getCookie('Language');
+            const langButtons = document.querySelectorAll('.lang-btn');
+
+            langButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.lang === currentLang) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Загружаем тему и обновляем язык при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTheme();
+            updateActiveLanguage();
+        });
     </script>
 </body>
 </html>
