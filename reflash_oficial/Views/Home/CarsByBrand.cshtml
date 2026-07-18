@@ -3,6 +3,7 @@
     ViewData["Title"] = $"{ViewBag.Brand} — все модели";
     var brand = ViewBag.Brand as string ?? "";
     var language = Context.Request.Cookies["Language"] ?? "ru";
+    var currentTheme = Context.Request.Cookies["Theme"] ?? "dark";
 
     string GetLocalized(string ru, string eng, string ger)
     {
@@ -19,10 +20,32 @@
         .GroupBy(c => c.Model)
         .OrderBy(g => g.Key)
         .ToList();
+
+    // Функция для получения логотипа бренда (как на главной странице)
+    string GetBrandLogo(string brandName)
+    {
+        return brandName?.ToLower() switch
+        {
+            "honda" => "https://logo-teka.com/wp-content/uploads/2025/06/honda-auto-logo.png",
+            "acura" => "https://thumbs.dreamstime.com/b/acura-124812338.jpg",
+            _ => "/images/default-logo.png"
+        };
+    }
+
+    // Функция для получения тёмного логотипа (как на главной странице)
+    string GetBrandLogoDark(string brandName)
+    {
+        return brandName?.ToLower() switch
+        {
+            "honda" => "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRdXFkhytgizlD868Ugijx1gETANFjG37KWA&s",
+            "acura" => "https://thumbs.dreamstime.com/b/acura-124812338.jpg",
+            _ => "/images/default-logo-dark.png"
+        };
+    }
 }
 
 <!DOCTYPE html>
-<html lang="@language" data-theme="@(Context.Request.Cookies["Theme"] ?? "dark")">
+<html lang="@language" data-theme="@currentTheme">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -31,8 +54,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* ==========================================
-                           CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ
-                           ========================================== */
+           CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ
+           ========================================== */
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f5f5f5;
@@ -49,6 +72,7 @@
             --accent-hover: #1976D2;
             --logo-color-start: #0D47A1;
             --logo-color-end: #42A5F5;
+            --transition-speed: 0.3s;
         }
 
         [data-theme="dark"] {
@@ -70,8 +94,8 @@
         }
 
         /* ==========================================
-                           ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА
-                           ========================================== */
+           ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА
+           ========================================== */
         .language-switcher {
             position: fixed;
             top: 24px;
@@ -101,20 +125,20 @@
             letter-spacing: 0.3px;
         }
 
-            .lang-btn:hover {
-                color: var(--text-primary);
-                background: rgba(255,58,47,0.1);
-            }
+        .lang-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255,58,47,0.1);
+        }
 
-            .lang-btn.active {
-                background: var(--accent-color);
-                color: white;
-                box-shadow: 0 0 8px rgba(255,58,47,0.5);
-            }
+        .lang-btn.active {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 0 8px rgba(255,58,47,0.5);
+        }
 
         /* ==========================================
-                           ОСНОВНЫЕ СТИЛИ
-                           ========================================== */
+           ОСНОВНЫЕ СТИЛИ
+           ========================================== */
         * {
             margin: 0;
             padding: 0;
@@ -147,13 +171,13 @@
             transition: color 0.2s;
         }
 
-            .back-link:hover {
-                color: var(--accent-hover);
-            }
+        .back-link:hover {
+            color: var(--accent-hover);
+        }
 
-            .back-link i {
-                margin-right: 8px;
-            }
+        .back-link i {
+            margin-right: 8px;
+        }
 
         .page-title {
             font-size: 36px;
@@ -162,12 +186,44 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-            .page-title i {
-                color: var(--accent-color);
-                margin-right: 12px;
-            }
+        /* ===== ЛОГОТИП БРЕНДА (КАК НА ГЛАВНОЙ) ===== */
+        .brand-logo {
+            display: inline-block;
+            position: relative;
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+        }
+
+        .brand-logo img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Светлая тема — показываем светлый логотип */
+        .brand-logo .logo-light {
+            display: block !important;
+        }
+        .brand-logo .logo-dark {
+            display: none !important;
+        }
+
+        /* Тёмная тема — показываем тёмный логотип */
+        [data-theme="dark"] .brand-logo .logo-light {
+            display: none !important;
+        }
+        [data-theme="dark"] .brand-logo .logo-dark {
+            display: block !important;
+        }
 
         .page-subtitle {
             color: var(--text-muted);
@@ -175,145 +231,202 @@
             margin-top: 8px;
         }
 
-        /* ========== СЕКЦИЯ МОДЕЛИ ========== */
+        /* ==========================================
+           АККОРДЕОН
+           ========================================== */
         .model-section {
-            margin-bottom: 40px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            background: var(--bg-card);
+            box-shadow: 0 4px 20px var(--shadow-color);
+            transition: box-shadow 0.3s ease;
         }
 
-            .model-section:last-child {
-                margin-bottom: 0;
-            }
+        .model-section:hover {
+            box-shadow: 0 8px 30px var(--shadow-hover);
+        }
 
+        /* ===== ЗАГОЛОВОК МОДЕЛИ (КЛИКАБЕЛЬНЫЙ) ===== */
         .model-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 20px;
+            padding: 18px 24px;
             background: var(--bg-secondary);
-            border-radius: 16px;
-            border-left: 4px solid var(--accent-color);
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
-            .model-header .model-name {
-                font-size: 24px;
-                font-weight: 700;
-                color: var(--text-primary);
-            }
+        .model-header:hover {
+            background: var(--bg-input);
+        }
 
-                .model-header .model-name i {
-                    color: var(--accent-color);
-                    margin-right: 10px;
-                }
+        .model-header.active {
+            background: var(--bg-input);
+            border-bottom: 1px solid var(--border-color);
+        }
 
-            .model-header .model-count {
-                font-size: 14px;
-                color: var(--text-muted);
-                background: var(--bg-card);
-                padding: 4px 16px;
-                border-radius: 20px;
-                border: 1px solid var(--border-color);
-            }
+        .model-header .model-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-        /* ========== ПОДЗАГОЛОВОК ПОКОЛЕНИЯ ========== */
+        .model-header .model-name i {
+            color: var(--accent-color);
+            font-size: 18px;
+        }
+
+        .model-header .model-count {
+            font-size: 14px;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            padding: 4px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .model-header .toggle-icon {
+            color: var(--text-muted);
+            font-size: 16px;
+            transition: transform 0.3s ease;
+            margin-left: 8px;
+        }
+
+        .model-header.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        /* ===== КОНТЕНТ МОДЕЛИ (СКРЫВАЕТСЯ/ПОКАЗЫВАЕТСЯ) ===== */
+        .model-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+            padding: 0 24px;
+            background: var(--bg-card);
+        }
+
+        .model-content.open {
+            max-height: 10000px;
+            opacity: 1;
+            padding: 20px 24px;
+        }
+
+        /* ===== ПОДЗАГОЛОВОК ПОКОЛЕНИЯ ===== */
         .generation-subheader {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 10px 16px;
             margin: 12px 0 12px 10px;
-            background: var(--bg-card);
+            background: var(--bg-secondary);
             border-radius: 12px;
             border-left: 3px solid var(--accent-color);
-            border-bottom: 1px solid var(--border-color);
         }
 
-            .generation-subheader .gen-icon {
-                color: var(--accent-color);
-                font-size: 14px;
-            }
+        .generation-subheader .gen-icon {
+            color: var(--accent-color);
+            font-size: 14px;
+        }
 
-            .generation-subheader .gen-name {
-                font-size: 16px;
-                font-weight: 600;
-                color: var(--text-primary);
-            }
+        .generation-subheader .gen-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
 
-            .generation-subheader .gen-count {
-                font-size: 13px;
-                color: var(--text-muted);
-                margin-left: auto;
-            }
+        .generation-subheader .gen-count {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-left: auto;
+            white-space: nowrap;
+        }
 
         .model-cars-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            gap: 16px;
             padding-left: 20px;
+            padding-top: 4px;
         }
 
-        /* ========== КАРТОЧКА АВТОМОБИЛЯ ========== */
+        /* ==========================================
+           КАРТОЧКА АВТОМОБИЛЯ
+           ========================================== */
         .car-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 14px;
             overflow: hidden;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
             color: var(--text-primary);
-            box-shadow: 0 4px 20px var(--shadow-color);
+            box-shadow: 0 2px 12px var(--shadow-color);
+            display: block;
         }
 
-            .car-card:hover {
-                transform: translateY(-4px);
-                border-color: var(--accent-color);
-                box-shadow: 0 20px 30px -12px var(--shadow-hover);
-            }
+        .car-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-color);
+            box-shadow: 0 12px 28px var(--shadow-hover);
+        }
 
-            .car-card .car-image-container {
-                width: 100%;
-                height: 180px;
-                overflow: hidden;
-                background: var(--bg-secondary);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
+        .car-card .car-image-container {
+            width: 100%;
+            height: 160px;
+            overflow: hidden;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-            .car-card .car-image {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                transition: transform 0.4s ease;
-            }
+        .car-card .car-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
 
-            .car-card:hover .car-image {
-                transform: scale(1.05);
-            }
+        .car-card:hover .car-image {
+            transform: scale(1.05);
+        }
 
-            .car-card .no-image {
-                font-size: 40px;
-                color: var(--text-muted);
-            }
+        .car-card .no-image {
+            font-size: 36px;
+            color: var(--text-muted);
+        }
 
-            .car-card .car-info {
-                padding: 16px 18px;
-            }
+        .car-card .car-info {
+            padding: 14px 16px;
+        }
 
-            .car-card .car-model-name {
-                font-size: 16px;
-                font-weight: 600;
-                color: var(--text-primary);
-            }
+        .car-card .car-model-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
 
-            .car-card .car-details {
-                color: var(--text-secondary);
-                font-size: 13px;
-                margin-top: 4px;
-            }
+        .car-card .car-details {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 4px;
+        }
 
         .empty-state {
             text-align: center;
@@ -321,17 +434,17 @@
             color: var(--text-muted);
         }
 
-            .empty-state i {
-                font-size: 56px;
-                display: block;
-                margin-bottom: 16px;
-                color: var(--text-muted);
-            }
+        .empty-state i {
+            font-size: 56px;
+            display: block;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+        }
 
-            .empty-state h3 {
-                color: var(--text-primary);
-                margin-bottom: 8px;
-            }
+        .empty-state h3 {
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
 
         .alert {
             background: rgba(255, 58, 47, 0.1);
@@ -344,8 +457,8 @@
         }
 
         /* ==========================================
-                           АДАПТИВНОСТЬ
-                           ========================================== */
+           АДАПТИВНОСТЬ
+           ========================================== */
         @@media (max-width: 768px) {
             .language-switcher {
                 top: 16px;
@@ -360,35 +473,50 @@
             }
 
             .container {
-                padding: 80px 16px 40px;
+                padding: 10px 12px 40px;
             }
 
             .page-title {
                 font-size: 28px;
             }
 
+            .brand-logo {
+                width: 34px;
+                height: 34px;
+            }
+
+            .model-header {
+                padding: 14px 16px;
+            }
+
             .model-header .model-name {
-                font-size: 20px;
+                font-size: 17px;
+            }
+
+            .model-content.open {
+                padding: 16px;
             }
 
             .model-cars-grid {
                 grid-template-columns: 1fr 1fr;
                 padding-left: 0;
+                gap: 12px;
             }
 
             .car-card .car-image-container {
-                height: 140px;
+                height: 120px;
             }
 
             .generation-subheader {
                 margin-left: 0;
                 flex-wrap: wrap;
+                padding: 8px 12px;
             }
 
-                .generation-subheader .gen-count {
-                    margin-left: 0;
-                    width: 100%;
-                }
+            .generation-subheader .gen-count {
+                margin-left: 0;
+                width: 100%;
+            }
         }
 
         @@media (max-width: 480px) {
@@ -405,51 +533,71 @@
             }
 
             .page-title {
-                font-size: 24px;
+                font-size: 22px;
+            }
+
+            .brand-logo {
+                width: 28px;
+                height: 28px;
             }
 
             .model-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
+                padding: 12px 14px;
             }
 
-                .model-header .model-name {
-                    font-size: 18px;
-                }
-
-            .model-cars-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .car-card .car-model-name {
+            .model-header .model-name {
                 font-size: 15px;
             }
 
+            .model-header .model-count {
+                font-size: 12px;
+                padding: 2px 12px;
+            }
+
+            .model-content.open {
+                padding: 12px;
+            }
+
+            .model-cars-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
             .car-card .car-image-container {
-                height: 120px;
+                height: 100px;
+            }
+
+            .car-card .car-model-name {
+                font-size: 14px;
+            }
+
+            .car-card .car-details {
+                font-size: 12px;
             }
 
             .generation-subheader .gen-name {
-                font-size: 14px;
+                font-size: 13px;
             }
         }
     </style>
 </head>
 <body>
-    
 
     <div class="container">
         <div class="page-header">
-            <a href="@Url.Action("Index", "Home")" class="back-link">
-                <i class="fas fa-arrow-left"></i> @GetLocalized("К выбору бренда", "Back to brands", "Zurück zur Markenauswahl")
-            </a>
+           
             <h1 class="page-title">
-                <i class="fas fa-car"></i> @brand
+                <span class="brand-logo">
+                    <img src="@GetBrandLogo(brand)" 
+                         alt="@brand" 
+                         class="logo-light" />
+                    <img src="@GetBrandLogoDark(brand)" 
+                         alt="@brand" 
+                         class="logo-dark" />
+                </span>
+                @brand
             </h1>
-            <p class="page-subtitle">
-                @Model.Count @GetLocalized("автомобилей", "cars", "Autos")
-            </p>
+            
         </div>
 
         @if (TempData["Error"] != null)
@@ -463,56 +611,55 @@
         {
             @foreach (var modelGroup in groupedByModel)
             {
-                // Группируем внутри модели по поколению
                 var generationGroups = modelGroup
-                .GroupBy(c => c.Generation)
-                .OrderBy(g => g.Key)
-                .ToList();
+                    .GroupBy(c => c.Generation)
+                    .OrderBy(g => g.Key)
+                    .ToList();
 
                 <div class="model-section">
-                    <div class="model-header">
+                    <div class="model-header" onclick="toggleModel(this)">
                         <span class="model-name">
                             <i class="fas fa-chevron-right"></i> @modelGroup.Key
                         </span>
-                        <span class="model-count">
-                            <i class="fas fa-car"></i> @modelGroup.Count()
-                        </span>
+                       
                     </div>
 
-                    @foreach (var genGroup in generationGroups)
-                    {
-                        <div class="generation-subheader">
-                            <span class="gen-icon"><i class="fas fa-calendar-alt"></i></span>
-                            <span class="gen-name">@GetLocalized("Поколение", "Generation", "Generation") @genGroup.Key</span>
-                            <span class="gen-count">@genGroup.Count() @GetLocalized("вариантов", "variants", "Varianten")</span>
-                        </div>
+                    <div class="model-content">
+                        @foreach (var genGroup in generationGroups)
+                        {
+                            <div class="generation-subheader">
+                                <span class="gen-icon"><i class="fas fa-calendar-alt"></i></span>
+                                <span class="gen-name">@GetLocalized("Поколение", "Generation", "Generation") @genGroup.Key</span>
+                                
+                            </div>
 
-                        <div class="model-cars-grid">
-                            @foreach (var car in genGroup.OrderBy(c => c.Engine))
-                            {
-                                <a href="@Url.Action("Car", "Home", new { brand = car.Brand, model = car.Model, generation = car.Generation, engine = car.Engine })" class="car-card">
-                                    <div class="car-image-container">
-                                        @if (!string.IsNullOrEmpty(car.Image))
-                                        {
-                                            <img src="@car.Image" alt="@car.Brand @car.Model" class="car-image" />
-                                        }
-                                        else
-                                        {
-                                            <div class="no-image">
-                                                <i class="fas fa-car"></i>
-                                            </div>
-                                        }
-                                    </div>
-                                    <div class="car-info">
-                                        <div class="car-model-name">@car.Model</div>
-                                        <div class="car-details">
-                                            @car.Generation · @car.Engine
+                            <div class="model-cars-grid">
+                                @foreach (var car in genGroup.OrderBy(c => c.Engine))
+                                {
+                                    <a href="@Url.Action("Car", "Home", new { brand = car.Brand, model = car.Model, generation = car.Generation, engine = car.Engine })" class="car-card">
+                                        <div class="car-image-container">
+                                            @if (!string.IsNullOrEmpty(car.Image))
+                                            {
+                                                <img src="@car.Image" alt="@car.Brand @car.Model" class="car-image" loading="lazy" />
+                                            }
+                                            else
+                                            {
+                                                <div class="no-image">
+                                                    <i class="fas fa-car"></i>
+                                                </div>
+                                            }
                                         </div>
-                                    </div>
-                                </a>
-                            }
-                        </div>
-                    }
+                                        <div class="car-info">
+                                            <div class="car-model-name">@car.Model</div>
+                                            <div class="car-details">
+                                                @car.Generation · @car.Engine
+                                            </div>
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                        }
+                    </div>
                 </div>
             }
         }
@@ -534,6 +681,21 @@
             document.cookie = "Language=" + lang + "; path=/; max-age=" + (365 * 24 * 60 * 60);
             location.reload();
         }
+
+        // ==========================================
+        // АККОРДЕОН - РАСКРЫТИЕ/СКРЫТИЕ МОДЕЛИ
+        // ==========================================
+        function toggleModel(headerElement) {
+            const section = headerElement.closest('.model-section');
+            if (!section) return;
+
+            const content = section.querySelector('.model-content');
+            if (!content) return;
+
+            headerElement.classList.toggle('active');
+            content.classList.toggle('open');
+        }
     </script>
+
 </body>
 </html>

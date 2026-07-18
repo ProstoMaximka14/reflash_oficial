@@ -226,7 +226,7 @@ namespace reflash_oficial.Controllers
             DatabaseModel.Generation_l = null;
             DatabaseModel.Engine_l = null;
             DatabaseModel.Engine_with_model = null;
-            DatabaseModel.News = null;
+            //DatabaseModel.News = null;
             DatabaseModel.furst_page = null;
 
             Console.WriteLine($"✅ [{DateTime.Now}] database rewrite");
@@ -245,7 +245,7 @@ namespace reflash_oficial.Controllers
                 DatabaseModel.Generation_l = Get_Sort_Cars("generation", DatabaseModel.Cars);
                 DatabaseModel.Engine_l = Get_Sort_Cars("engine", DatabaseModel.Cars);
                 DatabaseModel.Engine_with_model = Get_Sort_Cars("engine_with_model", DatabaseModel.Cars);
-                DatabaseModel.News = Get_News_from_data();
+                //DatabaseModel.News = Get_News_from_data();
                 
 
             }

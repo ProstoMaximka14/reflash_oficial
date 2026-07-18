@@ -169,7 +169,7 @@
         .main-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 100px 24px 60px;
+            padding: 0 24px 60px;  /* ← УБРАЛИ ОТСТУП СВЕРХУ */
         }
 
         /* Заголовок страницы */
@@ -496,105 +496,226 @@
             color: var(--text-muted);
         }
 
-        /* Адаптивность */
+        /* ==========================================
+           АДАПТИВНОСТЬ
+           ========================================== */
+        @@media (max-width: 992px) {
+            .partners-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 20px;
+            }
+        }
+
         @@media (max-width: 768px) {
             .main-container {
-                padding: 80px 16px 40px;
+                padding: 0 12px 30px;  /* ← УБРАЛИ ОТСТУП СВЕРХУ НА МОБИЛКЕ */
             }
 
             .language-switcher {
                 top: 12px;
                 right: 12px;
                 padding: 4px 10px;
+                gap: 4px;
             }
 
             .lang-btn {
                 padding: 4px 10px;
-                font-size: 11px;
+                font-size: 10px;
             }
 
-            .page-title {
-                font-size: 32px;
-            }
-
-            .page-subtitle {
-                font-size: 14px;
-            }
-
-            .map-container {
-                height: 320px;
-            }
-
-            .map-header h3 {
-                font-size: 16px;
-            }
-
-            .map-header {
-                padding: 15px 20px;
-            }
-
-            .map-footer {
-                padding: 10px 20px;
-                font-size: 11px;
-            }
-
-            .section-title {
-                font-size: 24px;
-            }
-
-            .partners-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .partner-photo-container {
-                height: 200px;
-            }
-
-            .partner-info {
-                padding: 18px;
-            }
-
-            .partner-address {
-                padding: 12px 18px;
-            }
-
-            .yandex-map-controls {
-                bottom: 12px;
-                right: 12px;
-                gap: 6px;
-            }
-
-            .map-control-btn {
-                width: 38px;
-                height: 38px;
-                font-size: 16px;
-            }
-        }
-
-        @@media (max-width: 480px) {
             .page-title {
                 font-size: 28px;
             }
 
+            .page-subtitle {
+                font-size: 13px;
+            }
+
+            .map-container {
+                height: 280px;
+            }
+
+            .map-header h3 {
+                font-size: 15px;
+            }
+
+            .map-header {
+                padding: 12px 16px;
+            }
+
+            .map-footer {
+                padding: 10px 16px;
+                font-size: 11px;
+            }
+
             .section-title {
-                font-size: 20px;
+                font-size: 22px;
+            }
+
+            .partners-count {
+                font-size: 12px;
+                padding: 4px 12px;
+            }
+
+            /* ===== КАРТОЧКИ В 2 СТОЛБИКА НА ТЕЛЕФОНЕ ===== */
+            .partners-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            /* Уменьшаем карточки */
+            .partner-card {
+                border-radius: 16px;
+            }
+
+            .partner-photo-container {
+                height: 140px;
+            }
+
+            .no-photo-icon {
+                font-size: 40px;
+            }
+
+            .partner-info {
+                padding: 12px 14px;
             }
 
             .partner-name {
-                font-size: 16px;
+                font-size: 14px;
+                margin-bottom: 10px;
             }
 
             .contact-item {
+                font-size: 12px;
+                padding: 4px 0;
+                gap: 8px;
+            }
+
+            .contact-icon {
+                width: 20px;
+                font-size: 12px;
+            }
+
+            .partner-address {
+                padding: 10px 14px;
+                font-size: 11px;
+                gap: 8px;
+            }
+
+            .partner-address i {
+                font-size: 12px;
+            }
+
+            .yandex-map-controls {
+                bottom: 10px;
+                right: 10px;
+                gap: 5px;
+            }
+
+            .map-control-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 14px;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .main-container {
+                padding: 0 8px 20px;  /* ← УБРАЛИ ОТСТУП СВЕРХУ НА МАЛЕНЬКИХ ЭКРАНАХ */
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+
+            .section-header {
+                margin-bottom: 16px;
+            }
+
+            .partners-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .partner-photo-container {
+                height: 110px;
+            }
+
+            .no-photo-icon {
+                font-size: 30px;
+            }
+
+            .partner-info {
+                padding: 8px 10px;
+            }
+
+            .partner-name {
+                font-size: 12px;
+                margin-bottom: 6px;
+            }
+
+            .partner-name i {
+                font-size: 11px;
+                margin-right: 4px;
+            }
+
+            .contact-item {
+                font-size: 10px;
+                padding: 3px 0;
+                gap: 6px;
+            }
+
+            .contact-icon {
+                width: 16px;
+                font-size: 10px;
+            }
+
+            .contact-text {
+                font-size: 10px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .partner-address {
+                padding: 6px 10px;
+                font-size: 9px;
+                gap: 4px;
+            }
+
+            .partner-address i {
+                font-size: 10px;
+            }
+
+            .map-container {
+                height: 200px;
+            }
+
+            .map-header h3 {
                 font-size: 13px;
-                padding: 6px 0;
+            }
+
+            .map-header {
+                padding: 8px 12px;
+            }
+
+            .map-footer {
+                padding: 6px 12px;
+                font-size: 9px;
+            }
+
+            .partners-count {
+                font-size: 10px;
+                padding: 3px 8px;
             }
         }
     </style>
 </head>
 <body>
-
-   
 
     <div class="main-container">
         <!-- Шапка страницы -->
@@ -603,11 +724,6 @@
                 <i class="fas fa-handshake" style="color: var(--accent-color); margin-right: 12px;"></i>
                 @GetLocalized("Наши партнеры", "Our Partners", "Unsere Partner")
             </h1>
-            <p class="page-subtitle">
-                @GetLocalized("Сертифицированные центры чип-тюнинга по всему миру",
-                "Certified chip tuning centers worldwide",
-                                "Zertifizierte Chip-Tuning-Zentren weltweit")
-            </p>
         </div>
 
         <!-- Карта -->
@@ -769,9 +885,9 @@
                         @GetLocalized("На данный момент нет активных представителей",
                         "There are no active representatives at the moment",
                                         "Derzeit gibt es keine aktiven Vertreter")
+                    </div>
                 </div>
-            </div>
-                        }
+            }
         </div>
     </div>
 
