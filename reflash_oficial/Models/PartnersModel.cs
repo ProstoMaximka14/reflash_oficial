@@ -6,30 +6,34 @@
 
         public string name { get; set; }
 
-        public string phone { get; set; }
+        // ===== КОНТАКТЫ =====
+        public string phone { get; set; }          // Телефон
+        public string vk { get; set; }             // ВКонтакте (ссылка)
+        public string vk_group { get; set; }       // Группа ВК (ссылка)
+        public string telegram { get; set; }       // Telegram
+        public string whatsapp { get; set; }       // WhatsApp
+        public string email { get; set; }          // Email
+        public string website { get; set; }        // Сайт
 
-        public string photo { get; set; }
-
-        public string vk { get; set; }
-
-        public string website { get; set; }
-
+        // ===== АДРЕС =====
         public string city { get; set; }
-       
         public string street { get; set; }
         public string house { get; set; }
+        public string point_name { get; set; }     // Точка (название точки/офиса)
 
+        // ===== КООРДИНАТЫ ДЛЯ КАРТЫ =====
         public string longitude { get; set; }
         public string latitude { get; set; }
+
+        // ===== ФОТО =====
+        public string photo { get; set; }
 
         public string PhotoUrl
         {
             get
             {
                 if (string.IsNullOrEmpty(photo))
-                    return "/images/default-partner.jpg"; // Дефолтное изображение
-
-                // Используем путь к общей папке
+                    return "/images/default-partner.jpg";
                 return $"/shared-fotos/partners/{photo}";
             }
         }

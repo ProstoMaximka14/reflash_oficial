@@ -1,12 +1,24 @@
 ﻿@model reflash_oficial.Models.ReflashCarModel
 @{
-    ViewData["Title"] = "Выбор автомобиля";
+    ViewData["Title"] = "ReflashTeam";
 
     // Получаем текущий язык из сессии или cookies
     var currentLang = Context.Request.Cookies["Language"] ?? "ru";
 
     // Получаем данные главной страницы из ViewBag
     var furstPage = ViewBag.FurstPage as reflash_oficial.Models.FurstPageModel;
+
+    // ===== ФУНКЦИЯ ДЛЯ ПУТЕЙ К ИЗОБРАЖЕНИЯМ =====
+    string GetImagePath(string imageName, string folder)
+    {
+        if (string.IsNullOrEmpty(imageName)) return "";
+        if (imageName.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+            imageName.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            return imageName;
+        if (imageName.StartsWith("/"))
+            return imageName;
+        return $"/shared-fotos/{folder}/{imageName}";
+    }
 }
 
 <!DOCTYPE html>
@@ -100,7 +112,6 @@
             transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* Кастомный скролл */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -294,32 +305,30 @@
         /* ===== ДРОПДАУНЫ (БАЗОВЫЕ СТИЛИ) ===== */
         /* ===================================== */
 
-        /* Главный контейнер, который содержит все дропдауны и кнопку */
         .dropdowns-container {
-            background: var(--bg-card);
-            backdrop-filter: blur(20px);
+            background: transparent;
+            /*backdrop-filter: blur(20px);*/
             border-radius: 32px;
             padding: 40px 36px;
             max-width: 2000px;
             width: 65%;
             margin: 0 auto;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 25px 45px -12px var(--shadow-color);
+            border: 1px solid transparent/*var(--border-color)*/;
+            box-shadow: 0 25px 45px -12px transparent/*var(--shadow-color)*/;
             transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        /* Контейнер, который выстраивает дропдауны в ряд. */
+
         .dropdowns-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            /*grid-template-columns: repeat(4, 1fr);*/
             gap: 24px;
         }
-        /*Одна колонка, содержащая лейбл и селект*/
+
         .dropdown-section {
             min-width: 0;
             width: 100%;
         }
-        /*Заголовок над полем выбора*/
+
         .dropdown-label {
             display: block;
             font-weight: 600;
@@ -329,7 +338,7 @@
             letter-spacing: 1px;
             text-transform: uppercase;
         }
-        /*Поле выбора (дропдаун)*/
+
         .dropdown-select {
             width: 100%;
             padding: 14px 18px;
@@ -343,20 +352,20 @@
             transition: all 0.2s;
             font-family: 'Inter', monospace;
         }
-        /*Стили для поля, когда оно в фокусе (пользователь кликнул или перешёл по Tab)*/
+
         .dropdown-select:focus {
             border-color: var(--accent-color);
             outline: none;
             box-shadow: 0 0 0 3px rgba(255,58,47,0.2);
         }
-         /*Стили для неактивного поля (когда оно заблокировано).*/
+
         .dropdown-select:disabled {
             background: var(--bg-secondary);
             color: var(--text-muted);
             cursor: not-allowed;
             border-color: var(--border-color);
         }
-        /*Кнопка перехода на следующий шаг.*/
+
         .btn-next {
             margin-top: 40px;
             padding: 14px 42px;
@@ -373,38 +382,161 @@
             text-transform: uppercase;
             box-shadow: 0 8px 20px rgba(255,58,47,0.3);
         }
-        /*Стили для кнопки, когда на неё навели курсор*/
+
         .btn-next:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 28px rgba(255,58,47,0.5);
         }
 
-        /* Заголовок head_1 */
         .main-title-bottom {
-    position: absolute;
-    bottom: 70px;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 18px;
-    font-weight: 600;
-    background: linear-gradient(135deg, var(--title-gradient-start) 0%, var(--title-gradient-end) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    max-width: 90%;
-    margin: 0 auto;
-    letter-spacing: -0.2px;
-    z-index: 20;
-    text-shadow: 0 2px 10px var(--title-shadow);
-    pointer-events: none;
-}
+            position: absolute;
+            bottom: 70px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--title-gradient-start) 0%, var(--title-gradient-end) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            max-width: 90%;
+            margin: 0 auto;
+            letter-spacing: -0.2px;
+            z-index: 20;
+            text-shadow: 0 2px 10px var(--title-shadow);
+            pointer-events: none;
+        }
+
+        /* ===================================== */
+        /* ========== МОБИЛЬНЫЕ ДРОПДАУНЫ ========== */
+        /* ===================================== */
+
+        .header-dropdowns {
+            display: none;
+            background: transparent ;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            border: 1px solid transparent ;
+            transition: all 0.3s ease;
+            padding: 12px 10px;
+            width: 100%;
+        }
+
+        .header-dropdowns-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .header-dropdowns .spec-item {
+            padding: 4px 4px;
+            text-align: center;
+        }
+
+        .header-dropdowns .spec-label {
+            display: block;
+            font-size: 7px;
+            font-weight: 700;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 3px;
+        }
+
+        /* ===== СТИЛИ ДЛЯ ДРОПДАУНОВ СО СТРЕЛКАМИ ===== */
+        .header-dropdowns .dropdown-select {
+            width: 100%;
+            padding: 8px 4px;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--bg-input);
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+            min-height: 34px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        /* Стрелка влево для заблокированных дропдаунов (без текста) */
+        .header-dropdowns .dropdown-select:disabled {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            padding-left: 20px;
+            padding-right: 4px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2388889a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='15 18 9 12 15 6'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 4px center;
+            background-size: 12px 12px;
+        }
+
+        .header-dropdowns .dropdown-select:disabled option {
+            display: none;
+        }
+
+        /* Стрелка вниз для активных дропдаунов */
+        .header-dropdowns .dropdown-select:not(:disabled) {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2388889a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+            background-size: 12px 12px;
+            padding-right: 22px;
+        }
+
+        .header-dropdowns .dropdown-select option {
+            font-size: 11px;
+            padding: 6px;
+            font-weight: 400;
+        }
+
+        .btn-next-mobile {
+            width: 100%;
+            margin-top: 8px;
+            padding: 10px 16px;
+            background: linear-gradient(95deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: none;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(255,58,47,0.3);
+        }
+
+        .btn-next-mobile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255,58,47,0.4);
+        }
+
+        .btn-next-mobile.show {
+            display: block;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* ===================================== */
         /* ========== БЛОКИ 1-6 ========== */
         /* ===================================== */
 
-        /*Отделяет блоки от других секций*/
         .blocks-section {
             padding: 20px 24px;
             border-top: 1px solid var(--border-color);
@@ -412,18 +544,14 @@
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
-        /*Располагает карточки*/
         .blocks-container {
             max-width: 70%;
-            /*max-width: 1600px;*/
             margin: 0 auto;
             display: grid;
-            /*grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));*/
             grid-template-columns: repeat(auto-fit, minmax(30%, 1fr));
             gap: 28px;
         }
 
-        /*Содержит номер и описание одного этапа*/
         .block-card {
             background: var(--block-bg);
             padding: 32px 28px;
@@ -433,23 +561,22 @@
             text-align: left;
             box-shadow: 0 4px 20px var(--shadow-color);
         }
-        
+
         .block-card:hover {
             transform: translateY(-8px);
             border-color: var(--accent-color);
             box-shadow: 0 20px 30px -12px rgba(255,58,47,0.2);
         }
 
-        /*Показывает порядковый номер (STAGE 01 - STAGE 06)*/
-        .block-number {
-            font-size: 14px;
+        .block-title {
+            font-size: 18px;
             font-weight: 700;
             color: var(--accent-color);
-            margin-bottom: 16px;
-            letter-spacing: 2px;
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+            line-height: 1.3;
         }
 
-        /*Содержит основной текст из базы данных*/
         .block-text {
             font-size: 16px;
             line-height: 1.5;
@@ -459,14 +586,12 @@
 
         /* ========== СЕКЦИЯ С РАМКОЙ ========== */
 
-        /* СЕКЦИЯ */
         .info-section {
             padding: 40px 24px;
             background: var(--bg-primary);
             transition: background 0.3s ease;
         }
 
-        /* ЗАГОЛОВОК  */
         .section-title {
             text-align: center;
             font-size: 38px;
@@ -479,7 +604,6 @@
             color: transparent;
         }
 
-        /* КОНТЕЙНЕР С РАМКОЙ  */
         .image-frame-container {
             position: relative;
             background-size: cover;
@@ -487,8 +611,8 @@
             border-radius: 36px;
             padding: 80px 40px;
             min-height: 520px;
-            max-width: 2500px;        /* ← ДОБАВИТЬ! Ограничивает ширину */
-            width: 85%;               /* ← ДОБАВИТЬ! Ширина относительно экрана */
+            max-width: 2500px;
+            width: 85%;
             margin: 0 auto;
             display: flex;
             align-items: center;
@@ -498,7 +622,6 @@
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
-        /* ЗАТЕМНЕНИЕ */
         .image-frame-container::before {
             content: '';
             position: absolute;
@@ -512,7 +635,6 @@
             transition: background 0.3s ease;
         }
 
-        /* РАМКА С ТЕКСТОМ */
         .frame-content {
             position: relative;
             z-index: 2;
@@ -527,7 +649,6 @@
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
-        /* ТЕКСТ В РАМКЕ */
         .info-text {
             font-size: 18px;
             line-height: 1.6;
@@ -602,7 +723,6 @@
             color: var(--text-muted);
         }
 
-        /* Специфичные цвета для брендов */
         .brand-card-bottom.honda:hover {
             border-color: #E63946;
         }
@@ -610,9 +730,6 @@
         .brand-card-bottom.acura:hover {
             border-color: #1A1A2E;
         }
-           /* ==========================================
-        ПЕРЕКЛЮЧЕНИЕ ЛОГОТИПОВ ПО ТЕМЕ
-        ========================================== */
 
         .brand-logo {
             display: block;
@@ -631,7 +748,6 @@
             object-fit: contain;
         }
 
-        /* Светлая тема (по умолчанию) — показываем logo-light, скрываем logo-dark */
         .brand-logo .logo-light {
             display: block !important;
         }
@@ -639,197 +755,243 @@
             display: none !important;
         }
 
-        /* Тёмная тема — показываем logo-dark, скрываем logo-light */
         [data-theme="dark"] .brand-logo .logo-light {
             display: none !important;
         }
         [data-theme="dark"] .brand-logo .logo-dark {
             display: block !important;
         }
+
         /* ==========================================
-   АДАПТАЦИЯ ДЛЯ SAMSUNG GALAXY S25 ULTRA (И АНАЛОГОВ)
-   Ширина экрана до 430px
-   ========================================== */
+           АДАПТИВНОСТЬ
+           ========================================== */
 
-@@media (max-width: 700px) {
+        @@media (max-width: 700px) {
+            .hero-section {
+                height: 430px;
+                margin: 0;   
+            }
+
+            .main-title-bottom {
+                font-size: 13px;
+                bottom: 8px;
+                max-width: 90%;
+            }
+
+            .slider-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            .content-wrapper {
+                padding: 24px 16px;
+            }
+
+            .language-switcher {
+                top: 12px;
+                right: 12px;
+                padding: 4px 10px;
+                gap: 4px;
+            }
+            
+            .lang-btn {
+                padding: 4px 10px;
+                font-size: 11px;
+            }
+
+            .dropdowns-container {
+                padding: 24px 20px;
+                width: 100%;
+                margin-top: -150px;
+                border-radius: 24px;
+            }
+
+            /* Скрываем десктопные дропдауны */
+            .dropdowns-row {
+                display: none;
+            }
+
+            .btn-next {
+                display: none !important;
+            }
 
 
-    /* === HERO СЛАЙДЕР === */
-    .hero-section {
-        height: 430px;  /* Немного выше, чтобы использовать большой экран */
-        margin: 0;   
-    }
 
-    .main-title-bottom {
-        font-size: 13px;
-        bottom: 8px;
-        max-width: 90%;
+            /* Показываем мобильные дропдауны */
+            .header-dropdowns {
+                display: block;
+                
+            }
 
-    }
+            .blocks-section {
+                padding: 20px 12px;
+            }
 
-    .slider-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-    }
+            .block-card {
+                padding: 20px 18px;
+                border-radius: 20px;
+            }
 
-    /* === ОСНОВНОЙ КОНТЕНТ (ДРОПДАУНЫ) === */
-    .content-wrapper {
-        padding: 24px 16px;
-    }
+            .blocks-container {
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                max-width: 100%;
+                padding: 0;
+            }
 
-    .dropdowns-container {
-        padding: 24px 20px;
-        width: 80%;
-        border-radius: 24px;
-    }
+            .block-title {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
 
-    .dropdowns-row {
-        grid-template-columns: 1fr;  /* Одна колонка для удобного выбора */
-        gap: 10px;
-    }
+            .block-text {
+                font-size: 10px;
+                line-height: 1.5;
+            }
 
-    .dropdown-label {
-        font-size: 10px;  /* Крупнее для удобного тапа */
-        margin-bottom: 6px;
-        letter-spacing: 0.5px;
-    }
+            .info-section {
+                padding: 30px 16px;
+            }
 
-    .dropdown-select {
-        padding: 14px 16px; /* Большая область для тапа */
-        font-size: 10px;   /* Крупный шрифт */
-        border-radius: 16px;
-    }
+            .section-title {
+                font-size: 15px;
+                margin-bottom: 24px;
+            }
 
-    .btn-next {
-        margin-top: 12px;           /* ← УМЕНЬШИЛИ ОТСТУП СВЕРХУ */
-        padding: 6px 20px;          /* ← МАЛЕНЬКИЙ ВЕРТИКАЛЬНЫЙ ОТСТУП */
-        font-size: 12px;            /* ← МАЛЕНЬКИЙ ШРИФТ */
-        width: auto;                /* ← НЕ РАСТЯГИВАЕМ */
-        min-width: 120px;           /* ← МИНИМАЛЬНАЯ ШИРИНА */
-        border-radius: 30px;
-        letter-spacing: 0.5px;
-        line-height: 1.2; 
-    }
+            .image-frame-container {
+                padding: 30px 16px;
+                min-height: 320px;
+                width: 100%;
+                border-radius: 24px;
+            }
 
-    /* === БЛОКИ 1-6 === */
-    .blocks-section {
-        padding: 20px 12px;
-    }
+            .frame-content {
+                padding: 24px 20px;
+                border-radius: 20px;
+                max-width: 100%;
+            }
 
-    .block-card {
-        padding: 20px 18px;
-        border-radius: 20px;
-    }
+            .info-text {
+                font-size: 10px;
+                line-height: 1.6;
+            }
 
-    .blocks-container {
-        grid-template-columns: 1fr 1fr;        /* ← 1 карточка на всю ширину */
-        gap: 16px;                         /* ← Меньше расстояние между карточками */
-        max-width: 100%;                   /* ← Убрать ограничение */
-        padding: 0;                        /* ← Убрать отступы */
-    }
+            .brands-section-bottom {
+                padding: 24px 16px 30px;
+            }
 
-    .block-number {
-        font-size: 13px;
-        margin-bottom: 8px;
-    }
+            .brands-title-bottom {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
 
-    .block-text {
-        font-size: 10px;
-        line-height: 1.5;
-    }
+            .brands-grid-bottom {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+                max-width: 100%;
+            }
 
-    /* === СЕКЦИЯ С РАМКОЙ === */
-    .info-section {
-        padding: 30px 16px;
-    }
+            .brand-card-bottom {
+                padding: 24px 20px;
+                border-radius: 20px;
+            }
 
-    .section-title {
-        font-size: 15px;
-        margin-bottom: 24px;
-    }
+            .brand-card-bottom .brand-logo {
+                font-size: 52px;
+                margin-bottom: 8px;
+            }
 
-    .image-frame-container {
-        padding: 30px 16px;
-        min-height: 320px;
-        width: 100%;
-        border-radius: 24px;
-    }
+            .brand-card-bottom .brand-name {
+                font-size: 22px;
+            }
 
-    .frame-content {
-        padding: 24px 20px;
-        border-radius: 20px;
-        max-width: 100%;
-    }
+            .brand-logo img {
+                width: 56px;
+                height: 56px;
+            }
 
-    .info-text {
-        font-size: 10px;
-        line-height: 1.6;
+            .brand-card-bottom.acura:hover,
+            .brand-card-bottom.honda:hover {
+                transform: translateY(-4px);
+            }
+        }
 
-    }
+        @@media (max-width: 480px) {
+            .header-dropdowns {
+                padding: 8px 6px;
+                border-radius: 12px;
+            }
 
-    /* === БРЕНДЫ ВНИЗУ === */
-    .brands-section-bottom {
-        padding: 24px 16px 30px;
-    }
+            .header-dropdowns-grid {
+                gap: 4px;
+            }
 
-    .brands-title-bottom {
-        font-size: 22px;
-        margin-bottom: 20px;
-    }
+            .header-dropdowns .spec-item {
+                padding: 2px 2px;
+            }
 
-    .brands-grid-bottom {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-        max-width: 100%;
-    }
+            .header-dropdowns .spec-label {
+                font-size: 6px;
+                letter-spacing: 0.2px;
+                margin-bottom: 2px;
+            }
 
-    .brand-card-bottom {
-        padding: 24px 20px;
-        border-radius: 20px;
-    }
+            .header-dropdowns .dropdown-select {
+                padding: 6px 4px;
+                font-size: 9px;
+                border-radius: 6px;
+                min-height: 28px;
+                border-width: 1px;
+            }
 
-    .brand-card-bottom .brand-logo {
-        font-size: 52px;
-        margin-bottom: 8px;
-    }
+            .header-dropdowns .dropdown-select:disabled {
+                padding-left: 16px;
+                padding-right: 2px;
+                background-size: 10px 10px;
+                background-position: 3px center;
+            }
 
-    .brand-card-bottom .brand-name {
-        font-size: 22px;
-    }
+            .header-dropdowns .dropdown-select:not(:disabled) {
+                background-size: 10px 10px;
+                background-position: right 4px center;
+                padding-right: 18px;
+            }
 
-    /* === ЛОГОТИПЫ-КАРТИНКИ === */
-    .brand-logo img {
-        width: 56px;
-        height: 56px;
-    }
+            .header-dropdowns .dropdown-select option {
+                font-size: 9px;
+                padding: 4px;
+            }
 
-    /* === АКЦЕНТЫ ДЛЯ S25 ULTRA === */
-    .brand-card-bottom.acura:hover,
-    .brand-card-bottom.honda:hover {
-        transform: translateY(-4px);  /* Меньше анимация на мобильных */
-    }
-}
+            .btn-next-mobile {
+                font-size: 11px;
+                padding: 8px 12px;
+                margin-top: 6px;
+            }
+        }
     </style>
 </head>
 <body>
 
-    
     <div class="hero-section" id="heroSection">
         <div class="slider-container">
             <div class="slider">
                 @{
-                    string GetSlideStyle(string imageUrl, int index)
+                    // Функция для получения стиля слайда с правильным путём
+                    string GetSlideStyle(string imageName)
                     {
-                        if (!string.IsNullOrEmpty(imageUrl))
-                            return $"background-image: url('{imageUrl}'); background-size: cover; background-position: center;";
+                        if (!string.IsNullOrEmpty(imageName))
+                        {
+                            var path = GetImagePath(imageName, "furst");
+                            return $"background-image: url('{path}'); background-size: cover; background-position: center;";
+                        }
                         else
                             return $"background: linear-gradient(45deg, #1A0B0E, #0F0F1A);";
                     }
                 }
-                <div class="slide active" style="@GetSlideStyle(furstPage?.image_1, 0)"></div>
-                <div class="slide" style="@GetSlideStyle(furstPage?.image_2, 1)"></div>
-                <div class="slide" style="@GetSlideStyle(furstPage?.image_3, 2)"></div>
+                <div class="slide active" style="@GetSlideStyle(furstPage?.image_1)"></div>
+                <div class="slide" style="@GetSlideStyle(furstPage?.image_2)"></div>
+                <div class="slide" style="@GetSlideStyle(furstPage?.image_3)"></div>
             </div>
             <div class="slider-dots">
                 <span class="dot active" onclick="currentSlide(0)"></span>
@@ -839,7 +1001,6 @@
         </div>
         <div class="overlay"></div>
 
-        <!-- ЗАГОЛОВОК head_1 -->
         @if (furstPage != null)
         {
             string head1 = currentLang == "ru" ? furstPage.head_1_ru :
@@ -852,34 +1013,68 @@
         }
 
         <div class="content-wrapper">
-            <!-- Дропдауны -->
             <div class="dropdowns-container">
+                <!-- ===== ДЕСКТОПНЫЕ ДРОПДАУНЫ ===== -->
                 <div class="dropdowns-row">
                     <div class="dropdown-section">
-                        <label class="dropdown-label">⚡ @(currentLang == "ru" ? "БРЕНД" : (currentLang == "en" ? "BRAND" : "MARKE"))</label>
+                        <label class="dropdown-label"> @(currentLang == "ru" ? "БРЕНД" : (currentLang == "en" ? "BRAND" : "MARKE"))</label>
                         <select class="dropdown-select" id="brandDropdown" disabled>
                             <option value="">-- @(currentLang == "ru" ? "Загрузка..." : (currentLang == "en" ? "Loading..." : "Laden...")) --</option>
                         </select>
                     </div>
                     <div class="dropdown-section">
-                        <label class="dropdown-label">🔧 @(currentLang == "ru" ? "МОДЕЛЬ" : (currentLang == "en" ? "MODEL" : "MODELL"))</label>
+                        <label class="dropdown-label"> @(currentLang == "ru" ? "МОДЕЛЬ" : (currentLang == "en" ? "MODEL" : "MODELL"))</label>
                         <select class="dropdown-select" id="modelDropdown" disabled>
                             <option value="">-- @(currentLang == "ru" ? "Сначала бренд" : (currentLang == "en" ? "Select brand first" : "Marke zuerst")) --</option>
                         </select>
                     </div>
                     <div class="dropdown-section">
-                        <label class="dropdown-label">📅 @(currentLang == "ru" ? "ПОКОЛЕНИЕ" : (currentLang == "en" ? "GENERATION" : "GENERATION"))</label>
+                        <label class="dropdown-label"> @(currentLang == "ru" ? "ПОКОЛЕНИЕ" : (currentLang == "en" ? "GENERATION" : "GENERATION"))</label>
                         <select class="dropdown-select" id="generationDropdown" disabled>
                             <option value="">-- @(currentLang == "ru" ? "Сначала модель" : (currentLang == "en" ? "Select model first" : "Modell zuerst")) --</option>
                         </select>
                     </div>
                     <div class="dropdown-section">
-                        <label class="dropdown-label">🔥 @(currentLang == "ru" ? "ДВИГАТЕЛЬ" : (currentLang == "en" ? "ENGINE" : "MOTOR"))</label>
+                        <label class="dropdown-label"> @(currentLang == "ru" ? "ДВИГАТЕЛЬ" : (currentLang == "en" ? "ENGINE" : "MOTOR"))</label>
                         <select class="dropdown-select" id="engineDropdown" disabled>
                             <option value="">-- @(currentLang == "ru" ? "Сначала поколение" : (currentLang == "en" ? "Select generation first" : "Generation zuerst")) --</option>
                         </select>
                     </div>
                 </div>
+
+                <!-- ===== МОБИЛЬНЫЕ ДРОПДАУНЫ ===== -->
+                <div class="header-dropdowns">
+                    <div class="header-dropdowns-grid">
+                        <div class="spec-item">
+                            <span class="spec-label">@(currentLang == "ru" ? "БРЕНД" : (currentLang == "en" ? "BRAND" : "MARKE"))</span>
+                            <select class="dropdown-select" id="brandDropdownMobile" disabled>
+                                <option value="">@(currentLang == "ru" ? "Нажмите" : (currentLang == "en" ? "Tap" : "Tippen"))</option>
+                            </select>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">@(currentLang == "ru" ? "МОДЕЛЬ" : (currentLang == "en" ? "MODEL" : "MODELL"))</span>
+                            <select class="dropdown-select" id="modelDropdownMobile" disabled>
+                                <option value="">@(currentLang == "ru" ? "Нажмите" : (currentLang == "en" ? "Tap" : "Tippen"))</option>
+                            </select>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">@(currentLang == "ru" ? "ПОКОЛЕНИЕ" : (currentLang == "en" ? "GENERATION" : "GENERATION"))</span>
+                            <select class="dropdown-select" id="generationDropdownMobile" disabled>
+                                <option value="">@(currentLang == "ru" ? "Нажмите" : (currentLang == "en" ? "Tap" : "Tippen"))</option>
+                            </select>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">@(currentLang == "ru" ? "ДВИГАТЕЛЬ" : (currentLang == "en" ? "ENGINE" : "MOTOR"))</span>
+                            <select class="dropdown-select" id="engineDropdownMobile" disabled>
+                                <option value="">@(currentLang == "ru" ? "Нажмите" : (currentLang == "en" ? "Tap" : "Tippen"))</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn-next-mobile" id="successButtonMobile" onclick="onSuccessButtonClick()">
+                        @(currentLang == "ru" ? "ДАЛЕЕ →" : (currentLang == "en" ? "NEXT →" : "WEITER →"))
+                    </button>
+                </div>
+
                 <div style="text-align: center;">
                     <button class="btn-next" id="successButton" onclick="onSuccessButtonClick()">
                         @(currentLang == "ru" ? "ДАЛЕЕ →" : (currentLang == "en" ? "NEXT →" : "WEITER →"))
@@ -889,13 +1084,30 @@
         </div>
     </div>
 
-    <!-- Блоки 1-6 -->
+    <!-- ============================================================ -->
+    <!-- БЛОКИ 1-6 С ЗАГОЛОВКАМИ ИЗ БД -->
+    <!-- ============================================================ -->
     @if (furstPage != null)
     {
+        // Получаем тексты и заголовки блоков на текущем языке
         var blocks = new List<string>();
-        if (currentLang == "ru") blocks = new List<string> { furstPage.block_1_ru, furstPage.block_2_ru, furstPage.block_3_ru, furstPage.block_4_ru, furstPage.block_5_ru, furstPage.block_6_ru };
-        else if (currentLang == "en") blocks = new List<string> { furstPage.block_1_eng, furstPage.block_2_eng, furstPage.block_3_eng, furstPage.block_4_eng, furstPage.block_5_eng, furstPage.block_6_eng };
-        else blocks = new List<string> { furstPage.block_1_ger, furstPage.block_2_ger, furstPage.block_3_ger, furstPage.block_4_ger, furstPage.block_5_ger, furstPage.block_6_ger };
+        var blockTitles = new List<string>();
+        
+        if (currentLang == "ru")
+        {
+            blocks = new List<string> { furstPage.block_1_ru, furstPage.block_2_ru, furstPage.block_3_ru, furstPage.block_4_ru, furstPage.block_5_ru, furstPage.block_6_ru };
+            blockTitles = new List<string> { furstPage.block_1_title_ru, furstPage.block_2_title_ru, furstPage.block_3_title_ru, furstPage.block_4_title_ru, furstPage.block_5_title_ru, furstPage.block_6_title_ru };
+        }
+        else if (currentLang == "en")
+        {
+            blocks = new List<string> { furstPage.block_1_eng, furstPage.block_2_eng, furstPage.block_3_eng, furstPage.block_4_eng, furstPage.block_5_eng, furstPage.block_6_eng };
+            blockTitles = new List<string> { furstPage.block_1_title_eng, furstPage.block_2_title_eng, furstPage.block_3_title_eng, furstPage.block_4_title_eng, furstPage.block_5_title_eng, furstPage.block_6_title_eng };
+        }
+        else
+        {
+            blocks = new List<string> { furstPage.block_1_ger, furstPage.block_2_ger, furstPage.block_3_ger, furstPage.block_4_ger, furstPage.block_5_ger, furstPage.block_6_ger };
+            blockTitles = new List<string> { furstPage.block_1_title_ger, furstPage.block_2_title_ger, furstPage.block_3_title_ger, furstPage.block_4_title_ger, furstPage.block_5_title_ger, furstPage.block_6_title_ger };
+        }
 
         bool hasAnyBlock = blocks.Any(b => !string.IsNullOrEmpty(b));
         if (hasAnyBlock)
@@ -906,8 +1118,10 @@
                     {
                         if (!string.IsNullOrEmpty(blocks[i]))
                         {
+                            // Если заголовок пустой, показываем STAGE 0X
+                            var title = !string.IsNullOrEmpty(blockTitles[i]) ? blockTitles[i] : $"STAGE 0{i + 1}";
                             <div class="block-card">
-                                <div class="block-number">STAGE 0@(i + 1)</div>
+                                <div class="block-title">@title</div>
                                 <div class="block-text">@blocks[i]</div>
                             </div>
                         }
@@ -917,7 +1131,6 @@
         }
     }
 
-    <!-- Секция с рамкой -->
     @if (furstPage != null)
     {
         string head2 = "";
@@ -938,7 +1151,7 @@
                 {
                     <div class="section-title">@head2</div>
                 }
-                <div class="image-frame-container" style="background-image: url('@(furstPage.image_4 ?? "/images/default-bg.jpg")');">
+                <div class="image-frame-container" style="background-image: url('@(GetImagePath(furstPage.image_4, "furst") ?? "/images/default-bg.jpg")');">
                     <div class="frame-content">
                         @if (!string.IsNullOrEmpty(text))
                         {
@@ -950,58 +1163,52 @@
         </div>
     }
 
-    <!-- ===== КНОПКИ ВЫБОРА БРЕНДА (ВНИЗУ) ===== -->
     <div class="brands-section-bottom">
         <div class="brands-title-bottom">
-            
             @(currentLang == "ru" ? "Список автомобилей по бренду" : (currentLang == "en" ? "Choose brand" : "Marke wählen"))
         </div>
         <div class="brands-grid-bottom">
-            <!-- Honda — два логотипа (светлый/тёмный) -->
             <a href="@Url.Action("CarsByBrand", "Home", new { brand = "Honda" })" class="brand-card-bottom honda">
                 <span class="brand-logo">
-                    <img src="https://logo-teka.com/wp-content/uploads/2025/06/honda-auto-logo.png" 
+                    <img src="/shared-fotos/logo/honda_logo_black.png" 
                         alt="Honda"
                         class="logo-light"
-                        width="128" 
-                        height="128"
+                        width="180" 
+                        height="180"
                         style="display: block; margin: 0 auto;">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRdXFkhytgizlD868Ugijx1gETANFjG37KWA&s" 
+                    <img src="/shared-fotos/logo/honda_logo_white.png" 
                         alt="Honda"
                         class="logo-dark"
-                        width="64" 
-                        height="64"
+                        width="180" 
+                        height="180"
                         style="display: none; margin: 0 auto;">
                 </span>
-                <span class="brand-name">Honda</span>
             </a>
 
-            <!-- Acura -->
             <a href="@Url.Action("CarsByBrand", "Home", new { brand = "Acura" })" class="brand-card-bottom honda">
                 <span class="brand-logo">
-                    <img src="https://thumbs.dreamstime.com/b/acura-124812338.jpg" 
+                    <img src="/shared-fotos/logo/acura_logo_black.png" 
                         alt="Acura" 
-                        width="128" 
-                        height="128"
+                        width="180" 
+                        height="180"
                         style="display: block; margin: 0 auto;">
+                    <img src="/shared-fotos/logo/acura_logo_black_negate.png" 
+                        alt="Acura"
+                        class="logo-dark"
+                        width="180" 
+                        height="180"
+                        style="display: none; margin: 0 auto;">
                 </span>
-                <span class="brand-name">Acura</span>
-                </a>
+            </a>
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА
-        // ==========================================
         function switchLanguage(lang) {
             document.cookie = "Language=" + lang + "; path=/; max-age=" + (365 * 24 * 60 * 60);
             location.reload();
         }
 
-        // ==========================================
-        // СЛАЙДЕР
-        // ==========================================
         let currentSlideIndex = 0;
         let slideInterval;
 
@@ -1028,9 +1235,6 @@
             }
         }
 
-        // ==========================================
-        // ДРОПДАУНЫ
-        // ==========================================
         let currentCar = {
             brand: '@Model.Brand',
             model: '@Model.Model',
@@ -1044,32 +1248,102 @@
             if (document.querySelectorAll('.slide').length > 1) resetInterval();
         });
 
-        function isCarComplete() { return currentCar.brand && currentCar.model && currentCar.generation && currentCar.engine; }
-        function showSuccessButton() { const btn = document.getElementById('successButton'); if (btn) btn.style.display = 'inline-block'; }
-        function hideSuccessButton() { const btn = document.getElementById('successButton'); if (btn) btn.style.display = 'none'; }
+        function isCarComplete() {
+            return currentCar.brand && currentCar.model && currentCar.generation && currentCar.engine;
+        }
+
+        function showSuccessButton() {
+            const btn = document.getElementById('successButton');
+            const btnMobile = document.getElementById('successButtonMobile');
+            if (btn) btn.style.display = 'inline-block';
+            if (btnMobile) btnMobile.classList.add('show');
+        }
+
+        function hideSuccessButton() {
+            const btn = document.getElementById('successButton');
+            const btnMobile = document.getElementById('successButtonMobile');
+            if (btn) btn.style.display = 'none';
+            if (btnMobile) btnMobile.classList.remove('show');
+        }
 
         function onSuccessButtonClick() {
-            if (!isCarComplete()) {
-                const lang = document.cookie.split('; ').find(row => row.startsWith('Language='))?.split('=')[1] || 'ru';
-                const msg = lang === 'ru' ? 'Заполните все поля для расчета Stage' : (lang === 'en' ? 'Please fill all fields' : 'Bitte füllen Sie alle Felder');
-                alert(msg);
-                return;
-            }
-            const brand = encodeURIComponent(currentCar.brand);
-            const model = encodeURIComponent(currentCar.model);
-            const generation = encodeURIComponent(currentCar.generation);
-            const engine = encodeURIComponent(currentCar.engine);
-            window.location.href = `/${brand}/${model}/${generation}/${engine}`;
+    if (!isCarComplete()) {
+        const lang = document.cookie.split('; ').find(row => row.startsWith('Language='))?.split('=')[1] || 'ru';
+        const msg = lang === 'ru' ? 'Заполните все поля для расчета Stage' : (lang === 'en' ? 'Please fill all fields' : 'Bitte füllen Sie alle Felder');
+        alert(msg);
+        return;
+    }
+    
+    // ===== ФУНКЦИЯ ТРАНСЛИТЕРАЦИИ =====
+    function transliterate(text) {
+        if (!text) return '';
+        var map = {
+            'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D',
+            'Е': 'E', 'Ё': 'Yo', 'Ж': 'Zh', 'З': 'Z', 'И': 'I',
+            'Й': 'Y', 'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N',
+            'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T',
+            'У': 'U', 'Ф': 'F', 'Х': 'Kh', 'Ц': 'Ts', 'Ч': 'Ch',
+            'Ш': 'Sh', 'Щ': 'Sch', 'Ъ': '', 'Ы': 'Y', 'Ь': '',
+            'Э': 'E', 'Ю': 'Yu', 'Я': 'Ya',
+            'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
+            'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i',
+            'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
+            'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
+            'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
+            'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '',
+            'э': 'e', 'ю': 'yu', 'я': 'ya'
+        };
+        var result = '';
+        for (var i = 0; i < text.length; i++) {
+            var ch = text[i];
+            result += map[ch] || ch;
+        }
+        return result;
+    }
+    
+    // Транслитерируем и заменяем пробелы на _
+    var brand = transliterate(currentCar.brand).replace(/ /g, '_');
+    var model = transliterate(currentCar.model).replace(/ /g, '_');
+    var generation = transliterate(currentCar.generation).replace(/ /g, '_');
+    var engine = transliterate(currentCar.engine).replace(/ /g, '_');
+    
+    // Кодируем для безопасности (но после транслитерации там только латиница)
+    window.location.href = '/' + encodeURIComponent(brand) + '/' + encodeURIComponent(model) + '/' + encodeURIComponent(generation) + '/' + encodeURIComponent(engine);
+}
+
+        // ===== ПЛЕЙСХОЛДЕРЫ ДЛЯ МОБИЛЬНЫХ ДРОПДАУНОВ =====
+        function getMobilePlaceholders() {
+            const lang = document.cookie.split('; ').find(row => row.startsWith('Language='))?.split('=')[1] || 'ru';
+            return {
+                brand: { ru: 'Нажмите', en: 'Tap', de: 'Tippen' },
+                model: { ru: 'Нажмите', en: 'Tap', de: 'Tippen' },
+                generation: { ru: 'Нажмите', en: 'Tap', de: 'Tippen' },
+                engine: { ru: 'Нажмите', en: 'Tap', de: 'Tippen' }
+            };
         }
 
         async function loadInitialData() {
-            try {
-                const response = await fetch('/Home/GetInitialData');
-                const result = await response.json();
-                updateCar(result.car);
-                updateDropdown(result.nextField, result.options);
-            } catch (error) { console.error(error); }
+    try {
+        const response = await fetch('/Home/GetInitialData');
+        const result = await response.json();
+        updateCar(result.car);
+        updateDropdown('brand', result.options);
+        updateMobileDropdown('brand', result.options);
+        
+        // ===== ВОССТАНАВЛИВАЕМ ЗНАЧЕНИЯ ИЗ URL (если есть) =====
+        var urlParams = new URLSearchParams(window.location.search);
+        var brandParam = urlParams.get('brand');
+        if (brandParam) {
+            // Если есть параметр brand, устанавливаем его
+            document.getElementById('brandDropdown').value = brandParam;
+            document.getElementById('brandDropdownMobile').value = brandParam;
+            // Триггерим событие изменения
+            handleChange('brand', brandParam);
         }
+    } catch (error) {
+        console.error(error);
+    }
+}
 
         async function handleChange(fieldName, newValue) {
             try {
@@ -1081,30 +1355,164 @@
                 const result = await response.json();
                 updateCar(result.car);
                 updateUI(result);
-            } catch (error) { console.error(error); }
+            } catch (error) {
+                console.error(error);
+            }
         }
 
-        function updateCar(newCar) { currentCar = { brand: newCar.brand || '', model: newCar.model || '', generation: newCar.generation || '', engine: newCar.engine || '' }; }
+        function updateCar(newCar) {
+            currentCar = {
+                brand: newCar.brand || '',
+                model: newCar.model || '',
+                generation: newCar.generation || '',
+                engine: newCar.engine || ''
+            };
+        }
+
         function updateUI(result) {
             updateDropdownValues();
-            if (result.nextField && result.nextField !== 'complete') updateDropdown(result.nextField, result.options);
-            if (result.nextField === 'complete') showSuccessButton(); else hideSuccessButton();
-            if (result.nextField && result.nextField !== 'complete') resetDropdownsAfter(result.nextField);
+            updateMobileDropdownValues();
+            
+            if (result.nextField && result.nextField !== 'complete') {
+                updateDropdown(result.nextField, result.options);
+                updateMobileDropdown(result.nextField, result.options);
+            }
+            
+            if (result.nextField === 'complete') {
+                showSuccessButton();
+            } else {
+                hideSuccessButton();
+            }
+            
+            if (result.nextField && result.nextField !== 'complete') {
+                resetDropdownsAfter(result.nextField);
+                resetMobileDropdownsAfter(result.nextField);
+            }
         }
-        function updateDropdownValues() { if (currentCar.brand) document.getElementById('brandDropdown').value = currentCar.brand; if (currentCar.model) document.getElementById('modelDropdown').value = currentCar.model; if (currentCar.generation) document.getElementById('generationDropdown').value = currentCar.generation; if (currentCar.engine) document.getElementById('engineDropdown').value = currentCar.engine; }
+
+        function updateDropdownValues() {
+            if (currentCar.brand) document.getElementById('brandDropdown').value = currentCar.brand;
+            if (currentCar.model) document.getElementById('modelDropdown').value = currentCar.model;
+            if (currentCar.generation) document.getElementById('generationDropdown').value = currentCar.generation;
+            if (currentCar.engine) document.getElementById('engineDropdown').value = currentCar.engine;
+        }
+
+        function updateMobileDropdownValues() {
+            if (currentCar.brand) document.getElementById('brandDropdownMobile').value = currentCar.brand;
+            if (currentCar.model) document.getElementById('modelDropdownMobile').value = currentCar.model;
+            if (currentCar.generation) document.getElementById('generationDropdownMobile').value = currentCar.generation;
+            if (currentCar.engine) document.getElementById('engineDropdownMobile').value = currentCar.engine;
+        }
+
         function updateDropdown(fieldName, options) {
             const dropdown = document.getElementById(fieldName + 'Dropdown');
             if (!dropdown) return;
+
             const currentValue = dropdown.value;
             dropdown.innerHTML = '';
-            const emptyOption = document.createElement('option'); emptyOption.value = ''; emptyOption.textContent = getPlaceholder(fieldName); dropdown.appendChild(emptyOption);
-            if (options && options.length > 0) options.forEach(opt => { const op = document.createElement('option'); op.value = opt; op.textContent = opt; dropdown.appendChild(op); });
-            if (currentValue && options && options.includes(currentValue)) dropdown.value = currentValue; else dropdown.value = currentCar[fieldName] || '';
+
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            emptyOption.textContent = getPlaceholder(fieldName);
+            dropdown.appendChild(emptyOption);
+
+            if (options && options.length > 0) {
+                options.forEach(opt => {
+                    const op = document.createElement('option');
+                    op.value = opt;
+                    op.textContent = opt;
+                    dropdown.appendChild(op);
+                });
+            }
+
+            if (currentValue && options && options.includes(currentValue)) {
+                dropdown.value = currentValue;
+            } else {
+                dropdown.value = currentCar[fieldName] || '';
+            }
+
             dropdown.disabled = false;
-            dropdown.onchange = function() { handleChange(fieldName, this.value); };
+            dropdown.onchange = function() {
+                handleChange(fieldName, this.value);
+            };
         }
-        function resetDropdownsAfter(fieldName) { const fields = ['brand','model','generation','engine']; const start = fields.indexOf(fieldName)+1; for(let i=start; i<fields.length; i++) { const d = document.getElementById(fields[i]+'Dropdown'); if(d && !currentCar[fields[i]]) { d.innerHTML = `<option value="">-- ${getPlaceholder(fields[i])} --</option>`; d.disabled = true; d.onchange = null; currentCar[fields[i]] = ''; } } }
-        function getPlaceholder(fieldName) { const lang = document.cookie.split('; ').find(row=>row.startsWith('Language='))?.split('=')[1]||'ru'; const p = { brand:{ru:'Выберите бренд',en:'Select brand',de:'Marke wählen'}, model:{ru:'Выберите модель',en:'Select model',de:'Modell wählen'}, generation:{ru:'Выберите поколение',en:'Select generation',de:'Generation wählen'}, engine:{ru:'Выберите двигатель',en:'Select engine',de:'Motor wählen'} }; return p[fieldName]?.[lang]||'Выберите'; }
+
+        function updateMobileDropdown(fieldName, options) {
+            const dropdown = document.getElementById(fieldName + 'DropdownMobile');
+            if (!dropdown) return;
+
+            const lang = document.cookie.split('; ').find(row => row.startsWith('Language='))?.split('=')[1] || 'ru';
+            const placeholders = getMobilePlaceholders();
+            
+            const currentValue = dropdown.value;
+            dropdown.innerHTML = '';
+
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            emptyOption.textContent = placeholders[fieldName]?.[lang] || 'Нажмите';
+            dropdown.appendChild(emptyOption);
+
+            if (options && options.length > 0) {
+                options.forEach(opt => {
+                    const op = document.createElement('option');
+                    op.value = opt;
+                    op.textContent = opt;
+                    dropdown.appendChild(op);
+                });
+            }
+
+            if (currentValue && options && options.includes(currentValue)) {
+                dropdown.value = currentValue;
+            } else {
+                dropdown.value = currentCar[fieldName] || '';
+            }
+
+            dropdown.disabled = false;
+            dropdown.onchange = function() {
+                handleChange(fieldName, this.value);
+            };
+        }
+
+        function resetDropdownsAfter(fieldName) {
+            const fields = ['brand', 'model', 'generation', 'engine'];
+            const start = fields.indexOf(fieldName) + 1;
+            for (let i = start; i < fields.length; i++) {
+                const d = document.getElementById(fields[i] + 'Dropdown');
+                if (d && !currentCar[fields[i]]) {
+                    d.innerHTML = `<option value="">-- ${getPlaceholder(fields[i])} --</option>`;
+                    d.disabled = true;
+                    d.onchange = null;
+                    currentCar[fields[i]] = '';
+                }
+            }
+        }
+
+        function resetMobileDropdownsAfter(fieldName) {
+            const fields = ['brand', 'model', 'generation', 'engine'];
+            const start = fields.indexOf(fieldName) + 1;
+            const lang = document.cookie.split('; ').find(row => row.startsWith('Language='))?.split('=')[1] || 'ru';
+            const placeholders = getMobilePlaceholders();
+            
+            for (let i = start; i < fields.length; i++) {
+                const d = document.getElementById(fields[i] + 'DropdownMobile');
+                if (d && !currentCar[fields[i]]) {
+                    d.innerHTML = `<option value="">${placeholders[fields[i]]?.[lang] || 'Нажмите'}</option>`;
+                    d.disabled = true;
+                    d.onchange = null;
+                }
+            }
+        }
+
+        function getPlaceholder(fieldName) {
+            const lang = document.cookie.split('; ').find(row => row.startsWith('Language='))?.split('=')[1] || 'ru';
+            const p = {
+                brand: { ru: 'Выберите бренд', en: 'Select brand', de: 'Marke wählen' },
+                model: { ru: 'Выберите модель', en: 'Select model', de: 'Modell wählen' },
+                generation: { ru: 'Выберите поколение', en: 'Select generation', de: 'Generation wählen' },
+                engine: { ru: 'Выберите двигатель', en: 'Select engine', de: 'Motor wählen' }
+            };
+            return p[fieldName]?.[lang] || 'Выберите';
+        }
     </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 ﻿@model List<reflash_oficial.Models.PartnersModel>
 @{
-    ViewData["Title"] = "Партнеры";
+    ViewData["Title"] = "ReflashTeam";
 
     // Читаем язык из cookie
     var language = Context.Request.Cookies["Language"];
@@ -18,6 +18,13 @@
             _ => ru
         };
     }
+
+    // Получаем список уникальных городов
+    var cities = Model?.Where(p => !string.IsNullOrEmpty(p.city))
+                       .Select(p => p.city.Trim())
+                       .Distinct()
+                       .OrderBy(c => c)
+                       .ToList() ?? new List<string>();
 }
 
 <!DOCTYPE html>
@@ -31,8 +38,8 @@
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
     <style>
         /* ==========================================
-                           CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ
-                           ========================================== */
+           CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ
+           ========================================== */
 
         /* Светлая тема */
         :root {
@@ -154,22 +161,22 @@
             letter-spacing: 0.3px;
         }
 
-            .lang-btn:hover {
-                color: var(--text-primary);
-                background: rgba(255,58,47,0.1);
-            }
+        .lang-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255,58,47,0.1);
+        }
 
-            .lang-btn.active {
-                background: var(--accent-color);
-                color: white;
-                box-shadow: 0 0 8px rgba(255,58,47,0.5);
-            }
+        .lang-btn.active {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 0 8px rgba(255,58,47,0.5);
+        }
 
         /* ========== ОСНОВНОЙ КОНТЕЙНЕР ========== */
         .main-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 24px 60px;  /* ← УБРАЛИ ОТСТУП СВЕРХУ */
+            padding: 0 24px 60px;
         }
 
         /* Заголовок страницы */
@@ -197,7 +204,7 @@
 
         /* ========== КАРТА ========== */
         .map-section {
-            margin-bottom: 50px;
+            margin-bottom: 30px;
         }
 
         .map-card {
@@ -216,19 +223,19 @@
             transition: background 0.3s ease;
         }
 
-            .map-header h3 {
-                font-size: 18px;
-                font-weight: 600;
-                margin: 0;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                color: #ffffff;
-            }
+        .map-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+        }
 
-                .map-header h3 i {
-                    font-size: 20px;
-                }
+        .map-header h3 i {
+            font-size: 20px;
+        }
 
         .map-container {
             position: relative;
@@ -268,12 +275,12 @@
             transition: all 0.2s;
         }
 
-            .map-control-btn:hover {
-                background: var(--accent-color);
-                border-color: var(--accent-color);
-                color: white;
-                transform: scale(1.05);
-            }
+        .map-control-btn:hover {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+            transform: scale(1.05);
+        }
 
         .map-footer {
             padding: 14px 28px;
@@ -284,9 +291,109 @@
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
+        /* ========== ФИЛЬТР ПО ГОРОДАМ ========== */
+        .filter-section {
+            margin-bottom: 30px;
+        }
+
+        .filter-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+
+        .filter-card:hover {
+            border-color: var(--accent-color);
+        }
+
+        .filter-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .filter-label i {
+            color: var(--accent-color);
+            font-size: 16px;
+        }
+
+        .filter-select {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 18px;
+            font-size: 15px;
+            font-weight: 500;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2388889a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 44px;
+        }
+
+        .filter-select:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255,58,47,0.15);
+        }
+
+        .filter-select option {
+            padding: 8px;
+        }
+
+        .filter-reset {
+            padding: 10px 20px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .filter-reset:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background: var(--bg-secondary);
+        }
+
+        .filter-result {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        .filter-result strong {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
         /* ========== СЕТКА ПАРТНЕРОВ ========== */
         .partners-section {
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .section-header {
@@ -308,10 +415,10 @@
             color: var(--text-primary);
         }
 
-            .section-title i {
-                color: var(--accent-color);
-                font-size: 28px;
-            }
+        .section-title i {
+            color: var(--accent-color);
+            font-size: 28px;
+        }
 
         .partners-count {
             background: rgba(255, 58, 47, 0.15);
@@ -339,16 +446,20 @@
             box-shadow: 0 4px 20px var(--shadow-color);
         }
 
-            .partner-card:hover {
-                transform: translateY(-6px);
-                border-color: var(--partner-hover-border);
-                box-shadow: 0 20px 30px -12px var(--shadow-hover);
-            }
+        .partner-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--partner-hover-border);
+            box-shadow: 0 20px 30px -12px var(--shadow-hover);
+        }
 
-            .partner-card.highlight {
-                box-shadow: 0 0 0 2px var(--accent-color), 0 10px 30px -10px var(--shadow-hover);
-                transform: translateY(-2px);
-            }
+        .partner-card.highlight {
+            box-shadow: 0 0 0 2px var(--accent-color), 0 10px 30px -10px var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .partner-card.hidden {
+            display: none;
+        }
 
         /* Фото */
         .partner-photo-container {
@@ -396,15 +507,15 @@
             text-align: center;
         }
 
-            .partner-name a {
-                color: var(--text-primary);
-                text-decoration: none;
-                transition: color 0.2s;
-            }
+        .partner-name a {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
 
-                .partner-name a:hover {
-                    color: var(--accent-color);
-                }
+        .partner-name a:hover {
+            color: var(--accent-color);
+        }
 
         /* Контакты */
         .contact-info {
@@ -420,9 +531,9 @@
             font-size: 14px;
         }
 
-            .contact-item:last-child {
-                border-bottom: none;
-            }
+        .contact-item:last-child {
+            border-bottom: none;
+        }
 
         .contact-icon {
             width: 28px;
@@ -442,9 +553,9 @@
             transition: color 0.2s;
         }
 
-            .contact-link:hover {
-                color: var(--accent-color);
-            }
+        .contact-link:hover {
+            color: var(--accent-color);
+        }
 
         .no-contact {
             color: var(--text-muted);
@@ -464,10 +575,21 @@
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
-            .partner-address i {
-                color: var(--accent-color);
-                font-size: 14px;
-            }
+        .partner-address i {
+            color: var(--accent-color);
+            font-size: 14px;
+        }
+
+        .partner-city-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            background: var(--accent-color);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
 
         /* Пустое состояние */
         .empty-state {
@@ -508,7 +630,7 @@
 
         @@media (max-width: 768px) {
             .main-container {
-                padding: 0 12px 30px;  /* ← УБРАЛИ ОТСТУП СВЕРХУ НА МОБИЛКЕ */
+                padding: 0 12px 30px;
             }
 
             .language-switcher {
@@ -548,6 +670,37 @@
                 font-size: 11px;
             }
 
+            .filter-card {
+                padding: 16px 18px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .filter-label {
+                font-size: 13px;
+            }
+
+            .filter-select {
+                min-width: auto;
+                padding: 10px 14px;
+                font-size: 14px;
+                background-position: right 12px center;
+                padding-right: 36px;
+            }
+
+            .filter-reset {
+                width: 100%;
+                justify-content: center;
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            .filter-result {
+                margin-left: 0;
+                text-align: center;
+            }
+
             .section-title {
                 font-size: 22px;
             }
@@ -557,13 +710,11 @@
                 padding: 4px 12px;
             }
 
-            /* ===== КАРТОЧКИ В 2 СТОЛБИКА НА ТЕЛЕФОНЕ ===== */
             .partners-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 12px;
             }
 
-            /* Уменьшаем карточки */
             .partner-card {
                 border-radius: 16px;
             }
@@ -606,6 +757,11 @@
                 font-size: 12px;
             }
 
+            .partner-city-badge {
+                font-size: 9px;
+                padding: 1px 8px;
+            }
+
             .yandex-map-controls {
                 bottom: 10px;
                 right: 10px;
@@ -621,7 +777,7 @@
 
         @@media (max-width: 480px) {
             .main-container {
-                padding: 0 8px 20px;  /* ← УБРАЛИ ОТСТУП СВЕРХУ НА МАЛЕНЬКИХ ЭКРАНАХ */
+                padding: 0 8px 20px;
             }
 
             .page-title {
@@ -634,6 +790,38 @@
 
             .section-header {
                 margin-bottom: 16px;
+            }
+
+            .filter-card {
+                padding: 12px 14px;
+                border-radius: 16px;
+            }
+
+            .filter-label {
+                font-size: 12px;
+            }
+
+            .filter-label i {
+                font-size: 14px;
+            }
+
+            .filter-select {
+                padding: 8px 12px;
+                font-size: 12px;
+                border-radius: 12px;
+                background-position: right 10px center;
+                padding-right: 30px;
+                min-height: 36px;
+            }
+
+            .filter-reset {
+                font-size: 12px;
+                padding: 8px 14px;
+                border-radius: 12px;
+            }
+
+            .filter-result {
+                font-size: 12px;
             }
 
             .partners-grid {
@@ -691,6 +879,12 @@
                 font-size: 10px;
             }
 
+            .partner-city-badge {
+                font-size: 8px;
+                padding: 1px 6px;
+                margin-left: 4px;
+            }
+
             .map-container {
                 height: 200px;
             }
@@ -718,14 +912,6 @@
 <body>
 
     <div class="main-container">
-        <!-- Шапка страницы -->
-        <div class="page-header">
-            <h1 class="page-title">
-                <i class="fas fa-handshake" style="color: var(--accent-color); margin-right: 12px;"></i>
-                @GetLocalized("Наши партнеры", "Our Partners", "Unsere Partner")
-            </h1>
-        </div>
-
         <!-- Карта -->
         <div class="map-section">
             <div class="map-card">
@@ -749,8 +935,33 @@
                 <div class="map-footer">
                     <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
                     @GetLocalized("Кликните по карточке партнера — карта приблизится к его локации",
-                                        "Click on a partner card — the map will zoom to their location",
-                                        "Klicken Sie auf eine Partnerkarte — die Karte zoomt zu deren Standort")
+                        "Click on a partner card — the map will zoom to their location",
+                        "Klicken Sie auf eine Partnerkarte — die Karte zoomt zu deren Standort")
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ФИЛЬТР ПО ГОРОДАМ ===== -->
+        <div class="filter-section">
+            <div class="filter-card">
+                <div class="filter-label">
+                    <i class="fas fa-city"></i>
+                    @GetLocalized("Город", "City", "Stadt")
+                </div>
+                <select class="filter-select" id="cityFilter">
+                    <option value="">@GetLocalized("Все города", "All cities", "Alle Städte")</option>
+                    @foreach (var city in cities)
+                    {
+                        <option value="@city">@city</option>
+                    }
+                </select>
+                <button class="filter-reset" id="resetFilter">
+                    <i class="fas fa-undo-alt" style="margin-right: 6px;"></i>
+                    @GetLocalized("Сбросить", "Reset", "Zurücksetzen")
+                </button>
+                <div class="filter-result" id="filterResult">
+                    @GetLocalized("Показано", "Showing", "Angezeigt") <strong id="visibleCount">@(Model?.Count ?? 0)</strong>
+                    @GetLocalized("из", "of", "von") <span id="totalCount">@(Model?.Count ?? 0)</span>
                 </div>
             </div>
         </div>
@@ -762,24 +973,18 @@
                     <i class="fas fa-users"></i>
                     @GetLocalized("Представители", "Representatives", "Vertreter")
                 </h2>
-                @if (Model != null && Model.Count > 0)
-                {
-                    <div class="partners-count">
-                        <i class="fas fa-user-check" style="margin-right: 6px;"></i>
-                        @Model.Count @GetLocalized("партнеров", "partners", "Partner")
-                    </div>
-                }
+                <span class="partners-count" id="partnersCount">@(Model?.Count ?? 0)</span>
             </div>
 
             @if (Model != null && Model.Count > 0)
             {
-                <div class="partners-grid">
+                <div class="partners-grid" id="partnersGrid">
                     @foreach (var partner in Model)
                     {
                         var address = string.Join(", ", new[] { partner.city, partner.street, partner.house }
                         .Where(s => !string.IsNullOrEmpty(s)));
 
-                        <div class="partner-card" id="partner-@partner.Id" data-partner-id="@partner.Id">
+                        <div class="partner-card" id="partner-@partner.Id" data-partner-id="@partner.Id" data-city="@(partner.city ?? "")">
                             <!-- Фото -->
                             <div class="partner-photo-container">
                                 @if (!string.IsNullOrEmpty(partner.photo))
@@ -800,10 +1005,9 @@
                             <!-- Информация -->
                             <div class="partner-info">
                                 <div class="partner-name">
-                                    @if (!string.IsNullOrEmpty(partner.vk))
+                                    @if (!string.IsNullOrEmpty(partner.vk) || !string.IsNullOrEmpty(partner.vk_group))
                                     {
-                                        <a href="@partner.vk" target="_blank">
-                                            <i class="fab fa-vk" style="color: var(--accent-color); margin-right: 8px;"></i>
+                                        <a href="@(partner.vk ?? partner.vk_group)" target="_blank" class="partner-vk-link">
                                             @partner.name
                                         </a>
                                     }
@@ -811,9 +1015,23 @@
                                     {
                                         @partner.name
                                     }
+                                    @if (!string.IsNullOrEmpty(partner.city))
+                                    {
+                                        <span class="partner-city-badge">@partner.city</span>
+                                    }
                                 </div>
 
                                 <div class="contact-info">
+                                    <!-- Точка -->
+                                    @if (!string.IsNullOrEmpty(partner.point_name))
+                                    {
+                                        <div class="contact-item">
+                                            <div class="contact-icon"><i class="fas fa-building"></i></div>
+                                            <div class="contact-text">@partner.point_name</div>
+                                        </div>
+                                    }
+
+                                    <!-- Телефон -->
                                     @if (!string.IsNullOrEmpty(partner.phone))
                                     {
                                         <div class="contact-item">
@@ -824,50 +1042,83 @@
                                         </div>
                                     }
 
+                                    <!-- WhatsApp -->
+                                    @if (!string.IsNullOrEmpty(partner.whatsapp))
+                                    {
+                                        <div class="contact-item">
+                                            <div class="contact-icon"><i class="fab fa-whatsapp" style="color: #25D366;"></i></div>
+                                            <div class="contact-text">
+                                                <a href="https://wa.me/@partner.whatsapp" target="_blank" class="contact-link">
+                                                    @GetLocalized("WhatsApp", "WhatsApp", "WhatsApp")
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Telegram -->
+                                    @if (!string.IsNullOrEmpty(partner.telegram))
+                                    {
+                                        <div class="contact-item">
+                                            <div class="contact-icon"><i class="fab fa-telegram-plane" style="color: #0088cc;"></i></div>
+                                            <div class="contact-text">
+                                                <a href="https://t.me/@partner.telegram" target="_blank" class="contact-link">
+                                                    @GetLocalized("Telegram", "Telegram", "Telegram")
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Email -->
+                                    @if (!string.IsNullOrEmpty(partner.email))
+                                    {
+                                        <div class="contact-item">
+                                            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                                            <div class="contact-text">
+                                                <a href="mailto:@partner.email" class="contact-link">@partner.email</a>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- ВКонтакте -->
+                                    @if (!string.IsNullOrEmpty(partner.vk))
+                                    {
+                                        <div class="contact-item">
+                                            <div class="contact-icon"><i class="fab fa-vk" style="color: #4C75A3;"></i></div>
+                                            <div class="contact-text">
+                                                <a href="@partner.vk" target="_blank" class="contact-link">
+                                                    @GetLocalized("ВКонтакте", "VK", "VK")
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Группа ВК -->
+                                    @if (!string.IsNullOrEmpty(partner.vk_group))
+                                    {
+                                        <div class="contact-item">
+                                            <div class="contact-icon"><i class="fab fa-vk" style="color: #4C75A3;"></i></div>
+                                            <div class="contact-text">
+                                                <a href="@partner.vk_group" target="_blank" class="contact-link">
+                                                    @GetLocalized("Группа ВК", "VK Group", "VK-Gruppe")
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Сайт -->
                                     @if (!string.IsNullOrEmpty(partner.website))
                                     {
                                         <div class="contact-item">
                                             <div class="contact-icon"><i class="fas fa-globe"></i></div>
                                             <div class="contact-text">
                                                 <a href="@partner.website" target="_blank" class="contact-link">
-                                                    @(partner.website.Length > 35 ? partner.website.Substring(0, 35) + "..." : partner.website)
+                                                    @GetLocalized("Сайт", "Website", "Webseite")
                                                 </a>
-                                            </div>
-                                        </div>
-                                    }
-
-                                    @if (!string.IsNullOrEmpty(partner.vk))
-                                    {
-                                        <div class="contact-item">
-                                            <div class="contact-icon"><i class="fab fa-vk"></i></div>
-                                            <div class="contact-text">
-                                                <a href="@partner.vk" target="_blank" class="contact-link">
-                                                    @GetLocalized("Страница VK", "VK Page", "VK-Seite")
-                                                </a>
-                                            </div>
-                                        </div>
-                                    }
-
-                                    @if (string.IsNullOrEmpty(partner.phone) && string.IsNullOrEmpty(partner.website) && string.IsNullOrEmpty(partner.vk))
-                                    {
-                                        <div class="contact-item">
-                                            <div class="contact-icon"><i class="fas fa-info-circle"></i></div>
-                                            <div class="contact-text no-contact">
-                                                @GetLocalized("Контактная информация не указана", "No contact information", "Keine Kontaktdaten")
                                             </div>
                                         </div>
                                     }
                                 </div>
                             </div>
-
-                            <!-- Адрес -->
-                            @if (!string.IsNullOrEmpty(address))
-                            {
-                                <div class="partner-address">
-                                    <i class="fas fa-map-pin"></i>
-                                    <span>@address</span>
-                                </div>
-                            }
                         </div>
                     }
                 </div>
@@ -883,8 +1134,8 @@
                     </div>
                     <div class="empty-text">
                         @GetLocalized("На данный момент нет активных представителей",
-                        "There are no active representatives at the moment",
-                                        "Derzeit gibt es keine aktiven Vertreter")
+                            "There are no active representatives at the moment",
+                            "Derzeit gibt es keine aktiven Vertreter")
                     </div>
                 </div>
             }
@@ -898,9 +1149,86 @@
             location.reload();
         }
 
+        // ========== ФИЛЬТР ПО ГОРОДАМ ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            var cityFilter = document.getElementById('cityFilter');
+            var resetBtn = document.getElementById('resetFilter');
+            var visibleCount = document.getElementById('visibleCount');
+            var totalCount = document.getElementById('totalCount');
+            var partnersCount = document.getElementById('partnersCount');
+
+            function filterPartners() {
+                var selectedCity = cityFilter.value.trim();
+                var cards = document.querySelectorAll('.partner-card');
+                var visible = 0;
+
+                cards.forEach(function(card) {
+                    var cardCity = card.getAttribute('data-city') || '';
+                    if (selectedCity === '' || cardCity === selectedCity) {
+                        card.classList.remove('hidden');
+                        visible++;
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+
+                // Обновляем счётчики
+                if (visibleCount) visibleCount.textContent = visible;
+                if (partnersCount) partnersCount.textContent = visible;
+
+                // Обновляем общее количество в фильтре
+                var total = cards.length;
+                if (totalCount) totalCount.textContent = total;
+
+                // Если ничего не найдено, показываем сообщение
+                var emptyState = document.querySelector('.empty-state');
+                var grid = document.getElementById('partnersGrid');
+
+                if (visible === 0 && grid) {
+                    if (!emptyState) {
+                        var newEmpty = document.createElement('div');
+                        newEmpty.className = 'empty-state';
+                        newEmpty.innerHTML = `
+                            <div class="empty-icon"><i class="fas fa-search"></i></div>
+                            <div class="empty-title">@GetLocalized("Ничего не найдено", "Nothing found", "Nichts gefunden")</div>
+                            <div class="empty-text">@GetLocalized("Нет представителей в выбранном городе", "No representatives in the selected city", "Keine Vertreter in der ausgewählten Stadt")</div>
+                        `;
+                        grid.parentNode.insertBefore(newEmpty, grid.nextSibling);
+                        grid.style.display = 'none';
+                    }
+                } else {
+                    if (emptyState) {
+                        emptyState.remove();
+                    }
+                    if (grid) {
+                        grid.style.display = 'grid';
+                    }
+                }
+            }
+
+            // Событие изменения фильтра
+            if (cityFilter) {
+                cityFilter.addEventListener('change', filterPartners);
+            }
+
+            // Сброс фильтра
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    if (cityFilter) {
+                        cityFilter.value = '';
+                        filterPartners();
+                    }
+                });
+            }
+
+            // Запускаем фильтр при загрузке
+            filterPartners();
+        });
+
         // ========== КАРТА ==========
         var map;
         var partnerPlacemarks = [];
+        var allPartners = [];
 
         function initMap() {
             var mapElement = document.getElementById('map');
@@ -933,70 +1261,106 @@
         function addPartnersMarkers() {
             @if (Model != null && Model.Count > 0)
             {
-                    foreach (var partner in Model)
+                foreach (var partner in Model)
+                {
+                    if (!string.IsNullOrEmpty(partner.latitude) && !string.IsNullOrEmpty(partner.longitude))
                     {
-                            if (!string.IsNullOrEmpty(partner.latitude) && !string.IsNullOrEmpty(partner.longitude))
-                            {
-                                    try
-                                    {
-                                            var lat = partner.latitude.Replace(',', '.').Trim();
-                                            var lon = partner.longitude.Replace(',', '.').Trim();
-                                            var name = partner.name?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                                            var phone = partner.phone?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                                            var website = partner.website?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                                            var vk = partner.vk?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                                            var city = partner.city?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                                            var street = partner.street?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                                            var house = partner.house?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                        try
+                        {
+                            var lat = partner.latitude.Replace(',', '.').Trim();
+                            var lon = partner.longitude.Replace(',', '.').Trim();
+                            var name = partner.name?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                            var phone = partner.phone?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                            var website = partner.website?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                            var vk = partner.vk?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                            var vk_group = partner.vk_group?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                            var telegram = partner.telegram?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                            var whatsapp = partner.whatsapp?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                            var email = partner.email?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                            var point_name = partner.point_name?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                            var city = partner.city?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                            var street = partner.street?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
+                            var house = partner.house?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
 
-                                            var address = string.Join(", ", new[] { city, street, house }.Where(s => !string.IsNullOrEmpty(s))).Trim();
+                            var address = string.Join(", ", new[] { city, street, house }.Where(s => !string.IsNullOrEmpty(s))).Trim();
 
-                                            <text>
-                                                var coords = [parseFloat("@lat"), parseFloat("@lon")];
-                                                if (!isNaN(coords[0]) && !isNaN(coords[1])) {
-                                                    var balloonHtml = '<div style="max-width: 280px; font-family: Inter, sans-serif;">' +
-                                                        '<strong style="color: var(--accent-color);">@Html.Raw(name)</strong>' +
-                                                        '<hr style="margin: 8px 0; border-color: var(--border-color);">';
+                            <text>
+                                var coords = [parseFloat("@lat"), parseFloat("@lon")];
+                                if (!isNaN(coords[0]) && !isNaN(coords[1])) {
+                                    var balloonHtml = '<div style="max-width: 320px; font-family: Inter, sans-serif;">' +
+                                        '<strong style="color: var(--accent-color);">@Html.Raw(name)</strong>' +
+                                        '<hr style="margin: 8px 0; border-color: var(--border-color);">';
 
-                                                @if (!string.IsNullOrEmpty(phone))
-                                                {
-                                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-phone-alt" style="color: var(--accent-color); width: 24px;"></i> <a href="tel:@phone" style="color: var(--accent-color); text-decoration: none;">@phone</a></div>';</text>
-                                                }
+                                @if (!string.IsNullOrEmpty(point_name))
+                                {
+                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-building" style="color: var(--accent-color); width: 24px;"></i> @Html.Raw(point_name)</div>';</text>
+                                }
 
-                                                @if (!string.IsNullOrEmpty(website))
-                                                {
-                                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-globe" style="color: var(--accent-color); width: 24px;"></i> <a href="@website" target="_blank" style="color: var(--accent-color); text-decoration: none;">Сайт</a></div>';</text>
-                                                }
+                                @if (!string.IsNullOrEmpty(city))
+                                {
+                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-city" style="color: var(--accent-color); width: 24px;"></i> @Html.Raw(city)</div>';</text>
+                                }
 
-                                                @if (!string.IsNullOrEmpty(vk))
-                                                {
-                                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fab fa-vk" style="color: var(--accent-color); width: 24px;"></i> <a href="@vk" target="_blank" style="color: var(--accent-color); text-decoration: none;">ВКонтакте</a></div>';</text>
-                                                }
+                                @if (!string.IsNullOrEmpty(phone))
+                                {
+                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-phone-alt" style="color: var(--accent-color); width: 24px;"></i> <a href="tel:@phone" style="color: var(--accent-color); text-decoration: none;">@phone</a></div>';</text>
+                                }
 
-                                                @if (!string.IsNullOrEmpty(address))
-                                                {
-                                                        <text>balloonHtml += '<hr style="margin: 8px 0;"><div style="margin: 6px 0;"><i class="fas fa-map-marker-alt" style="color: var(--accent-color); width: 24px;"></i> @address</div>';</text>
-                                                }
+                                @if (!string.IsNullOrEmpty(whatsapp))
+                                {
+                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fab fa-whatsapp" style="color: #25D366; width: 24px;"></i> <a href="https://wa.me/@whatsapp" target="_blank" style="color: var(--accent-color); text-decoration: none;">WhatsApp</a></div>';</text>
+                                }
 
-                                                balloonHtml += '</div>';
+                                @if (!string.IsNullOrEmpty(telegram))
+                                {
+                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fab fa-telegram-plane" style="color: #0088cc; width: 24px;"></i> <a href="https://t.me/@telegram" target="_blank" style="color: var(--accent-color); text-decoration: none;">Telegram</a></div>';</text>
+                                }
 
-                                                    var placemark = new ymaps.Placemark(coords, {
-                                                        hintContent: '@Html.Raw(name)',
-                                                        balloonContent: balloonHtml
-                                                    }, {
-                                                        preset: 'islands#redIcon',
-                                                        iconColor: '#FF3A2F'
-                                                    });
+                                @if (!string.IsNullOrEmpty(email))
+                                {
+                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-envelope" style="color: var(--accent-color); width: 24px;"></i> <a href="mailto:@email" style="color: var(--accent-color); text-decoration: none;">@email</a></div>';</text>
+                                }
 
-                                                    map.geoObjects.add(placemark);
-                                                    partnerPlacemarks.push(placemark);
-                                                    setupPartnerCardClick(@partner.Id, coords);
-                                                }
-                                            </text>
-                                    }
-                                    catch (Exception ex) { }
-                            }
+                                @if (!string.IsNullOrEmpty(vk))
+                                {
+                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fab fa-vk" style="color: #4C75A3; width: 24px;"></i> <a href="@vk" target="_blank" style="color: var(--accent-color); text-decoration: none;">ВКонтакте</a></div>';</text>
+                                }
+
+                                @if (!string.IsNullOrEmpty(vk_group))
+                                {
+                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fab fa-vk" style="color: #4C75A3; width: 24px;"></i> <a href="@vk_group" target="_blank" style="color: var(--accent-color); text-decoration: none;">Группа ВК</a></div>';</text>
+                                }
+
+                                @if (!string.IsNullOrEmpty(website))
+                                {
+                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-globe" style="color: var(--accent-color); width: 24px;"></i> <a href="@website" target="_blank" style="color: var(--accent-color); text-decoration: none;">Сайт</a></div>';</text>
+                                }
+
+                                @if (!string.IsNullOrEmpty(address))
+                                {
+                                        <text>balloonHtml += '<hr style="margin: 8px 0;"><div style="margin: 6px 0;"><i class="fas fa-map-marker-alt" style="color: var(--accent-color); width: 24px;"></i> @address</div>';</text>
+                                }
+
+                                balloonHtml += '</div>';
+
+                                    var placemark = new ymaps.Placemark(coords, {
+                                        hintContent: '@Html.Raw(name)',
+                                        balloonContent: balloonHtml
+                                    }, {
+                                        preset: 'islands#redIcon',
+                                        iconColor: '#FF3A2F'
+                                    });
+
+                                    map.geoObjects.add(placemark);
+                                    partnerPlacemarks.push(placemark);
+                                    allPartners.push({ id: @partner.Id, coords: coords });
+                                    setupPartnerCardClick(@partner.Id, coords);
+                                }
+                            </text>
+                        }
+                        catch (Exception ex) { }
                     }
+                }
             }
 
             if (partnerPlacemarks.length === 0) {

@@ -1,12 +1,10 @@
 ﻿@model reflash_oficial.Models.ReflashCarModel
 @{
-    ViewData["Title"] = "Автомобиль выбран!";
+    ViewData["Title"] = "ReflashTeam";
 
-    // Читаем язык из URL или cookie
     var language = Context.Request.Cookies["Language"];
     if (string.IsNullOrEmpty(language)) language = "ru";
 
-    // Получаем тему из cookie
     var currentTheme = Context.Request.Cookies["Theme"] ?? "dark";
 
     string GetLocalized(string ru, string eng, string ger)
@@ -25,13 +23,52 @@
         return text.Replace("\n", "<br>").Replace("\r\n", "<br>");
     }
 
-    // Функция для разбиения текста по разделителю ;
-    List<string> SplitTextBySeparator(string text, char separator = ';')
+    List<string> SplitTextBySeparator(string text)
     {
         if (string.IsNullOrEmpty(text)) return new List<string>();
-        
-        var parts = text.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+        var parts = text.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
         return parts.Select(p => p.Trim()).ToList();
+    }
+
+    string GetCarImagePath(string imageName)
+    {
+        if (string.IsNullOrEmpty(imageName)) return "";
+        if (imageName.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+            imageName.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            return imageName;
+        if (imageName.StartsWith("/"))
+            return imageName;
+        return "/shared-fotos/cars/" + imageName;
+    }
+
+    string GetGraficImagePath(string imageName)
+    {
+        if (string.IsNullOrEmpty(imageName)) return "";
+        if (imageName.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+            imageName.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            return imageName;
+        if (imageName.StartsWith("/"))
+            return imageName;
+        return "/shared-fotos/grafics/" + imageName;
+    }
+
+    string GetCurrency()
+    {
+        return language switch
+        {
+            "en" => "$",
+            "de" => "€",
+            _ => "₽"
+        };
+    }
+
+    bool IsPriceNumeric(string price)
+    {
+        if (string.IsNullOrEmpty(price)) return false;
+        var cleaned = price.Trim();
+        if (cleaned.Length == 0) return false;
+        var firstChar = cleaned[0];
+        return char.IsDigit(firstChar) || firstChar == '.' || firstChar == ',' || firstChar == '0';
     }
 }
 
@@ -48,18 +85,15 @@
            CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ
            ================================================================ */
 
-        /* СВЕТЛАЯ ТЕМА (по умолчанию) */
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f5f5f5;
             --bg-card: #ffffff;
             --bg-input: #f0f0f0;
             --bg-overlay: rgba(255, 255, 255, 0.9);
-            
             --text-primary: #1a1a2e;
             --text-secondary: #1a1a2e;
             --text-muted: #88889a;
-            
             --border-color: #e0e0e0;
             --shadow-color: rgba(0, 0, 0, 0.08);
             --shadow-hover: rgba(0, 0, 0, 0.15);
@@ -78,22 +112,21 @@
             --logo-color-start: #0D47A1;
             --logo-color-end: #42A5F5;
             --list-marker-color: var(--accent-color);
-            
             --order-title-color: #2196F3;
+            --star-color: #2196F3;
+            --incompatible-color: #dc3545;
+            --incompatible-bg: rgba(220, 53, 69, 0.1);
         }
 
-        /* ТЁМНАЯ ТЕМА */
         [data-theme="dark"] {
             --bg-primary: #0A0A0F;
             --bg-secondary: #14141C;
             --bg-card: #111118;
             --bg-input: #1a1a24;
             --bg-overlay: rgba(10, 10, 15, 0.9);
-            
             --text-primary: #E8E8F0;
             --text-secondary: #E8E8F0;
             --text-muted: #88889a;
-            
             --border-color: #2A2A35;
             --shadow-color: rgba(0, 0, 0, 0.3);
             --shadow-hover: rgba(0, 0, 0, 0.5);
@@ -112,20 +145,13 @@
             --logo-color-start: #FFB5A0;
             --logo-color-end: #FFD4C4;
             --list-marker-color: var(--accent-color);
-            
             --order-title-color: #FF3A2F;
+            --star-color: #FF3A2F;
+            --incompatible-color: #ff6b6b;
+            --incompatible-bg: rgba(255, 107, 107, 0.15);
         }
 
-        /* ================================================================
-           ОБЩИЕ СТИЛИ
-           ================================================================ */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-primary);
@@ -135,20 +161,10 @@
             transition: background 0.3s ease, color 0.3s ease;
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
 
-        ::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent-color);
-            border-radius: 10px;
-        }
-
-        /* ===== ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА ===== */
         .language-switcher {
             position: fixed;
             top: 24px;
@@ -189,7 +205,6 @@
             box-shadow: 0 0 8px rgba(255,58,47,0.5);
         }
 
-        /* ===== ОСНОВНАЯ СЕТКА ===== */
         .page-wrapper {
             display: flex;
             gap: 30px;
@@ -207,11 +222,6 @@
             align-self: flex-start;
         }
 
-        .dropdowns-mobile {
-            display: none;
-            margin-top: 30px;
-        }
-
         .dropdowns-card {
             background: var(--bg-card);
             backdrop-filter: blur(12px);
@@ -225,10 +235,7 @@
         .dropdown-section {
             margin-bottom: 20px;
         }
-
-        .dropdown-section:last-of-type {
-            margin-bottom: 0;
-        }
+        .dropdown-section:last-of-type { margin-bottom: 0; }
 
         .dropdown-label {
             display: block;
@@ -290,14 +297,30 @@
             box-shadow: 0 8px 25px rgba(255,58,47,0.4);
         }
 
-        .container {
-            flex: 1;
-            min-width: 0;
+        .btn-next-mobile {
+            width: 100%;
+            margin-top: 8px;
+            padding: 10px 16px;
+            background: linear-gradient(95deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: none;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(255,58,47,0.3);
         }
 
-        /* ================================================================
-           КАРТОЧКА АВТОМОБИЛЯ
-           ================================================================ */
+        .btn-next-mobile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255,58,47,0.4);
+        }
+
+        .container { flex: 1; min-width: 0; }
 
         .car-header {
             background: var(--bg-card);
@@ -311,7 +334,6 @@
             max-width: 800px;
         }
 
-        /* ----- ХАРАКТЕРИСТИКИ (БРЕНД, МОДЕЛЬ, ПОКОЛЕНИЕ, ДВИГАТЕЛЬ) ----- */
         .specs-container {
             background: var(--bg-secondary);
             border-radius: 20px;
@@ -349,15 +371,51 @@
             color: var(--text-primary);
         }
 
-        .spec-divider {
-            width: 1px;
-            background: var(--border-color);
-            align-self: stretch;
+        .header-dropdowns {
+            display: none;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            padding: 8px 6px;
         }
 
-        /* ================================================================
-           КОНТЕЙНЕР: ФОТО + БЛОК ЗАКАЗА В РЯД (ТОЛЬКО НА ПК)
-           ================================================================ */
+        .header-dropdowns .dropdown-select {
+            padding: 6px 10px;
+            font-size: 11px;
+            border-radius: 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+        }
+
+        .header-dropdowns .dropdown-select:disabled {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .header-dropdowns .spec-item {
+            padding: 6px 8px;
+        }
+
+        .header-dropdowns .spec-label {
+            font-size: 8px;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .header-dropdowns-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
 
         .car-info-wrapper {
             display: flex;
@@ -365,7 +423,6 @@
             align-items: stretch;
         }
 
-        /* ----- ФОТО АВТОМОБИЛЯ ----- */
         .car-image-full {
             flex: 1;
             background: var(--bg-secondary);
@@ -413,10 +470,6 @@
             margin-bottom: 16px;
         }
 
-        /* ================================================================
-           БЛОК: ЗАКАЗАТЬ ЧИП-ТЮНИНГ (ТОЛЬКО НА ПК)
-           ================================================================ */
-
         .car-order-block {
             flex: 0 0 240px;
             display: flex;
@@ -449,6 +502,7 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            width: 100%;
         }
 
         .order-title {
@@ -456,6 +510,7 @@
             font-weight: 700;
             color: var(--order-title-color);
             letter-spacing: 0.3px;
+            text-align: center;
         }
 
         .order-price {
@@ -488,17 +543,9 @@
             box-shadow: 0 8px 25px rgba(255, 58, 47, 0.4);
         }
 
-        /* ================================================================
-           ЯКОРЬ ДЛЯ ПЕРЕХОДА К ЦЕНАМ
-           ================================================================ */
-
-        #prices-section {
+        #prices-section { 
             scroll-margin-top: 20px;
         }
-
-        /* ================================================================
-           ИНФОРМАЦИОННЫЕ БЛОКИ (О АВТОМОБИЛЕ, РЕЗУЛЬТАТЫ, УПРАВЛЕНИЕ, ГРАФИКИ)
-           ================================================================ */
 
         .info-block {
             background: var(--bg-card);
@@ -533,48 +580,175 @@
             line-height: 1.7;
         }
 
-        /* ----- СПИСКИ ВНУТРИ БЛОКОВ ----- */
-        .info-list {
+        .info-list-plain {
             list-style: none;
             padding: 0;
             margin: 0;
         }
 
-        .info-list li {
+        .info-list-plain li {
             position: relative;
-            padding: 8px 0 8px 10px;
+            padding: 8px 0 8px 0;
             color: var(--text-secondary);
             font-size: 13px;
             line-height: 1.7;
             transition: color 0.2s ease;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .info-list li:last-child {
-            border-bottom: none;
+        .info-list-plain li:last-child { border-bottom: none; }
+        .info-list-plain li:hover { color: var(--text-primary); }
+
+        .info-list-star {
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
-        .info-list li::before {
-            display: none;
+        .info-list-star li {
+            position: relative;
+            padding: 8px 0 8px 32px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.7;
+            transition: color 0.2s ease;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .info-list li:hover {
+        .info-list-star li:last-child { border-bottom: none; }
+
+        .info-list-star li::before {
+            content: "★";
+            position: absolute;
+            left: 0;
+            top: 8px;
+            color: var(--star-color);
+            font-weight: 700;
+            font-size: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .info-list-star li:hover::before {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .info-list-star li:hover { color: var(--text-primary); }
+
+        /* ===== КОНСТРУКТОР ЦЕН ===== */
+        .price-result {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .price-result-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .price-result-label {
+            font-size: 16px;
+            font-weight: 700;
             color: var(--text-primary);
         }
 
-        /* ================================================================
-           БЛОК ЦЕН
-           ================================================================ */
+        .price-result-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent-color);
+        }
+
+        .price-result-value.incompatible {
+            color: var(--incompatible-color);
+        }
+
+        .price-result-currency {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .price-result-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-left: 4px;
+        }
+
+        .price-result-text.incompatible {
+            color: var(--incompatible-color);
+        }
+
+        .price-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .price-actions button {
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .price-actions button:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background: var(--bg-secondary);
+        }
+
+        .price-option-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: var(--accent-color);
+            color: white;
+            text-transform: uppercase;
+            margin-left: 6px;
+        }
+
+        .price-option-badge.pro {
+            background: #4CAF50;
+        }
+
+        .price-option-badge.from {
+            background: #FF9800;
+        }
+
+        .price-option-badge.text {
+            background: #9C27B0;
+        }
+
+        .price-option-badge.zero {
+            background: #757575;
+        }
+
+        .price-option-badge.incompatible-badge {
+            background: var(--incompatible-color);
+            color: white;
+        }
 
         .price-label {
-            font-size: 17px;            /* ← было 14px, стало как у .info-title */
-            font-weight: 700;           /* ← уже 700, оставляем */
-            text-transform: none;       /* ← было uppercase, убираем */
-            letter-spacing: -0.3px;     /* ← было 1.5px, стало как у .info-title */
-            color: var(--text-primary); /* ← было var(--accent-color), стало как у .info-title */
-            margin-bottom: 16px;        /* ← было 8px, стало как у .info-title */
-            padding-bottom: 10px;       /* ← добавляем отступ снизу */
-            border-bottom: 2px solid var(--accent-color);  /* ← добавляем подчёркивание */
-            display: inline-block;      /* ← добавляем, чтобы подчёркивание было только под текстом */
+            font-size: 17px;
+            font-weight: 700;
+            text-transform: none;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent-color);
+            display: inline-block;
         }
 
         .price-table-wrapper {
@@ -602,22 +776,15 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .price-table thead th:not(:first-child) {
-            text-align: center;
-        }
+        .price-table thead th:not(:first-child) { text-align: center; }
 
         .price-table tbody tr {
             border-bottom: 1px solid var(--border-color);
             transition: background 0.2s ease;
         }
 
-        .price-table tbody tr:last-child {
-            border-bottom: none;
-        }
-
-        .price-table tbody tr:hover {
-            background: var(--bg-secondary);
-        }
+        .price-table tbody tr:last-child { border-bottom: none; }
+        .price-table tbody tr:hover { background: var(--bg-secondary); }
 
         .price-table tbody td {
             padding: 10px 16px;
@@ -637,7 +804,35 @@
         .price-name-cell {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0px;
+            flex-wrap: wrap;
+        }
+
+        .price-name-cell .info-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 15px;
+            padding: 0 2px;
+            transition: all 0.2s ease;
+            opacity: 0.7;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            margin-left: 2px;
+        }
+
+        .price-name-cell .info-btn:hover {
+            opacity: 1;
+            transform: scale(1.2);
+            color: var(--accent-hover);
+        }
+
+        .price-name-cell .info-btn i {
+            font-size: 15px;
+            pointer-events: none;
         }
 
         .price-dot {
@@ -649,18 +844,148 @@
             flex-shrink: 0;
         }
 
+        .price-dot.zero-dot {
+            background: #757575;
+        }
+
+        .price-dot.incompatible-dot {
+            background: var(--incompatible-color);
+        }
+
         .price-empty {
             font-size: 13px;
             color: var(--text-muted);
         }
 
-        /* ================================================================
-           ГРАФИКИ (ОБНОВЛЕННЫЕ - В СТИЛЕ ИНФОРМАЦИОННЫХ БЛОКОВ)
-           ================================================================ */
-
-        .grafic-grid {
-            margin-top: 4px;
+        /* ===== СТИЛИ ДЛЯ КНОПКИ ИНФОРМАЦИИ ===== */
+        .info-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0 4px;
+            transition: all 0.2s ease;
+            opacity: 0.7;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
         }
+
+        .info-btn:hover {
+            opacity: 1;
+            transform: scale(1.2);
+            color: var(--accent-hover);
+        }
+
+        .info-btn i {
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        /* ===== УЗКИЙ СТОЛБИК ДЛЯ ИНФО ===== */
+        .price-table .info-col {
+            width: 1px;
+            white-space: nowrap;
+            padding: 0 !important;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .price-table .name-col {
+            padding-right: 0 !important;
+        }
+
+        .price-table .name-col .price-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 0px;
+        }
+
+        .price-table .info-col .info-btn {
+            padding: 0 2px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .price-table .info-col .info-btn:hover {
+            opacity: 1;
+        }
+
+        /* ===== МОДАЛЬНОЕ ОКНО ДЛЯ ИНФОРМАЦИИ ===== */
+        .info-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .info-modal-overlay.active { display: flex; }
+
+        .info-modal-content {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px 35px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        .info-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .info-modal-close:hover {
+            color: var(--accent-color);
+            transform: rotate(90deg);
+        }
+
+        .info-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-right: 30px;
+        }
+
+        .info-modal-title i {
+            color: var(--accent-color);
+            margin-right: 10px;
+        }
+
+        .info-modal-body {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .info-modal-body p { margin-bottom: 8px; }
+
+        .grafic-grid { margin-top: 4px; }
 
         .grafic-mini-grid {
             display: grid;
@@ -718,7 +1043,6 @@
             margin-top: 6px;
         }
 
-        /* Сообщение при отсутствии графиков */
         .grafic-empty {
             text-align: center;
             padding: 40px 20px;
@@ -731,64 +1055,6 @@
             display: block;
             margin-bottom: 16px;
         }
-
-        /* ================================================================
-           КНОПКИ
-           ================================================================ */
-
-        .actions-bottom {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 14px 32px;
-            border-radius: 40px;
-            font-weight: 700;
-            font-size: 14px;
-            letter-spacing: 0.8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-            border: none;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .btn-primary {
-            background: linear-gradient(95deg, var(--accent-color) 0%, var(--accent-hover) 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255,58,47,0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255,58,47,0.4);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-            transform: translateY(-2px);
-        }
-
-        .highlight {
-            border-left: 3px solid var(--accent-color);
-        }
-
-        /* ================================================================
-           МОДАЛЬНОЕ ОКНО ДЛЯ ГРАФИКОВ
-           ================================================================ */
 
         .modal-overlay {
             display: none;
@@ -805,9 +1071,7 @@
             animation: fadeIn 0.3s ease;
         }
 
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
 
         .modal-content {
             background: var(--bg-card);
@@ -902,8 +1166,73 @@
             font-size: 13px;
         }
 
-        .modal-footer i {
-            margin-right: 8px;
+        .modal-footer i { margin-right: 8px; }
+
+        .mobile-price-block {
+            display: none;
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin: 12px 0 16px 0;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+
+        .mobile-price-content {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .mobile-price-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .mobile-price-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .mobile-price-empty {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        /* ===== НЕСОВМЕСТИМАЯ ОПЦИЯ ===== */
+        .incompatible-row {
+            background: var(--incompatible-bg) !important;
+            border-left: 3px solid var(--incompatible-color);
+        }
+
+        .incompatible-row .price-name-cell span {
+            color: var(--incompatible-color);
+        }
+
+        .incompatible-row .price-dot {
+            background: var(--incompatible-color);
+        }
+
+        .incompatible-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            background: var(--incompatible-color);
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .price-cell-incompatible {
+            color: var(--incompatible-color) !important;
+            font-weight: 700 !important;
         }
 
         @@keyframes fadeIn {
@@ -936,73 +1265,28 @@
             border-radius: 10px;
         }
 
-        /* ================================================================
-           АДАПТИВ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ
-           ================================================================ */
-
-        /* ПЛАНШЕТЫ И ТЕЛЕФОНЫ (≤ 700px) */
         @@media (max-width: 700px) {
+            .mobile-price-block { display: block; }
+
             .page-wrapper {
                 flex-direction: column;
                 gap: 0px;
                 padding: 0 10px 0px 10px;
             }
 
-            .dropdowns-sidebar {
-                flex: 1 1 100%;
-                position: static;
-                width: 100%;
-                order: 10;
-                margin-top: 20px;
-            }
+            .dropdowns-sidebar { display: none; }
 
-            .dropdowns-sidebar .dropdown-section {
-                display: none;
-            }
+            .container { order: 0; width: 100%; }
 
-            .dropdowns-mobile {
-                display: block;
-                margin-top: 0;
-            }
-
-            .dropdowns-mobile .dropdown-section {
-                display: block;
-            }
-
-            .container {
-                order: 0;
-                width: 100%;
-            }
-
-            /* ----- КАРТОЧКА АВТОМОБИЛЯ (МОБИЛЬНАЯ) ----- */
             .car-header {
                 max-width: 100%;
                 padding: 16px;
                 border-radius: 20px;
             }
 
-            .specs-container {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 8px;
-                padding: 12px 16px;
-                margin-bottom: 16px;
-                border-radius: 16px;
-            }
+            .header-dropdowns { display: block; }
+            .specs-container.desktop-specs { display: none; }
 
-            .spec-item {
-                padding: 4px 2px;
-            }
-
-            .spec-label {
-                font-size: 8px;
-                letter-spacing: 0.5px;
-            }
-
-            .spec-value {
-                font-size: 13px;
-            }
-
-            /* ----- ФОТО (МОБИЛЬНОЕ) ----- */
             .car-info-wrapper {
                 flex-direction: column;
                 gap: 16px;
@@ -1022,12 +1306,8 @@
                 height: auto;
             }
 
-            /* ===== БЛОК ЗАКАЗА СКРЫТ НА МОБИЛЬНЫХ ===== */
-            .car-order-block {
-                display: none;
-            }
+            .car-order-block { display: none; }
 
-            /* ----- ИНФОРМАЦИОННЫЕ БЛОКИ (МОБИЛЬНЫЕ) ----- */
             .info-block {
                 padding: 16px 18px;
                 max-width: 100%;
@@ -1045,41 +1325,23 @@
                 line-height: 1.5;
             }
 
-            .info-list li {
-                padding: 6px 0 6px 6px;
-                font-size: 10px;
-            }
-
-            /* ----- ЦЕНЫ (МОБИЛЬНЫЕ) ----- */
             .price-table thead th,
             .price-table tbody td {
                 padding: 8px 10px;
                 font-size: 10px;
             }
 
-            .price-table tbody td:not(:first-child) {
-                font-size: 10px;
-            }
+            .price-table tbody td:not(:first-child) { font-size: 10px; }
 
-            /* ----- ГРАФИКИ (МОБИЛЬНЫЕ) ----- */
             .grafic-mini-grid {
                 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
                 gap: 12px;
             }
 
-            .grafic-mini-item .mini-image {
-                height: 80px;
-            }
+            .grafic-mini-item .mini-image { height: 80px; }
+            .grafic-mini-item .mini-name { font-size: 12px; }
+            .grafic-empty i { font-size: 36px; }
 
-            .grafic-mini-item .mini-name {
-                font-size: 12px;
-            }
-
-            .grafic-empty i {
-                font-size: 36px;
-            }
-
-            /* ----- МОДАЛЬНОЕ ОКНО (МОБИЛЬНОЕ) ----- */
             .modal-content {
                 padding: 20px;
                 width: 98%;
@@ -1097,7 +1359,6 @@
                 font-size: 18px;
             }
 
-            /* ----- ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА (МОБИЛЬНЫЙ) ----- */
             .language-switcher {
                 top: 12px;
                 right: 12px;
@@ -1110,60 +1371,236 @@
                 font-size: 11px;
             }
 
-            /* ----- ДРОПДАУНЫ (МОБИЛЬНЫЕ) ----- */
-            .dropdowns-card {
-                padding: 16px;
-                border-radius: 18px;
+            .btn-next-mobile { display: none; }
+            .btn-next-mobile.show { display: block; }
+
+            .info-list-plain li,
+            .info-list li,
+            .info-list-star li {
+                padding: 6px 0 6px 0;
+                font-size: 10px;
+            }
+            
+            .info-list li::before,
+            .info-list-star li::before {
+                top: 6px;
+                font-size: 12px;
+            }
+            
+            .info-list li {
+                padding: 6px 0 6px 24px;
+            }
+            
+            .info-list-star li {
+                padding: 6px 0 6px 28px;
             }
 
-            .dropdown-section {
-                margin-bottom: 14px;
+            .info-btn { font-size: 14px; }
+            .info-btn i { font-size: 14px; }
+            
+            .info-modal-content {
+                padding: 20px 24px;
+                max-width: 95%;
             }
+            
+            .info-modal-title { font-size: 17px; }
+            .info-modal-body { font-size: 13px; }
+            
+            .price-result-value { font-size: 20px; }
+            .price-result-text { font-size: 14px; }
 
-            .dropdown-label {
-                font-size: 11px;
-                margin-bottom: 4px;
+            .price-name-cell .info-btn {
+                font-size: 12px;
             }
-
-            .dropdown-select {
-                padding: 10px 14px;
-                font-size: 13px;
-                border-radius: 12px;
-            }
-
-            .btn-next {
-                padding: 10px 16px;
-                font-size: 13px;
+            .price-name-cell .info-btn i {
+                font-size: 12px;
             }
         }
 
-        /* МАЛЕНЬКИЕ ТЕЛЕФОНЫ (≤ 480px) */
         @@media (max-width: 480px) {
-            .specs-container {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 6px;
-                padding: 10px 12px;
+            .mobile-price-block {
+                padding: 12px 16px;
+                margin: 8px 0 12px 0;
+                border-radius: 12px;
+            }
+            
+            .mobile-price-title { font-size: 12px; }
+            .mobile-price-value { font-size: 17px; }
+            .mobile-price-empty { font-size: 12px; }
+
+            .header-dropdowns {
+                padding: 4px 4px;
+                margin-bottom: 8px;
+                border-radius: 12px;
             }
 
-            .spec-divider {
-                display: none;
+            .header-dropdowns-grid { gap: 2px; }
+
+            .header-dropdowns .spec-item {
+                padding: 2px 2px;
             }
 
+            .header-dropdowns .spec-label {
+                font-size: 6px;
+                letter-spacing: 0.2px;
+                margin-bottom: 1px;
+            }
+
+            .header-dropdowns .dropdown-select {
+                padding: 3px 4px;
+                font-size: 8px;
+                border-radius: 6px;
+                min-height: 22px;
+                border-width: 1px;
+            }
+
+            .spec-divider { display: none; }
+
+            .btn-next-mobile {
+                font-size: 11px;
+                padding: 8px 12px;
+            }
+
+            .info-list-plain li,
+            .info-list li,
+            .info-list-star li {
+                padding: 4px 0 4px 0;
+                font-size: 10px;
+            }
+            
+            .info-list li::before,
+            .info-list-star li::before {
+                top: 4px;
+                font-size: 10px;
+            }
+            
             .info-list li {
                 padding: 4px 0 4px 20px;
+            }
+            
+            .info-list-star li {
+                padding: 4px 0 4px 24px;
+            }
+            
+            .price-option-badge { font-size: 9px; padding: 1px 6px; }
+            .price-result-value { font-size: 18px; }
+            .price-result-text { font-size: 13px; }
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-next-mobile.show {
+            display: block;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        /* ===== МОБИЛЬНАЯ ВЕРСИЯ ТАБЛИЦЫ ЦЕН ОПЦИЙ ===== */
+        @@media (max-width: 700px) {
+            #optionsTable {
+                table-layout: fixed;
+                width: 100%;
+            }
+            
+            #optionsTable thead th,
+            #optionsTable tbody td {
+                padding: 6px 4px;
+                font-size: 9px;
+            }
+            
+            #optionsTable thead th {
+                white-space: normal !important;
+                word-break: break-word !important;
+                line-height: 1.2;
+                vertical-align: middle;
+                text-align: center;
+            }
+
+            #optionsTable thead th:first-child,
+            #optionsTable tbody td:first-child {
+                width: 40% !important;
+                min-width: 80px;
+                word-break: break-word;
+                padding-right: 4px;
                 font-size: 10px;
+                font-weight: 600;
+            }
+            
+            #optionsTable thead th:nth-child(2),
+            #optionsTable tbody td:nth-child(2) {
+                width: 25% !important;
+                font-size: 8px;
+                white-space: nowrap;
+            }
+            
+            #optionsTable thead th:nth-child(3),
+            #optionsTable tbody td:nth-child(3) {
+                width: 20% !important;
+                font-size: 8px;
+                white-space: nowrap;
+            }
+            
+            #optionsTable thead th:last-child,
+            #optionsTable tbody td:last-child {
+                width: 10% !important;
+                min-width: 30px;
+                padding: 4px 2px;
+            }
+            
+            #optionsTable .info-btn {
+                font-size: 11px !important;
+                padding: 0 2px;
+            }
+            
+            #optionsTable .info-btn i {
+                font-size: 11px !important;
+            }
+            
+            #optionsTable input[type="checkbox"] {
+                width: 14px !important;
+                height: 14px !important;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            #optionsTable thead th:first-child,
+            #optionsTable tbody td:first-child {
+                width: 35% !important;
+                min-width: 60px;
+                font-size: 9px;
+            }
+            
+            #optionsTable thead th:nth-child(2),
+            #optionsTable tbody td:nth-child(2),
+            #optionsTable thead th:nth-child(3),
+            #optionsTable tbody td:nth-child(3) {
+                font-size: 7px;
+                padding: 4px 2px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            #optionsTable thead th:last-child,
+            #optionsTable tbody td:last-child {
+                width: 12% !important;
+                min-width: 24px;
             }
         }
     </style>
 </head>
 <body>
     <div class="page-wrapper">
-        <!-- ================================================================
-        САЙДБАР С ВЫПАДАЮЩИМИ СПИСКАМИ
-        ================================================================ -->
         <div class="dropdowns-sidebar">
             <div class="dropdowns-card">
-                <!-- ДЕСКТОПНЫЕ ДРОПДАУНЫ -->
                 <div class="dropdown-section">
                     <label class="dropdown-label" id="brandLabel"> БРЕНД</label>
                     <select class="dropdown-select" id="brandDropdown" disabled>
@@ -1189,76 +1626,72 @@
                     </select>
                 </div>
 
-                <!-- МОБИЛЬНЫЕ ДРОПДАУНЫ (дубликаты) -->
-                <div class="dropdowns-mobile">
-                    <div class="dropdown-section">
-                        <label class="dropdown-label" id="brandLabelMobile"> БРЕНД</label>
-                        <select class="dropdown-select" id="brandDropdownMobile" disabled>
-                            <option value="">-- Загрузка... --</option>
-                        </select>
-                    </div>
-                    <div class="dropdown-section">
-                        <label class="dropdown-label" id="modelLabelMobile"> МОДЕЛЬ</label>
-                        <select class="dropdown-select" id="modelDropdownMobile" disabled>
-                            <option value="">-- Сначала бренд --</option>
-                        </select>
-                    </div>
-                    <div class="dropdown-section">
-                        <label class="dropdown-label" id="generationLabelMobile"> ПОКОЛЕНИЕ</label>
-                        <select class="dropdown-select" id="generationDropdownMobile" disabled>
-                            <option value="">-- Сначала модель --</option>
-                        </select>
-                    </div>
-                    <div class="dropdown-section">
-                        <label class="dropdown-label" id="engineLabelMobile"> ДВИГАТЕЛЬ</label>
-                        <select class="dropdown-select" id="engineDropdownMobile" disabled>
-                            <option value="">-- Сначала поколение --</option>
-                        </select>
-                    </div>
-                </div>
-
                 <button class="btn-next" id="successButton" onclick="onSuccessButtonClick()">
                     ПЕРЕЙТИ →
                 </button>
             </div>
         </div>
 
-        <!-- ================================================================
-        ОСНОВНОЙ КОНТЕНТ
-        ================================================================ -->
         <div class="container">
 
-            <!-- ============================================================
-            КАРТОЧКА АВТОМОБИЛЯ
-            ============================================================ -->
             <div class="car-header">
-                <!-- Характеристики -->
-                <div class="specs-container">
+                <div class="specs-container desktop-specs">
                     <div class="spec-item">
-                        <span class="spec-label"> БРЕНД</span>
+                        <span class="spec-label">@GetLocalized("БРЕНД", "BRAND", "MARKE")</span>
                         <span class="spec-value">@Model.Brand</span>
                     </div>
                     <div class="spec-item">
-                        <span class="spec-label"> МОДЕЛЬ</span>
+                        <span class="spec-label">@GetLocalized("МОДЕЛЬ", "MODEL", "MODELL")</span>
                         <span class="spec-value">@Model.Model</span>
                     </div>
                     <div class="spec-item">
-                        <span class="spec-label"> ПОКОЛЕНИЕ</span>
+                        <span class="spec-label">@GetLocalized("ПОКОЛЕНИЕ", "GENERATION", "GENERATION")</span>
                         <span class="spec-value">@Model.Generation</span>
                     </div>
                     <div class="spec-item">
-                        <span class="spec-label"> ДВИГАТЕЛЬ</span>
+                        <span class="spec-label">@GetLocalized("ДВИГАТЕЛЬ", "ENGINE", "MOTOR")</span>
                         <span class="spec-value">@Model.Engine</span>
                     </div>
                 </div>
 
-                <!-- ===== КОНТЕЙНЕР: ФОТО + БЛОК ЗАКАЗА В РЯД ===== -->
+                <div class="header-dropdowns">
+                    <div class="header-dropdowns-grid">
+                        <div class="spec-item">
+                            <span class="spec-label" id="brandLabelHeader">@GetLocalized("БРЕНД", "BRAND", "MARKE")</span>
+                            <select class="dropdown-select" id="brandDropdownHeader" disabled>
+                                <option value="">--</option>
+                            </select>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label" id="modelLabelHeader">@GetLocalized("МОДЕЛЬ", "MODEL", "MODELL")</span>
+                            <select class="dropdown-select" id="modelDropdownHeader" disabled>
+                                <option value="">--</option>
+                            </select>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label" id="generationLabelHeader">@GetLocalized("ПОКОЛЕНИЕ", "GENERATION", "GENERATION")</span>
+                            <select class="dropdown-select" id="generationDropdownHeader" disabled>
+                                <option value="">--</option>
+                            </select>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label" id="engineLabelHeader">@GetLocalized("ДВИГАТЕЛЬ", "ENGINE", "MOTOR")</span>
+                            <select class="dropdown-select" id="engineDropdownHeader" disabled>
+                                <option value="">--</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn-next-mobile" id="successButtonMobile" onclick="onSuccessButtonClick()">
+                        ПЕРЕЙТИ →
+                    </button>
+                </div>
+
                 <div class="car-info-wrapper">
-                    <!-- Фото автомобиля -->
                     <div class="car-image-full">
                         @if (!string.IsNullOrEmpty(Model.Image))
                         {
-                            <img src="@Model.Image" alt="@Model.Brand @Model.Model" class="car-image" />
+                            <img src="@GetCarImagePath(Model.Image)" alt="@Model.Brand @Model.Model" class="car-image" 
+                                 onerror="this.parentElement.innerHTML='<div class=\'no-image-placeholder\'><i class=\'fas fa-car\'></i> @GetLocalized("Нет изображения", "No image", "Kein Bild")</div>'" />
                         }
                         else
                         {
@@ -1269,88 +1702,155 @@
                         }
                     </div>
 
-                    <!-- ===== БЛОК: ЗАКАЗАТЬ ЧИП-ТЮНИНГ (ТОЛЬКО НА ПК) ===== -->
+                    <!-- ===== БЛОК ЦЕН СВЕРХУ (ПК) ===== -->
                     <div class="car-order-block">
                         <div class="order-content">
                             <div class="order-text">
-                                <span class="order-title">@GetLocalized("Заказать чип-тюнинг", "Order Chip Tuning", "Chip-Tuning bestellen")</span>
-                                <span class="order-price">
-                                    @{
-                                        decimal minPrice = 0;
-                                        if (Model.Prices != null && Model.Prices.Any())
+                                <span class="order-title">@GetLocalized("Цены:", "Prices:", "Preise:")</span>
+                                <div style="display: flex; flex-direction: column; gap: 6px; align-items: center; margin-top: 4px; width: 100%;">
+                                    @if (Model.AdditionalPrices != null && Model.AdditionalPrices.Any())
+                                    {
+                                        var hasValidPrices = false;
+                                        foreach (var item in Model.AdditionalPrices)
                                         {
-                                            var allPrices = Model.Prices
-                                                .SelectMany(p => new[] { p.base_price, p.pro_price })
-                                                .Where(v => !string.IsNullOrEmpty(v))
-                                                .Select(v => decimal.TryParse(v, out decimal val) ? val : 0)
-                                                .Where(v => v > 0)
-                                                .Distinct()
-                                                .ToList();
+                                            var price = item.GetPrice(language);
+                                            var currency = item.GetCurrency(language);
                                             
-                                            if (allPrices.Any())
+                                            bool isZeroPrice = false;
+                                            if (!string.IsNullOrEmpty(price))
                                             {
-                                                minPrice = allPrices.Min();
+                                                var cleanPrice = price.Replace(",", ".").Replace(" ", "");
+                                                if (decimal.TryParse(cleanPrice, out decimal numPrice) && numPrice == 0)
+                                                    isZeroPrice = true;
+                                            }
+                                            
+                                            if (!isZeroPrice && !string.IsNullOrEmpty(price))
+                                            {
+                                                hasValidPrices = true;
+                                                <div style="display: flex; justify-content: space-between; width: 100%; font-size: 14px; padding: 4px 0; border-bottom: 1px solid var(--border-color);">
+                                                    <span style="font-weight: 500; text-align: left; display: flex; align-items: center; gap: 6px;">
+                                                        @item.GetName(language)
+                                                    </span>
+                                                    <span style="font-weight: 700; color: var(--accent-color); white-space: nowrap;">
+                                                        @price @currency
+                                                    </span>
+                                                </div>
                                             }
                                         }
-                                    }
-                                    @if (minPrice > 0)
-                                    {
-                                        <text>@GetLocalized("от", "from", "ab") @minPrice.ToString("N0") ₽</text>
+                                        
+                                        if (!hasValidPrices)
+                                        {
+                                            <span style="font-size: 14px; font-weight: 500; color: var(--text-muted);">
+                                                @GetLocalized("Нет доступных пакетов", "No packages available", "Keine Pakete verfügbar")
+                                            </span>
+                                        }
                                     }
                                     else
                                     {
-                                        <text>@GetLocalized("Уточняйте", "Ask for price", "Preis anfragen")</text>
+                                        <span style="font-size: 14px; font-weight: 500; color: var(--text-muted);">
+                                            @GetLocalized("Нет дополнительных пакетов", "No additional packages", "Keine zusätzlichen Pakete")
+                                        </span>
                                     }
-                                </span>
+                                </div>
                             </div>
                             <button class="order-button" onclick="scrollToPrices()">
-                                @GetLocalized("Перейти к ценам", "Go to prices", "Zu Preisen")
+                                @GetLocalized("Перейти к ценам опций", "Go to option prices", "Zu den Optionspreisen")
                             </button>
                         </div>
                     </div>
                 </div>
+
+                <!-- ===== БЛОК ЦЕН СВЕРХУ (МОБИЛЬНАЯ ВЕРСИЯ) ===== -->
+                <div class="mobile-price-block">
+                    <div class="mobile-price-content">
+                        <span class="mobile-price-title">@GetLocalized("Цены:", "Prices:", "Preise:")</span>
+                        @if (Model.AdditionalPrices != null && Model.AdditionalPrices.Any())
+                        {
+                            var hasValidPrices = false;
+                            foreach (var item in Model.AdditionalPrices)
+                            {
+                                var price = item.GetPrice(language);
+                                var currency = item.GetCurrency(language);
+                                
+                                bool isZeroPrice = false;
+                                if (!string.IsNullOrEmpty(price))
+                                {
+                                    var cleanPrice = price.Replace(",", ".").Replace(" ", "");
+                                    if (decimal.TryParse(cleanPrice, out decimal numPrice) && numPrice == 0)
+                                        isZeroPrice = true;
+                                }
+                                
+                                if (!isZeroPrice && !string.IsNullOrEmpty(price))
+                                {
+                                    hasValidPrices = true;
+                                    <div style="display: flex; justify-content: space-between; width: 100%; font-size: 13px; padding: 4px 0; border-bottom: 1px solid var(--border-color);">
+                                        <span style="font-weight: 500; display: flex; align-items: center; gap: 6px;">
+                                            @item.GetName(language)
+                                        </span>
+                                        <span style="font-weight: 700; color: var(--accent-color); white-space: nowrap;">
+                                            @price @currency
+                                        </span>
+                                    </div>
+                                }
+                            }
+                            
+                            if (!hasValidPrices)
+                            {
+                                <span style="font-size: 13px; color: var(--text-muted);">
+                                    @GetLocalized("Нет доступных пакетов", "No packages available", "Keine Pakete verfügbar")
+                                </span>
+                            }
+                        }
+                        else
+                        {
+                            <span style="font-size: 13px; color: var(--text-muted);">
+                                @GetLocalized("Нет дополнительных пакетов", "No additional packages", "Keine zusätzlichen Pakete")
+                            </span>
+                        }
+                        
+                        <button class="order-button" onclick="scrollToPrices()" style="margin-top: 8px; padding: 10px 20px; font-size: 13px;">
+                            @GetLocalized("Перейти к ценам опций", "Go to option prices", "Zu den Optionspreisen")
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <!-- ============================================================
-            БЛОК 1: О АВТОМОБИЛЕ
-            ============================================================ -->
+            <!-- ============================================================ -->
+            <!-- БЛОК: ПОЛУЧАЕМЫЙ РЕЗУЛЬТАТ (ABOUT) -->
+            <!-- ============================================================ -->
             <div class="info-block">
-                <div class="info-title"> @GetLocalized("О автомобиле", "About the Car", "Über das Auto")</div>
+                <div class="info-title"> @GetLocalized("Получаемый результат", "Result obtained", "Erzieltes Ergebnis")</div>
                 <div class="info-content">
                     @if (Model.Abouts != null && Model.Abouts.Any())
                     {
                         var items = Model.Abouts.Select(item => GetLocalized(item.text_ru, item.text_eng, item.text_ger)).ToList();
-                        <ul class="info-list">
+                        <ul class="info-list-plain">
                             @foreach (var item in items)
                             {
-                                var parts = SplitTextBySeparator(item, ';');
-                                foreach (var part in parts)
-                                {
-                                    <li>@part</li>
-                                }
+                                <li>@item</li>
                             }
                         </ul>
                     }
                     else
                     {
-                        <text>@Model.AboutRu</text>
+                        @Model.AboutRu
                     }
                 </div>
             </div>
 
-            <!-- ============================================================
-            БЛОК 2: РЕЗУЛЬТАТЫ ЧИП-ТЮНИНГА
-            ============================================================ -->
+            <!-- ============================================================ -->
+            <!-- БЛОК: ВОСПРИЯТИЕ (RESULTS) -->
+            <!-- ============================================================ -->
             <div class="info-block">
-                <div class="info-title"> @GetLocalized("Результаты чип-тюнинга", "Chip Tuning Results", "Chip-Tuning Ergebnisse")</div>
+                <div class="info-title"> @GetLocalized("Восприятие:", "Perception", "Wahrnehmung")</div>
                 <div class="info-content">
                     @if (Model.PriResults != null && Model.PriResults.Any())
                     {
                         var items = Model.PriResults.Select(item => GetLocalized(item.text_ru, item.text_eng, item.text_ger)).ToList();
-                        <ul class="info-list">
+                        <ul class="info-list-star">
                             @foreach (var item in items)
                             {
-                                var parts = SplitTextBySeparator(item, ';');
+                                var parts = SplitTextBySeparator(item);
                                 foreach (var part in parts)
                                 {
                                     <li>@part</li>
@@ -1360,24 +1860,24 @@
                     }
                     else
                     {
-                        <text>@Html.Raw(AddLineBreaks(Model.ResultRu))</text>
+                        @Html.Raw(AddLineBreaks(Model.ResultRu))
                     }
                 </div>
             </div>
 
-            <!-- ============================================================
-            БЛОК 3: УПРАВЛЕНИЕ ДВИГАТЕЛЕМ
-            ============================================================ -->
+            <!-- ============================================================ -->
+            <!-- БЛОК: УПРАВЛЕНИЕ ДВИГАТЕЛЕМ (ENGINE CONTROL) -->
+            <!-- ============================================================ -->
             <div class="info-block">
-                <div class="info-title"> @GetLocalized("Управление двигателем", "Engine Control", "Motorsteuerung")</div>
+                <div class="info-title"> @GetLocalized("В программе управления двигателем изменено:", "The following changes have been made to the engine management program:", "Im Motorsteuerprogramm wurde Folgendes geändert:")</div>
                 <div class="info-content">
                     @if (Model.Engine_controlers != null && Model.Engine_controlers.Any())
                     {
                         var items = Model.Engine_controlers.Select(item => GetLocalized(item.text_ru, item.text_eng, item.text_ger)).ToList();
-                        <ul class="info-list">
+                        <ul class="info-list-star">
                             @foreach (var item in items)
                             {
-                                var parts = SplitTextBySeparator(item, ';');
+                                var parts = SplitTextBySeparator(item);
                                 foreach (var part in parts)
                                 {
                                     <li>@part</li>
@@ -1387,65 +1887,100 @@
                     }
                     else
                     {
-                        <text>@Html.Raw(AddLineBreaks(Model.EngineControlRu))</text>
+                        @Html.Raw(AddLineBreaks(Model.EngineControlRu))
                     }
                 </div>
             </div>
 
-            <!-- ============================================================
-            БЛОК 4: ЦЕНЫ (С ЯКОРЕМ ДЛЯ ПЕРЕХОДА)
-            ============================================================ -->
+            <!-- ============================================================ -->
+            <!-- БЛОК: КОНСТРУКТОР ЦЕН -->
+            <!-- ============================================================ -->
             <div class="info-block" id="prices-section">
-                <div class="price-label"> @GetLocalized("СТОИМОСТЬ", "PRICE", "PREIS")</div>
-
-                @if (Model.Prices != null && Model.Prices.Any())
+                @if (Model.AdditionalPrices != null && Model.AdditionalPrices.Any())
                 {
+                    <div class="price-label"> @GetLocalized("Цены:", "Prices:", "Preise:")</div>
                     <div class="price-table-wrapper">
                         <table class="price-table">
                             <thead>
                                 <tr>
-                                    <th>@GetLocalized("Название опции", "Option Name", "Optionsbezeichnung")</th>
-                                    <th>@GetLocalized("Цена на стоке", "Stock Price", "Aktienkurs")</th>
-                                    <th>@GetLocalized("Доплата при тюнинге", "Tuning Surcharge", "Tuning-Aufpreis")</th>
+                                    <th class="name-col">@GetLocalized("Название", "Name", "Name")</th>
+                                    <th class="info-col"></th>
+                                    <th>@GetLocalized("Цена", "Price", "Preis")</th>
+                                    <th style="text-align: center; width: 80px;">@GetLocalized("Выбрать", "Select", "Wählen")</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var priceItem in Model.Prices)
+                                @{
+                                    var allPrices = Model.AdditionalPrices.ToList();
+                                    var firstNonZero = allPrices.FirstOrDefault(p => 
+                                        !(string.IsNullOrEmpty(p.price_rubl) && string.IsNullOrEmpty(p.price_dolar) && string.IsNullOrEmpty(p.price_euro)) &&
+                                        p.price_rubl != "0" && p.price_dolar != "0" && p.price_euro != "0"
+                                    );
+                                }
+                                
+                                @foreach (var item in allPrices)
                                 {
+                                    var price = item.GetPrice(language);
+                                    var currency = item.GetCurrency(language);
+                                    var name = item.GetName(language);
+                                    var info = language switch
+                                    {
+                                        "en" => item.info_eng,
+                                        "de" => item.info_ger,
+                                        _ => item.info_ru
+                                    };
+                                    
+                                    bool hasInfo = !string.IsNullOrEmpty(info);
+                                    bool isZeroPrice = (item.price_rubl == "0" || item.price_dolar == "0" || item.price_euro == "0") ||
+                                                       (string.IsNullOrEmpty(item.price_rubl) && string.IsNullOrEmpty(item.price_dolar) && string.IsNullOrEmpty(item.price_euro));
+                                    
+                                    bool isChecked = !isZeroPrice && firstNonZero != null && item.id == firstNonZero.id;
+                                    
                                     <tr>
-                                        <td>
-                                            <div class="price-name-cell">
-                                                
-                                                <span>@GetLocalized(priceItem.name_ru, priceItem.name_eng, priceItem.name_ger)</span>
-                                            </div>
-                                        </td>
-                                        <td class="price-base">
-                                            @if (string.IsNullOrEmpty(priceItem.base_price))
+                                        @if (hasInfo)
+                                        {
+                                            <td class="name-col">
+                                                <div class="price-name-cell">
+                                                    <span>@name</span>
+                                                </div>
+                                            </td>
+                                            <td class="info-col">
+                                                <button class="info-btn" onclick="openInfoModal('@name', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </button>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="name-col" colspan="2">
+                                                <div class="price-name-cell">
+                                                    <span>@name</span>
+                                                </div>
+                                            </td>
+                                        }
+                                        <td style="text-align: center; font-weight: 700; color: var(--accent-color);">
+                                            @if (!string.IsNullOrEmpty(price))
                                             {
-                                                <text>—</text>
-                                            }
-                                            else if (int.TryParse(priceItem.base_price, out int baseNum))
-                                            {
-                                                @baseNum.ToString("N0") <text>₽</text>
-                                            }
-                                            else
-                                            {
-                                                @priceItem.base_price
-                                            }
-                                        </td>
-                                        <td class="price-pro">
-                                            @if (string.IsNullOrEmpty(priceItem.pro_price))
-                                            {
-                                                <text>—</text>
-                                            }
-                                            else if (int.TryParse(priceItem.pro_price, out int proNum))
-                                            {
-                                                @proNum.ToString("N0") <text>₽</text>
+                                                @price @currency
                                             }
                                             else
                                             {
-                                                @priceItem.pro_price
+                                                <span style="color: var(--text-muted);">—</span>
                                             }
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <input type="radio" 
+                                                   name="basePrice"
+                                                   class="base-price-radio"
+                                                   value="@item.id"
+                                                   data-price="@price"
+                                                   data-name="@name"
+                                                   data-is-zero="@isZeroPrice.ToString().ToLower()"
+                                                   data-price-controler="@item.price_controler"
+                                                   data-unselected-mode="@item.unselected_price_mode"
+                                                   @(isChecked ? "checked" : "")
+                                                   onchange="handleBasePriceChange(this)"
+                                                   style="width: 18px; height: 18px; accent-color: var(--accent-color); cursor: pointer;" />
                                         </td>
                                     </tr>
                                 }
@@ -1453,7 +1988,139 @@
                         </table>
                     </div>
                 }
-                else
+
+                @if ((Model.AdditionalPrices != null && Model.AdditionalPrices.Any()) && 
+                     (Model.Prices != null && Model.Prices.Any()))
+                {
+                    <hr style="border: none; border-top: 2px solid var(--border-color); margin: 24px 0;" />
+                }
+
+                @if (Model.Prices != null && Model.Prices.Any())
+                {
+                    <div class="price-label"> @GetLocalized("Цены опций:", "Option prices:", "Optionspreise:")</div>
+                    <div class="price-table-wrapper">
+                        <table class="price-table" id="optionsTable">
+                            <thead>
+                                <tr>
+                                    <th class="name-col" style="width: 40%;">@GetLocalized("Название опции", "Option Name", "Optionsbezeichnung")</th>
+                                    <th class="info-col"></th>
+                                    <th style="width: 25%;">@GetLocalized("Цена без тюнинга", "Price without tuning", "Preis ohne Änderungen")</th>
+                                    <th style="width: 18%;">@GetLocalized("Доплата при тюнинге", "Tuning Surcharge", "Tuning-Aufpreis")</th>
+                                    <th style="width: 4%;">@GetLocalized("Выбрать", "Select", "Wählen")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var priceItem in Model.Prices)
+                                {
+                                    string basePrice = language switch
+                                    {
+                                        "en" => priceItem.base_price_eng,
+                                        "de" => priceItem.base_price_ger,
+                                        _ => priceItem.base_price
+                                    };
+
+                                    string proPrice = language switch
+                                    {
+                                        "en" => priceItem.pro_price_eng,
+                                        "de" => priceItem.pro_price_ger,
+                                        _ => priceItem.pro_price
+                                    };
+
+                                    string info = language switch
+                                    {
+                                        "en" => priceItem.info_eng,
+                                        "de" => priceItem.info_ger,
+                                        _ => priceItem.info_ru
+                                    };
+
+                                    string currency = language switch
+                                    {
+                                        "en" => "$",
+                                        "de" => "€",
+                                        _ => "₽"
+                                    };
+
+                                    bool hasInfo = !string.IsNullOrEmpty(info);
+                                    bool isNumeric = IsPriceNumeric(proPrice);
+                                    bool isBaseIncompatible = basePrice != null && basePrice.Trim() == "-";
+                                    bool isProIncompatible = proPrice != null && proPrice.Trim() == "-";
+                                    
+                                    <tr id="option-row-@priceItem.id" class="@(isBaseIncompatible || isProIncompatible ? "incompatible-row" : "")">
+                                        @if (hasInfo)
+                                        {
+                                            <td class="name-col">
+                                                <div class="price-name-cell">
+                                                    <span>@priceItem.GetName(language)</span>
+                                                </div>
+                                            </td>
+                                            <td class="info-col">
+                                                <button class="info-btn" onclick="openInfoModal('@priceItem.GetName(language)', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </button>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="name-col" colspan="2">
+                                                <div class="price-name-cell">
+                                                    <span>@priceItem.GetName(language)</span>
+                                                </div>
+                                            </td>
+                                        }
+                                        <td style="text-align: center;" class="@(isBaseIncompatible ? "price-cell-incompatible" : "")">
+                                            @if (!string.IsNullOrEmpty(basePrice))
+                                            {
+                                                if (isBaseIncompatible)
+                                                {
+                                                    <span>—</span>
+                                                }
+                                                else
+                                                {
+                                                    @basePrice @currency
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span style="color: var(--text-muted);">—</span>
+                                            }
+                                        </td>
+                                        <td style="text-align: center;" class="@(isProIncompatible ? "price-cell-incompatible" : "")">
+                                            @if (!string.IsNullOrEmpty(proPrice))
+                                            {
+                                                if (isProIncompatible)
+                                                {
+                                                    <span>—</span>
+                                                }
+                                                else
+                                                {
+                                                    @proPrice @currency
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span style="color: var(--text-muted);">—</span>
+                                            }
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <input type="checkbox" 
+                                                   class="additional-option"
+                                                   value="@priceItem.id"
+                                                   data-base-price="@basePrice"
+                                                   data-pro-price="@proPrice"
+                                                   data-name="@priceItem.GetName(language)"
+                                                   data-is-numeric="@isNumeric.ToString().ToLower()"
+                                                   onchange="updateTotalPrice()"
+                                                   style="width: 18px; height: 18px; accent-color: var(--accent-color); cursor: pointer;" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                @if ((Model.AdditionalPrices == null || !Model.AdditionalPrices.Any()) && 
+                     (Model.Prices == null || !Model.Prices.Any()))
                 {
                     <div class="price-empty">
                         @if (!string.IsNullOrEmpty(Model.PriceRu))
@@ -1466,50 +2133,61 @@
                         }
                     </div>
                 }
+
+                <!-- ===== ИТОГОВАЯ ЦЕНА ===== -->
+                <div class="price-result">
+                    <div class="price-result-row">
+                        <span class="price-result-label">@GetLocalized("Итого:", "Total:", "Gesamt:")</span>
+                        <span class="price-result-value" id="finalTotalPrice">0</span>
+                        <span class="price-result-currency" id="finalCurrency">@GetCurrency()</span>
+                        <span class="price-result-text" id="priceResultText"></span>
+                    </div>
+                </div>
             </div>
 
-            <!-- ============================================================
-            БЛОК 5: ГРАФИКИ (КАК ИНФОРМАЦИОННЫЙ БЛОК)
-            ============================================================ -->
-            <div class="info-block">
-                <div class="info-title"> @GetLocalized("Графики", "Graphs", "Grafiken")</div>
-                <div class="grafic-grid">
-                    @if (Model.Grafics != null && Model.Grafics.Any())
-                    {
+            <!-- ============================================================ -->
+            <!-- БЛОК: ГРАФИКИ -->
+            <!-- ============================================================ -->
+            @if (Model.Grafics != null && Model.Grafics.Any())
+            {
+                <div class="info-block">
+                    <div class="info-title"> @GetLocalized("Графики", "Graphs", "Grafiken")</div>
+                    <div class="grafic-grid">
                         <div class="grafic-mini-grid">
                             @foreach (var grafic in Model.Grafics)
                             {
+                                string graficName = language switch
+                                {
+                                    "en" => grafic.NameEng,
+                                    "de" => grafic.NameGer,
+                                    _ => grafic.Name
+                                };
+                                if (string.IsNullOrEmpty(graficName)) graficName = grafic.Name;
+                                
                                 <div class="grafic-mini-item" onclick="openGraficModal(@grafic.id)">
                                     @if (!string.IsNullOrEmpty(grafic.image))
                                     {
-                                        <img src="@grafic.image" alt="@grafic.Name" class="mini-image" loading="lazy" />
+                                        <img src="@GetGraficImagePath(grafic.image)" alt="@graficName" class="mini-image" loading="lazy" 
+                                             onerror="this.style.display='none'; this.parentElement.querySelector('.mini-icon')?.style?.removeProperty('display');" />
+                                        <span class="mini-icon" style="display: none;"><i class="fas fa-chart-line"></i></span>
                                     }
                                     else
                                     {
                                         <span class="mini-icon"><i class="fas fa-chart-line"></i></span>
                                     }
-                                    <div class="mini-name">@grafic.Name</div>
-                                    <div class="click-hint">@GetLocalized("Нажмите для увеличения", "Click to enlarge", "Zum Vergrößern klicken")</div>
+                                    <div class="mini-name">@graficName</div>
                                 </div>
                             }
                         </div>
-                    }
-                    else
-                    {
-                        <div class="grafic-empty">
-                            <i class="fas fa-chart-pie"></i>
-                            @GetLocalized("Графики отсутствуют", "No graphs available", "Keine Grafiken verfügbar")
-                        </div>
-                    }
+                    </div>
                 </div>
-            </div>
-
+            }
         </div>
     </div>
 
-    <!-- ================================================================
-    МОДАЛЬНОЕ ОКНО ДЛЯ ГРАФИКОВ
-    ================================================================ -->
+    <!-- ============================================================ -->
+    <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ГРАФИКОВ -->
+    <!-- ============================================================ -->
     <div class="modal-overlay" id="graficModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeGraficModal()">
@@ -1526,19 +2204,35 @@
                 <img id="modalGraficImage" src="" alt="" style="display: none;" />
                 <div id="modalGraficNoImage" class="no-image" style="display: none;">
                     <i class="fas fa-image"></i>
+                    <p>@GetLocalized("Изображение отсутствует", "No image", "Kein Bild")</p>
                 </div>
-            </div>
-
-            <div class="modal-footer">
-                <i class="fas fa-info-circle"></i>
-                @GetLocalized("Нажмите на изображение для увеличения", "Click on image to enlarge", "Klicken Sie auf das Bild zum Vergrößern")
+                <div id="modalGraficDescription" style="margin-top: 20px; font-size: 15px; color: var(--text-secondary); line-height: 1.7; text-align: center; padding: 0 10px; max-width: 700px; margin-left: auto; margin-right: auto;"></div>
             </div>
         </div>
     </div>
 
-    <!-- ================================================================
-    JAVASCRIPT
-    ================================================================ -->
+    <!-- ============================================================ -->
+    <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ИНФОРМАЦИИ -->
+    <!-- ============================================================ -->
+    <div class="info-modal-overlay" id="infoModal" onclick="if(event.target === this) closeInfoModal()">
+        <div class="info-modal-content">
+            <button class="info-modal-close" onclick="closeInfoModal()">✕</button>
+            <div class="info-modal-title">
+                <i class="fas fa-info-circle"></i>
+                <span id="infoModalTitle">Информация</span>
+            </div>
+            <div class="info-modal-body" id="infoModalBody">
+                <p>Текст информации</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ПЕРЕДАЁМ ДАННЫЕ В JAVASCRIPT ===== -->
+    <script>
+        // Передаём данные дополнительных цен в JavaScript
+        window.additionalPricesData = @Html.Raw(Json.Serialize(Model.AdditionalPrices));
+    </script>
+
     <script>
         // ==========================================
         // ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА
@@ -1549,15 +2243,14 @@
         }
 
         // ==========================================
-        // ПРОКРУТКА К ТАБЛИЦЕ ЦЕН
+        // ПРОКРУТКА К ЦЕНАМ
         // ==========================================
         function scrollToPrices() {
-            const pricesSection = document.getElementById('prices-section');
+            var pricesSection = document.getElementById('prices-section');
             if (pricesSection) {
-                const offset = 20;
-                const elementPosition = pricesSection.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - offset;
-                
+                var offset = 20;
+                var elementPosition = pricesSection.getBoundingClientRect().top;
+                var offsetPosition = elementPosition + window.pageYOffset - offset;
                 window.scrollTo({
                     top: offsetPosition,
                     behavior: 'smooth'
@@ -1566,29 +2259,75 @@
         }
 
         // ==========================================
+        // МОДАЛЬНОЕ ОКНО ИНФОРМАЦИИ
+        // ==========================================
+        function openInfoModal(title, info) {
+            var modal = document.getElementById('infoModal');
+            var titleEl = document.getElementById('infoModalTitle');
+            var bodyEl = document.getElementById('infoModalBody');
+            
+            if (!modal) return;
+            
+            titleEl.textContent = title;
+            bodyEl.innerHTML = info.replace(/\n/g, '<br>');
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeInfoModal() {
+            var modal = document.getElementById('infoModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeInfoModal();
+            }
+        });
+
+        // ==========================================
         // МОДАЛЬНОЕ ОКНО ГРАФИКОВ
         // ==========================================
-
-        var graficList = @Json.Serialize(Model.Grafics);
+        var graficList = @Html.Raw(Json.Serialize(Model.Grafics));
 
         function openGraficModal(graficId) {
-            const modal = document.getElementById('graficModal');
+            var modal = document.getElementById('graficModal');
             if (!modal) return;
 
-            const selected = graficList.find(g => g.id === graficId);
-
+            var selected = graficList.find(function(g) { return g.id === graficId; });
             if (!selected) {
                 console.warn('График с ID ' + graficId + ' не найден');
                 return;
             }
 
-            const imageEl = document.getElementById('modalGraficImage');
-            const nameEl = document.getElementById('modalGraficName');
-            const noImageEl = document.getElementById('modalGraficNoImage');
+            var imageEl = document.getElementById('modalGraficImage');
+            var nameEl = document.getElementById('modalGraficName');
+            var noImageEl = document.getElementById('modalGraficNoImage');
+            var descEl = document.getElementById('modalGraficDescription');
+
+            var lang = document.cookie.split('; ').find(function(row) { return row.startsWith('Language='); })?.split('=')[1] || 'ru';
+
+            var graficName = selected.name;
+            if (lang === 'en' && selected.nameEng) graficName = selected.nameEng;
+            else if (lang === 'de' && selected.nameGer) graficName = selected.nameGer;
+            if (!graficName) graficName = selected.name || 'График';
+
+            var description = '';
+            if (lang === 'en') description = selected.descriptionEng || '';
+            else if (lang === 'de') description = selected.descriptionGer || '';
+            else description = selected.descriptionRu || '';
 
             if (selected.image && selected.image !== '') {
-                imageEl.src = selected.image;
-                imageEl.alt = selected.name || 'График';
+                var imagePath = selected.image;
+                if (!imagePath.startsWith('http://') && !imagePath.startsWith('https://') && !imagePath.startsWith('/')) {
+                    imagePath = '/shared-fotos/grafics/' + imagePath;
+                }
+                imageEl.src = imagePath;
+                imageEl.alt = graficName || 'График';
                 imageEl.style.display = 'block';
                 noImageEl.style.display = 'none';
             } else {
@@ -1596,14 +2335,23 @@
                 noImageEl.style.display = 'flex';
             }
 
-            nameEl.textContent = selected.name || '@Html.Raw(GetLocalized("График", "Graph", "Grafik"))';
+            nameEl.textContent = graficName;
+
+            if (descEl) {
+                if (description) {
+                    descEl.textContent = description;
+                    descEl.style.display = 'block';
+                } else {
+                    descEl.style.display = 'none';
+                }
+            }
 
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
         function closeGraficModal() {
-            const modal = document.getElementById('graficModal');
+            var modal = document.getElementById('graficModal');
             if (modal) {
                 modal.classList.remove('active');
                 document.body.style.overflow = 'auto';
@@ -1611,7 +2359,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const modal = document.getElementById('graficModal');
+            var modal = document.getElementById('graficModal');
             if (modal) {
                 modal.addEventListener('click', function(e) {
                     if (e.target === this) {
@@ -1628,132 +2376,852 @@
         });
 
         // ==========================================
-        // ДРОПДАУНЫ
+        // КОНСТРУКТОР ЦЕН
         // ==========================================
-
-        function updateDropdownLabels() {
-            const getCookie = (name) => {
-                const value = `; ${document.cookie}`;
-                const parts = value.split(`; ${name}=`);
-                if (parts.length === 2) return parts.pop().split(';').shift();
-                return 'ru';
+        function getCurrency() {
+            var lang = document.cookie.split('; ').find(function(row) { return row.startsWith('Language='); })?.split('=')[1] || 'ru';
+            var currencies = {
+                'ru': '₽',
+                'en': '$',
+                'de': '€'
             };
-            const lang = getCookie('Language');
-
-            const labels = {
-                brand: { ru: ' БРЕНД', en: ' BRAND', de: ' MARKE' },
-                model: { ru: ' МОДЕЛЬ', en: ' MODEL', de: ' MODELL' },
-                generation: { ru: ' ПОКОЛЕНИЕ', en: ' GENERATION', de: ' GENERATION' },
-                engine: { ru: ' ДВИГАТЕЛЬ', en: ' ENGINE', de: ' MOTOR' }
-            };
-
-            document.getElementById('brandLabel').textContent = labels.brand[lang] || ' БРЕНД';
-            document.getElementById('modelLabel').textContent = labels.model[lang] || ' МОДЕЛЬ';
-            document.getElementById('generationLabel').textContent = labels.generation[lang] || ' ПОКОЛЕНИЕ';
-            document.getElementById('engineLabel').textContent = labels.engine[lang] || ' ДВИГАТЕЛЬ';
-
-            document.getElementById('brandLabelMobile').textContent = labels.brand[lang] || ' БРЕНД';
-            document.getElementById('modelLabelMobile').textContent = labels.model[lang] || ' МОДЕЛЬ';
-            document.getElementById('generationLabelMobile').textContent = labels.generation[lang] || ' ПОКОЛЕНИЕ';
-            document.getElementById('engineLabelMobile').textContent = labels.engine[lang] || ' ДВИГАТЕЛЬ';
+            return currencies[lang] || '₽';
         }
 
-        let currentCar = {
-            brand: '@Model.Brand',
-            model: '@Model.Model',
-            generation: '@Model.Generation',
-            engine: '@Model.Engine'
+        function parsePrice(priceStr) {
+            if (!priceStr) return 0;
+            var cleaned = priceStr.replace(/[^0-9.,]/g, '').replace(',', '.');
+            return parseFloat(cleaned) || 0;
+        }
+
+        function isPriceNumeric(priceStr) {
+            if (!priceStr) return false;
+            var cleaned = priceStr.trim();
+            if (cleaned.length === 0) return false;
+            var firstChar = cleaned[0];
+            return (firstChar >= '0' && firstChar <= '9') || firstChar === '.' || firstChar === ',';
+        }
+
+        function isZeroPriceValue(priceStr) {
+            if (!priceStr) return false;
+            var cleaned = priceStr.replace(",", ".").replace(/[^0-9.]/g, '');
+            if (cleaned === '') return false;
+            var num = parseFloat(cleaned);
+            return !isNaN(num) && num === 0;
+        }
+
+        function getSelectedBasePrice() {
+            var selected = document.querySelector('.base-price-radio:checked');
+            if (!selected) return null;
+            
+            return {
+                price: selected.getAttribute('data-price'),
+                name: selected.getAttribute('data-name'),
+                isZero: selected.getAttribute('data-is-zero') === 'true',
+                priceControler: parseInt(selected.getAttribute('data-price-controler')) || 0,
+                freeIds: selected.dataset.freeIds ? selected.dataset.freeIds.split(',').map(Number) : [],
+                baseIds: selected.dataset.baseIds ? selected.dataset.baseIds.split(',').map(Number) : [],
+                proIds: selected.dataset.proIds ? selected.dataset.proIds.split(',').map(Number) : [],
+                unselectedMode: parseInt(selected.dataset.unselectedMode) || 0
+            };
+        }
+
+        function getSelectedAdditionalOptions() {
+            var checkboxes = document.querySelectorAll('.additional-option:checked');
+            var options = [];
+            checkboxes.forEach(function(cb) {
+                options.push({
+                    id: cb.value,
+                    basePrice: cb.getAttribute('data-base-price'),
+                    proPrice: cb.getAttribute('data-pro-price'),
+                    name: cb.getAttribute('data-name'),
+                    isNumeric: cb.getAttribute('data-is-numeric') === 'true',
+                    isChecked: cb.checked
+                });
+            });
+            return options;
+        }
+
+        // ==========================================
+        // АВТОМАТИЧЕСКИЙ ВЫБОР БАЗОВОЙ ЦЕНЫ
+        // ==========================================
+
+        function autoSelectBasePrice() {
+            var radios = document.querySelectorAll('.base-price-radio');
+            if (radios.length === 0) return;
+            
+            // Если уже есть выбранная, не трогаем
+            var alreadyChecked = document.querySelector('.base-price-radio:checked');
+            if (alreadyChecked) return;
+            
+            // Если только одна цена — выбираем её (даже если это "Без тюнинга")
+            if (radios.length === 1) {
+                radios[0].checked = true;
+                handleBasePriceChange(radios[0]);
+                return;
+            }
+            
+            // Если несколько цен — выбираем первую, у которой цена НЕ равна 0
+            for (var i = 0; i < radios.length; i++) {
+                var isZero = radios[i].getAttribute('data-is-zero') === 'true';
+                if (!isZero) {
+                    radios[i].checked = true;
+                    handleBasePriceChange(radios[i]);
+                    return;
+                }
+            }
+            
+            // Если все цены равны 0 — выбираем первую
+            if (radios.length > 0) {
+                radios[0].checked = true;
+                handleBasePriceChange(radios[0]);
+            }
+        }
+
+        function updateTotalPrice() {
+            var currency = getCurrency();
+            var baseSelected = getSelectedBasePrice();
+            var additionalOptions = getSelectedAdditionalOptions();
+            
+            var basePriceValue = 0;
+            var totalPrice = 0;
+            var priceControler = 0;
+            var hasIncompatibleOption = false;
+            var incompatibleOptionName = '';
+            var incompatibleOptionId = null;
+            
+            if (baseSelected) {
+                basePriceValue = parsePrice(baseSelected.price);
+                priceControler = baseSelected.priceControler;
+                totalPrice = basePriceValue;
+            }
+            
+            // ===== ОСНОВНАЯ ЛОГИКА: price_controler определяет какие цены брать =====
+            var useProPrices = priceControler === 1;
+            var isExtended = priceControler === 2;
+            var additionalTotal = 0;
+            var textOptionsList = [];
+            
+            additionalOptions.forEach(function(opt) {
+                var priceToUse = opt.basePrice;
+                var optionId = parseInt(opt.id);
+                
+                if (isExtended && baseSelected) {
+                    // ===== РАСШИРЕННЫЙ ВЫБОР (price_controler == 2) =====
+                    var freeIds = baseSelected.freeIds || [];
+                    var baseIds = baseSelected.baseIds || [];
+                    var proIds = baseSelected.proIds || [];
+                    var unselectedMode = baseSelected.unselectedMode || 0;
+                    
+                    if (freeIds.includes(optionId)) {
+                        priceToUse = '0';
+                    } else if (baseIds.includes(optionId)) {
+                        priceToUse = opt.basePrice;
+                    } else if (proIds.includes(optionId)) {
+                        priceToUse = opt.proPrice;
+                    } else {
+                        if (unselectedMode === 1) {
+                            priceToUse = opt.proPrice || opt.basePrice;
+                        } else {
+                            priceToUse = opt.basePrice;
+                        }
+                    }
+                } else if (useProPrices) {
+                    if (opt.proPrice && opt.proPrice.trim() !== '') {
+                        priceToUse = opt.proPrice;
+                    } else {
+                        priceToUse = opt.basePrice;
+                    }
+                } else {
+                    priceToUse = opt.basePrice;
+                }
+                
+                // ===== ПРОВЕРКА: ЕСЛИ В ЦЕНЕ СТОИТ "-", ОПЦИЯ НЕСОВМЕСТИМА =====
+                if (priceToUse && priceToUse.trim() === '-') {
+                    hasIncompatibleOption = true;
+                    incompatibleOptionName = opt.name;
+                    incompatibleOptionId = opt.id;
+                    return;
+                }
+                
+                if (!priceToUse || priceToUse.trim() === '') {
+                    priceToUse = opt.proPrice || opt.basePrice;
+                }
+                
+                if (isZeroPriceValue(priceToUse)) {
+                    return;
+                }
+                
+                var isNumeric = isPriceNumeric(priceToUse);
+                
+                if (isNumeric) {
+                    var priceValue = parsePrice(priceToUse);
+                    additionalTotal += priceValue;
+                } else {
+                    if (priceToUse && priceToUse.trim() !== '') {
+                        textOptionsList.push(opt.name);
+                    }
+                }
+            });
+            
+            // ===== ПРОВЕРКА НА НЕСОВМЕСТИМЫЕ ОПЦИИ =====
+            if (hasIncompatibleOption) {
+                document.querySelectorAll('#optionsTable tbody tr').forEach(function(row) {
+                    row.classList.remove('incompatible-row');
+                });
+                if (incompatibleOptionId) {
+                    var incompatibleRow = document.getElementById('option-row-' + incompatibleOptionId);
+                    if (incompatibleRow) {
+                        incompatibleRow.classList.add('incompatible-row');
+                    }
+                }
+                
+                var lang = document.cookie.split('; ').find(function(row) { return row.startsWith('Language='); })?.split('=')[1] || 'ru';
+                var errorMsg = '';
+                if (lang === 'en') {
+                    errorMsg = '⚠️ ' + incompatibleOptionName + ': Selected option is not compatible with the selected tuning';
+                } else if (lang === 'de') {
+                    errorMsg = '⚠️ ' + incompatibleOptionName + ': Ausgewählte Option ist nicht mit dem gewählten Tuning kompatibel';
+                } else {
+                    errorMsg = '⚠️ ' + incompatibleOptionName + ': Выбранная опция не совместима с выбранным тюнингом';
+                }
+                
+                document.getElementById('finalTotalPrice').textContent = '—';
+                document.getElementById('finalTotalPrice').className = 'price-result-value incompatible';
+                document.getElementById('finalCurrency').textContent = '';
+                
+                var textSpan = document.getElementById('priceResultText');
+                textSpan.className = 'price-result-text incompatible';
+                textSpan.innerHTML = '<span style="font-size: 14px; font-weight: 600;">' + errorMsg + '</span>';
+                textSpan.style.display = 'inline';
+                return;
+            }
+            
+            document.querySelectorAll('#optionsTable tbody tr').forEach(function(row) {
+                row.classList.remove('incompatible-row');
+            });
+            
+            document.getElementById('finalTotalPrice').className = 'price-result-value';
+            document.getElementById('priceResultText').className = 'price-result-text';
+            
+            totalPrice = basePriceValue + additionalTotal;
+            
+            document.getElementById('finalTotalPrice').textContent = totalPrice.toLocaleString();
+            document.getElementById('finalCurrency').textContent = currency;
+            
+            var textSpan = document.getElementById('priceResultText');
+            if (textOptionsList.length > 0) {
+                textSpan.innerHTML = ' <span style="font-weight: 600; color: var(--accent-color);">+</span> ' + textOptionsList.join(' + ');
+                textSpan.style.display = 'inline';
+            } else {
+                textSpan.textContent = '';
+                textSpan.style.display = 'none';
+            }
+        }
+
+        function handleBasePriceChange(radio) {
+            var selected = document.querySelector('.base-price-radio:checked');
+            if (selected) {
+                var packageId = parseInt(selected.value);
+                
+                var packageData = null;
+                if (window.additionalPricesData) {
+                    packageData = window.additionalPricesData.find(function(p) {
+                        return p.id === packageId;
+                    });
+                }
+                
+                if (packageData && packageData.price_controler === 2) {
+                    selected.dataset.freeIds = packageData.free_price_ids || '';
+                    selected.dataset.baseIds = packageData.base_price_ids || '';
+                    selected.dataset.proIds = packageData.pro_price_ids || '';
+                    selected.dataset.unselectedMode = packageData.unselected_price_mode || 0;
+                } else {
+                    selected.dataset.freeIds = '';
+                    selected.dataset.baseIds = '';
+                    selected.dataset.proIds = '';
+                    selected.dataset.unselectedMode = '0';
+                }
+            }
+            updateTotalPrice();
+        }
+
+        function resetAllOptions() {
+            document.querySelectorAll('.additional-option').forEach(function(cb) {
+                cb.checked = false;
+            });
+            
+            var firstNonZero = document.querySelector('.base-price-radio[data-is-zero="false"]');
+            if (firstNonZero) {
+                firstNonZero.checked = true;
+                handleBasePriceChange(firstNonZero);
+            } else {
+                var zeroRadio = document.querySelector('.base-price-radio[data-is-zero="true"]');
+                if (zeroRadio) {
+                    zeroRadio.checked = true;
+                    handleBasePriceChange(zeroRadio);
+                }
+            }
+            updateTotalPrice();
+        }
+
+        function selectAllOptions() {
+            document.querySelectorAll('.additional-option').forEach(function(cb) {
+                cb.checked = true;
+            });
+            updateTotalPrice();
+        }
+
+        // ==========================================
+        // ОСНОВНАЯ ЛОГИКА ДРОПДАУНОВ
+        // ==========================================
+        function normalizeString(str) {
+            return str ? str.replace(/_/g, ' ') : '';
+        }
+
+        var modelBrand = normalizeString(@Html.Raw(Json.Serialize(Model.Brand)));
+        var modelModel = normalizeString(@Html.Raw(Json.Serialize(Model.Model)));
+        var modelGeneration = normalizeString(@Html.Raw(Json.Serialize(Model.Generation)));
+        var modelEngine = normalizeString(@Html.Raw(Json.Serialize(Model.Engine)));
+
+        var currentCar = {
+            brand: modelBrand,
+            model: modelModel,
+            generation: modelGeneration,
+            engine: modelEngine
         };
 
-        function syncDropdowns() {
-            const brandDesktop = document.getElementById('brandDropdown');
-            const brandMobile = document.getElementById('brandDropdownMobile');
-            const modelDesktop = document.getElementById('modelDropdown');
-            const modelMobile = document.getElementById('modelDropdownMobile');
-            const genDesktop = document.getElementById('generationDropdown');
-            const genMobile = document.getElementById('generationDropdownMobile');
-            const engineDesktop = document.getElementById('engineDropdown');
-            const engineMobile = document.getElementById('engineDropdownMobile');
+        var originalCar = {
+            brand: modelBrand,
+            model: modelModel,
+            generation: modelGeneration,
+            engine: modelEngine
+        };
 
-            if (brandDesktop && brandMobile && brandDesktop.value !== brandMobile.value) brandMobile.value = brandDesktop.value;
-            if (modelDesktop && modelMobile && modelDesktop.value !== modelMobile.value) modelMobile.value = modelDesktop.value;
-            if (genDesktop && genMobile && genDesktop.value !== genMobile.value) genMobile.value = genDesktop.value;
-            if (engineDesktop && engineMobile && engineDesktop.value !== engineMobile.value) engineMobile.value = engineDesktop.value;
+        function isCarChanged() {
+            return currentCar.brand !== originalCar.brand ||
+                   currentCar.model !== originalCar.model ||
+                   currentCar.generation !== originalCar.generation ||
+                   currentCar.engine !== originalCar.engine;
         }
 
         function isCarComplete() {
             return currentCar.brand && currentCar.model && currentCar.generation && currentCar.engine;
         }
 
+        function getPlaceholder(fieldName) {
+            var lang = document.cookie.split('; ').find(function(row) { return row.startsWith('Language='); })?.split('=')[1] || 'ru';
+            var placeholders = {
+                brand: { ru: 'Выберите бренд', en: 'Select brand', de: 'Marke wählen' },
+                model: { ru: 'Выберите модель', en: 'Select model', de: 'Modell wählen' },
+                generation: { ru: 'Выберите поколение', en: 'Select generation', de: 'Generation wählen' },
+                engine: { ru: 'Выберите двигатель', en: 'Select engine', de: 'Motor wählen' }
+            };
+            return placeholders[fieldName]?.[lang] || 'Выберите';
+        }
+
+        function updateDropdown(fieldName, options) {
+            var desktopId = fieldName + 'Dropdown';
+            var currentValue = currentCar[fieldName];
+            var dropdown = document.getElementById(desktopId);
+            if (!dropdown) return;
+
+            dropdown.innerHTML = '';
+            var emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            emptyOption.textContent = getPlaceholder(fieldName);
+            dropdown.appendChild(emptyOption);
+
+            if (options && options.length > 0) {
+                options.forEach(function(option) {
+                    var opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option;
+                    dropdown.appendChild(opt);
+                });
+            }
+
+            if (currentValue) {
+                var searchValue = currentValue.replace(/_/g, ' ').trim();
+                var found = false;
+                
+                for (var i = 0; i < dropdown.options.length; i++) {
+                    var optionValue = dropdown.options[i].value.replace(/_/g, ' ').trim();
+                    if (optionValue === searchValue) {
+                        dropdown.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found) {
+                    dropdown.value = currentValue;
+                }
+            }
+            
+            dropdown.disabled = false;
+            dropdown.onchange = function() { 
+                handleChange(fieldName, this.value); 
+            };
+        }
+
+        function updateHeaderDropdowns(fieldName, options) {
+            var headerId = fieldName + 'DropdownHeader';
+            var currentValue = currentCar[fieldName];
+            var dropdown = document.getElementById(headerId);
+            if (!dropdown) return;
+
+            dropdown.innerHTML = '';
+            var emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            emptyOption.textContent = '--';
+            dropdown.appendChild(emptyOption);
+
+            if (options && options.length > 0) {
+                options.forEach(function(option) {
+                    var opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option;
+                    dropdown.appendChild(opt);
+                });
+            }
+
+            if (currentValue) {
+                var searchValue = currentValue.replace(/_/g, ' ').trim();
+                var found = false;
+                
+                for (var i = 0; i < dropdown.options.length; i++) {
+                    var optionValue = dropdown.options[i].value.replace(/_/g, ' ').trim();
+                    if (optionValue === searchValue) {
+                        dropdown.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found) {
+                    dropdown.value = currentValue;
+                }
+            }
+            
+            dropdown.disabled = false;
+            dropdown.onchange = function() { 
+                handleChange(fieldName, this.value); 
+            };
+        }
+
+        function syncAllDropdowns() {
+            var fields = ['brand', 'model', 'generation', 'engine'];
+            fields.forEach(function(field) {
+                var value = currentCar[field];
+                var mainDropdown = document.getElementById(field + 'Dropdown');
+                var headerDropdown = document.getElementById(field + 'DropdownHeader');
+                
+                if (mainDropdown && value) {
+                    var found = false;
+                    for (var i = 0; i < mainDropdown.options.length; i++) {
+                        if (mainDropdown.options[i].value === value) {
+                            mainDropdown.selectedIndex = i;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        mainDropdown.value = value;
+                    }
+                }
+                if (headerDropdown && value) {
+                    var found = false;
+                    for (var i = 0; i < headerDropdown.options.length; i++) {
+                        if (headerDropdown.options[i].value === value) {
+                            headerDropdown.selectedIndex = i;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        headerDropdown.value = value;
+                    }
+                }
+            });
+        }
+
+        function resetDropdownsAfter(fieldName) {
+            var fields = ['brand', 'model', 'generation', 'engine'];
+            var startIndex = fields.indexOf(fieldName) + 1;
+            for (var i = startIndex; i < fields.length; i++) {
+                var desktop = document.getElementById(fields[i] + 'Dropdown');
+                var header = document.getElementById(fields[i] + 'DropdownHeader');
+                if (desktop && !currentCar[fields[i]]) {
+                    desktop.innerHTML = '<option value="">-- ' + getPlaceholder(fields[i]) + ' --</option>';
+                    desktop.disabled = true;
+                    desktop.onchange = null;
+                }
+                if (header && !currentCar[fields[i]]) {
+                    header.innerHTML = '<option value="">--</option>';
+                    header.disabled = true;
+                    header.onchange = null;
+                }
+                currentCar[fields[i]] = '';
+            }
+        }
+
+        function resetHeaderDropdownsAfter(fieldName) {
+            var fields = ['brand', 'model', 'generation', 'engine'];
+            var startIndex = fields.indexOf(fieldName) + 1;
+            for (var i = startIndex; i < fields.length; i++) {
+                var dropdown = document.getElementById(fields[i] + 'DropdownHeader');
+                if (dropdown && !currentCar[fields[i]]) {
+                    dropdown.innerHTML = '<option value="">--</option>';
+                    dropdown.disabled = true;
+                    dropdown.onchange = null;
+                }
+            }
+        }
+
+        function updateAllDropdownValues() {
+            var fields = ['brand', 'model', 'generation', 'engine'];
+            fields.forEach(function(field) {
+                var value = currentCar[field];
+                var mainDropdown = document.getElementById(field + 'Dropdown');
+                var headerDropdown = document.getElementById(field + 'DropdownHeader');
+                
+                if (mainDropdown && value) {
+                    var found = false;
+                    for (var i = 0; i < mainDropdown.options.length; i++) {
+                        if (mainDropdown.options[i].value === value) {
+                            mainDropdown.selectedIndex = i;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found && mainDropdown.value !== value) {
+                        mainDropdown.value = value;
+                    }
+                }
+                if (headerDropdown && value) {
+                    var found = false;
+                    for (var i = 0; i < headerDropdown.options.length; i++) {
+                        if (headerDropdown.options[i].value === value) {
+                            headerDropdown.selectedIndex = i;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found && headerDropdown.value !== value) {
+                        headerDropdown.value = value;
+                    }
+                }
+            });
+        }
+
+        function updateDropdownLabels() {
+            var getCookie = function(name) {
+                var value = '; ' + document.cookie;
+                var parts = value.split('; ' + name + '=');
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return 'ru';
+            };
+            var lang = getCookie('Language');
+
+            var labels = {
+                brand: { ru: ' БРЕНД', en: ' BRAND', de: ' MARKE' },
+                model: { ru: ' МОДЕЛЬ', en: ' MODEL', de: ' MODELL' },
+                generation: { ru: ' ПОКОЛЕНИЕ', en: ' GENERATION', de: ' GENERATION' },
+                engine: { ru: ' ДВИГАТЕЛЬ', en: ' ENGINE', de: ' MOTOR' }
+            };
+
+            var brandLabel = document.getElementById('brandLabel');
+            var modelLabel = document.getElementById('modelLabel');
+            var generationLabel = document.getElementById('generationLabel');
+            var engineLabel = document.getElementById('engineLabel');
+
+            if (brandLabel) brandLabel.textContent = labels.brand[lang] || ' БРЕНД';
+            if (modelLabel) modelLabel.textContent = labels.model[lang] || ' МОДЕЛЬ';
+            if (generationLabel) generationLabel.textContent = labels.generation[lang] || ' ПОКОЛЕНИЕ';
+            if (engineLabel) engineLabel.textContent = labels.engine[lang] || ' ДВИГАТЕЛЬ';
+
+            var brandLabelHeader = document.getElementById('brandLabelHeader');
+            var modelLabelHeader = document.getElementById('modelLabelHeader');
+            var generationLabelHeader = document.getElementById('generationLabelHeader');
+            var engineLabelHeader = document.getElementById('engineLabelHeader');
+
+            if (brandLabelHeader) brandLabelHeader.textContent = labels.brand[lang] || ' БРЕНД';
+            if (modelLabelHeader) modelLabelHeader.textContent = labels.model[lang] || ' МОДЕЛЬ';
+            if (generationLabelHeader) generationLabelHeader.textContent = labels.generation[lang] || ' ПОКОЛЕНИЕ';
+            if (engineLabelHeader) engineLabelHeader.textContent = labels.engine[lang] || ' ДВИГАТЕЛЬ';
+        }
+
         function showSuccessButton() {
-            const btnDesktop = document.getElementById('successButton');
-            const btnMobile = document.getElementById('successButtonMobile');
-            if (btnDesktop) btnDesktop.style.display = 'block';
-            if (btnMobile) btnMobile.style.display = 'block';
+            var btnDesktop = document.getElementById('successButton');
+            var btnMobile = document.getElementById('successButtonMobile');
+            
+            if (isCarComplete() && isCarChanged()) {
+                if (btnDesktop) btnDesktop.style.display = 'block';
+                if (btnMobile) btnMobile.classList.add('show');
+            } else {
+                if (btnDesktop) btnDesktop.style.display = 'none';
+                if (btnMobile) btnMobile.classList.remove('show');
+            }
         }
 
         function hideSuccessButton() {
-            const btnDesktop = document.getElementById('successButton');
-            const btnMobile = document.getElementById('successButtonMobile');
+            var btnDesktop = document.getElementById('successButton');
+            var btnMobile = document.getElementById('successButtonMobile');
             if (btnDesktop) btnDesktop.style.display = 'none';
-            if (btnMobile) btnMobile.style.display = 'none';
+            if (btnMobile) btnMobile.classList.remove('show');
         }
 
         function onSuccessButtonClick() {
             if (!isCarComplete()) {
-                const lang = document.cookie.split('; ').find(row => row.startsWith('Language='))?.split('=')[1] || 'ru';
-                const msg = lang === 'ru' ? 'Заполните все поля' : (lang === 'en' ? 'Fill all fields' : 'Alle Felder ausfüllen');
+                var lang = document.cookie.split('; ').find(function(row) { return row.startsWith('Language='); })?.split('=')[1] || 'ru';
+                var msg = lang === 'ru' ? 'Заполните все поля' : (lang === 'en' ? 'Fill all fields' : 'Alle Felder ausfüllen');
                 alert(msg);
                 return;
             }
-            const brand = encodeURIComponent(currentCar.brand);
-            const model = encodeURIComponent(currentCar.model);
-            const generation = encodeURIComponent(currentCar.generation);
-            const engine = encodeURIComponent(currentCar.engine);
-            window.location.href = `/${brand}/${model}/${generation}/${engine}`;
-        }
-
-        function onSuccessButtonClickMobile() {
-            onSuccessButtonClick();
+            
+            function transliterate(text) {
+                if (!text) return '';
+                var map = {
+                    'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D',
+                    'Е': 'E', 'Ё': 'Yo', 'Ж': 'Zh', 'З': 'Z', 'И': 'I',
+                    'Й': 'Y', 'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N',
+                    'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T',
+                    'У': 'U', 'Ф': 'F', 'Х': 'Kh', 'Ц': 'Ts', 'Ч': 'Ch',
+                    'Ш': 'Sh', 'Щ': 'Sch', 'Ъ': '', 'Ы': 'Y', 'Ь': '',
+                    'Э': 'E', 'Ю': 'Yu', 'Я': 'Ya',
+                    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
+                    'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i',
+                    'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
+                    'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
+                    'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
+                    'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '',
+                    'э': 'e', 'ю': 'yu', 'я': 'ya'
+                };
+                var result = '';
+                for (var i = 0; i < text.length; i++) {
+                    var ch = text[i];
+                    result += map[ch] || ch;
+                }
+                return result;
+            }
+            
+            var brand = transliterate(currentCar.brand).replace(/ /g, '_');
+            var model = transliterate(currentCar.model).replace(/ /g, '_');
+            var generation = transliterate(currentCar.generation).replace(/ /g, '_');
+            var engine = transliterate(currentCar.engine).replace(/ /g, '_');
+            
+            window.location.href = '/' + encodeURIComponent(brand) + '/' + encodeURIComponent(model) + '/' + encodeURIComponent(generation) + '/' + encodeURIComponent(engine);
         }
 
         async function loadInitialData() {
             try {
-                const response = await fetch('/Home/GetInitialData');
-                const result = await response.json();
-                updateCar(result.car);
-                if (result.nextField === 'brand') {
-                    const placeholder = getPlaceholder('brand');
-                    ['brandDropdown', 'brandDropdownMobile'].forEach(id => {
-                        const dropdown = document.getElementById(id);
-                        if (dropdown) {
-                            dropdown.innerHTML = `<option value="">-- ${placeholder} --</option>`;
-                            if (result.options && result.options.length > 0) {
-                                result.options.forEach(option => {
-                                    const opt = document.createElement('option');
-                                    opt.value = option;
-                                    opt.textContent = option;
-                                    dropdown.appendChild(opt);
-                                });
-                            }
-                            dropdown.disabled = false;
-                            dropdown.onchange = function() { handleChange('brand', this.value); };
-                        }
-                    });
+                var response = await fetch('/Home/GetInitialData');
+                var result = await response.json();
+                
+                function transliterate(text) {
+                    if (!text) return '';
+                    var map = {
+                        'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D',
+                        'Е': 'E', 'Ё': 'Yo', 'Ж': 'Zh', 'З': 'Z', 'И': 'I',
+                        'Й': 'Y', 'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N',
+                        'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T',
+                        'У': 'U', 'Ф': 'F', 'Х': 'Kh', 'Ц': 'Ts', 'Ч': 'Ch',
+                        'Ш': 'Sh', 'Щ': 'Sch', 'Ъ': '', 'Ы': 'Y', 'Ь': '',
+                        'Э': 'E', 'Ю': 'Yu', 'Я': 'Ya',
+                        'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
+                        'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i',
+                        'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
+                        'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
+                        'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
+                        'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '',
+                        'э': 'e', 'ю': 'yu', 'я': 'ya'
+                    };
+                    var result = '';
+                    for (var i = 0; i < text.length; i++) {
+                        var ch = text[i];
+                        result += map[ch] || ch;
+                    }
+                    return result;
                 }
+                
+                updateDropdown('brand', result.options);
+                updateHeaderDropdowns('brand', result.options);
+                
+                ['brandDropdown', 'brandDropdownHeader'].forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el && modelBrand) {
+                        el.value = modelBrand;
+                        el.disabled = false;
+                    }
+                });
+
+                if (modelBrand) {
+                    var modelResponse = await fetch('/Home/ProcessSelection', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            car: { brand: modelBrand, model: '', generation: '', engine: '' },
+                            changedField: 'brand',
+                            newValue: modelBrand
+                        })
+                    });
+                    var modelResult = await modelResponse.json();
+                    
+                    if (modelResult.nextField === 'model' && modelResult.options) {
+                        updateDropdown('model', modelResult.options);
+                        updateHeaderDropdowns('model', modelResult.options);
+                        
+                        ['modelDropdown', 'modelDropdownHeader'].forEach(function(id) {
+                            var el = document.getElementById(id);
+                            if (el && modelModel) {
+                                var found = false;
+                                var valueClean = modelModel.replace(/_/g, ' ').trim();
+                                var valueTranslit = transliterate(valueClean);
+                                
+                                for (var i = 0; i < el.options.length; i++) {
+                                    var optionClean = el.options[i].value.replace(/_/g, ' ').trim();
+                                    var optionTranslit = transliterate(optionClean);
+                                    if (optionTranslit === valueTranslit) {
+                                        el.selectedIndex = i;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found) {
+                                    el.value = modelModel;
+                                }
+                                el.disabled = false;
+                            }
+                        });
+                    }
+
+                    if (modelModel) {
+                        var genResponse = await fetch('/Home/ProcessSelection', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                car: { brand: modelBrand, model: modelModel, generation: '', engine: '' },
+                                changedField: 'model',
+                                newValue: modelModel
+                            })
+                        });
+                        var genResult = await genResponse.json();
+                        
+                        if (genResult.nextField === 'generation' && genResult.options) {
+                            updateDropdown('generation', genResult.options);
+                            updateHeaderDropdowns('generation', genResult.options);
+                            
+                            ['generationDropdown', 'generationDropdownHeader'].forEach(function(id) {
+                                var el = document.getElementById(id);
+                                if (el && modelGeneration) {
+                                    var found = false;
+                                    var valueClean = modelGeneration.replace(/_/g, ' ').trim();
+                                    var valueTranslit = transliterate(valueClean);
+                                    
+                                    for (var i = 0; i < el.options.length; i++) {
+                                        var optionClean = el.options[i].value.replace(/_/g, ' ').trim();
+                                        var optionTranslit = transliterate(optionClean);
+                                        if (optionTranslit === valueTranslit) {
+                                            el.selectedIndex = i;
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found) {
+                                        el.value = modelGeneration;
+                                    }
+                                    el.disabled = false;
+                                }
+                            });
+                        }
+
+                        if (modelGeneration) {
+                            var engineResponse = await fetch('/Home/ProcessSelection', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    car: { brand: modelBrand, model: modelModel, generation: modelGeneration, engine: '' },
+                                    changedField: 'generation',
+                                    newValue: modelGeneration
+                                })
+                            });
+                            var engineResult = await engineResponse.json();
+                            
+                            if (engineResult.nextField === 'engine' && engineResult.options) {
+                                updateDropdown('engine', engineResult.options);
+                                updateHeaderDropdowns('engine', engineResult.options);
+                                
+                                setTimeout(function() {
+                                    if (modelEngine) {
+                                        var mainDD = document.getElementById('engineDropdown');
+                                        if (mainDD) {
+                                            var found = false;
+                                            var valueClean = modelEngine.replace(/_/g, ' ').trim();
+                                            var valueTranslit = transliterate(valueClean);
+                                            
+                                            for (var i = 0; i < mainDD.options.length; i++) {
+                                                var optionClean = mainDD.options[i].value.replace(/_/g, ' ').trim();
+                                                var optionTranslit = transliterate(optionClean);
+                                                if (optionTranslit === valueTranslit) {
+                                                    mainDD.selectedIndex = i;
+                                                    found = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (!found) {
+                                                mainDD.value = modelEngine;
+                                            }
+                                            mainDD.disabled = false;
+                                        }
+                                        
+                                        var headerDD = document.getElementById('engineDropdownHeader');
+                                        if (headerDD) {
+                                            var found = false;
+                                            var valueClean = modelEngine.replace(/_/g, ' ').trim();
+                                            var valueTranslit = transliterate(valueClean);
+                                            
+                                            for (var i = 0; i < headerDD.options.length; i++) {
+                                                var optionClean = headerDD.options[i].value.replace(/_/g, ' ').trim();
+                                                var optionTranslit = transliterate(optionClean);
+                                                if (optionTranslit === valueTranslit) {
+                                                    headerDD.selectedIndex = i;
+                                                    found = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (!found) {
+                                                headerDD.value = modelEngine;
+                                            }
+                                            headerDD.disabled = false;
+                                        }
+                                    }
+                                }, 100);
+                            }
+                        }
+                    }
+                }
+
+                showSuccessButton();
+                syncAllDropdowns();
+
             } catch (error) {
-                console.error('Ошибка:', error);
+                console.error('Ошибка загрузки данных:', error);
             }
         }
 
         async function handleChange(fieldName, newValue) {
             try {
-                const response = await fetch('/Home/ProcessSelection', {
+                var response = await fetch('/Home/ProcessSelection', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ car: currentCar, changedField: fieldName, newValue: newValue })
+                    body: JSON.stringify({ 
+                        car: currentCar, 
+                        changedField: fieldName, 
+                        newValue: newValue 
+                    })
                 });
-                const result = await response.json();
+                var result = await response.json();
                 updateCar(result.car);
                 updateUI(result);
             } catch (error) {
@@ -1771,103 +3239,38 @@
         }
 
         function updateUI(result) {
-            updateDropdownValues();
-            if (result.nextField && result.nextField !== 'complete') updateDropdown(result.nextField, result.options);
-            if (result.nextField === 'complete') showSuccessButton(); else hideSuccessButton();
-            if (result.nextField && result.nextField !== 'complete') resetDropdownsAfter(result.nextField);
-            syncDropdowns();
-        }
-
-        function updateDropdownValues() {
-            const fields = ['brand', 'model', 'generation', 'engine'];
-            fields.forEach(field => {
-                const value = currentCar[field];
-                const desktop = document.getElementById(field + 'Dropdown');
-                const mobile = document.getElementById(field + 'DropdownMobile');
-                if (desktop && value) desktop.value = value;
-                if (mobile && value) mobile.value = value;
-            });
-        }
-
-        function updateDropdown(fieldName, options) {
-            const desktopId = fieldName + 'Dropdown';
-            const mobileId = fieldName + 'DropdownMobile';
-            const currentValue = currentCar[fieldName];
-
-            [desktopId, mobileId].forEach(id => {
-                const dropdown = document.getElementById(id);
-                if (!dropdown) return;
-
-                dropdown.innerHTML = '';
-                const emptyOption = document.createElement('option');
-                emptyOption.value = '';
-                emptyOption.textContent = getPlaceholder(fieldName);
-                dropdown.appendChild(emptyOption);
-
-                if (options && options.length > 0) {
-                    options.forEach(option => {
-                        const opt = document.createElement('option');
-                        opt.value = option;
-                        opt.textContent = option;
-                        dropdown.appendChild(opt);
-                    });
-                }
-
-                if (currentValue && options && options.includes(currentValue)) {
-                    dropdown.value = currentValue;
-                } else {
-                    dropdown.value = currentCar[fieldName] || '';
-                }
-                dropdown.disabled = false;
-                dropdown.onchange = function() { handleChange(fieldName, this.value); };
-            });
-        }
-
-        function resetDropdownsAfter(fieldName) {
-            const fields = ['brand', 'model', 'generation', 'engine'];
-            const startIndex = fields.indexOf(fieldName) + 1;
-            for (let i = startIndex; i < fields.length; i++) {
-                const desktop = document.getElementById(fields[i] + 'Dropdown');
-                const mobile = document.getElementById(fields[i] + 'DropdownMobile');
-                if (desktop && !currentCar[fields[i]]) {
-                    desktop.innerHTML = `<option value="">-- ${getPlaceholder(fields[i])} --</option>`;
-                    desktop.disabled = true;
-                    desktop.onchange = null;
-                }
-                if (mobile && !currentCar[fields[i]]) {
-                    mobile.innerHTML = `<option value="">-- ${getPlaceholder(fields[i])} --</option>`;
-                    mobile.disabled = true;
-                    mobile.onchange = null;
-                }
-                currentCar[fields[i]] = '';
+            updateAllDropdownValues();
+            
+            if (result.nextField && result.nextField !== 'complete') {
+                var fieldName = result.nextField;
+                var options = result.options || [];
+                
+                updateDropdown(fieldName, options);
+                updateHeaderDropdowns(fieldName, options);
             }
-        }
-
-        function getPlaceholder(fieldName) {
-            const getCookie = (name) => {
-                const value = `; ${document.cookie}`;
-                const parts = value.split(`; ${name}=`);
-                if (parts.length === 2) return parts.pop().split(';').shift();
-                return 'ru';
-            };
-            const lang = getCookie('Language');
-
-            const placeholders = {
-                brand: { ru: 'Выберите бренд', en: 'Select brand', de: 'Marke wählen' },
-                model: { ru: 'Выберите модель', en: 'Select model', de: 'Modell wählen' },
-                generation: { ru: 'Выберите поколение', en: 'Select generation', de: 'Generation wählen' },
-                engine: { ru: 'Выберите двигатель', en: 'Select engine', de: 'Motor wählen' }
-            };
-            return placeholders[fieldName]?.[lang] || 'Выберите';
+            
+            showSuccessButton();
+            
+            if (result.nextField && result.nextField !== 'complete') {
+                resetDropdownsAfter(result.nextField);
+                resetHeaderDropdownsAfter(result.nextField);
+            }
+            
+            syncAllDropdowns();
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
             updateDropdownLabels();
             await loadInitialData();
-            if (isCarComplete()) showSuccessButton();
-            syncDropdowns();
+            showSuccessButton();
+            syncAllDropdowns();
+            
+            // ===== АВТОМАТИЧЕСКИЙ ВЫБОР БАЗОВОЙ ЦЕНЫ =====
+            setTimeout(function() {
+                autoSelectBasePrice();
+                updateTotalPrice();
+            }, 400);
         });
     </script>
-
 </body>
 </html>

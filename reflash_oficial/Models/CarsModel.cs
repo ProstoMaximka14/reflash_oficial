@@ -1,4 +1,6 @@
-﻿namespace reflash_oficial.Models
+﻿using Google.Protobuf.WellKnownTypes;
+
+namespace reflash_oficial.Models
 {
     public class ReflashCarModel
     {
@@ -11,12 +13,16 @@
         public string AboutRu { get; set; }
         
         public string ResultRu { get; set; }
-        
+            
         public string EngineControlRu { get; set; }
         
         public string PriceRu { get; set; }
 
+        
+
         public string grafic { get; set; }
+
+        public string additional_price_ru { get; set; }
 
         public List<AboutModel> Abouts { get; set; } = new List<AboutModel>();
 
@@ -27,5 +33,11 @@
         public List<PriceModel> Prices { get; set; } = new List<PriceModel>();
 
         public List<GraficModel> Grafics { get; set; } = new List<GraficModel>();
+
+        public List<AdditionalPriceModel> AdditionalPrices { get; set; } = new List<AdditionalPriceModel>();
+
+        public string old_url { get; set; }
+
+        public int SortOrder { get; set; } = 0;
     }
 }

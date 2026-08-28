@@ -1,9 +1,12 @@
 ﻿@model List<reflash_oficial.Models.ReflashCarModel>
 @{
-    ViewData["Title"] = $"{ViewBag.Brand} — все модели";
+    ViewData["Title"] = $"ReflashTeam";
     var brand = ViewBag.Brand as string ?? "";
     var language = Context.Request.Cookies["Language"] ?? "ru";
     var currentTheme = Context.Request.Cookies["Theme"] ?? "dark";
+
+    // ===== ИСПОЛЬЗУЕМ СТАТИЧЕСКИЙ МЕТОД КОНТРОЛЛЕРА ДЛЯ ТРАНСЛИТЕРАЦИИ =====
+    string Transliterate(string text) => reflash_oficial.Controllers.HomeController.TransliterateForUrl(text);
 
     string GetLocalized(string ru, string eng, string ger)
     {
@@ -15,33 +18,55 @@
         };
     }
 
+    // ===== ФУНКЦИЯ ДЛЯ ПУТЕЙ К ИЗОБРАЖЕНИЯМ =====
+    string GetCarImagePath(string imageName)
+    {
+        if (string.IsNullOrEmpty(imageName)) return "";
+        if (imageName.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+            imageName.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            return imageName;
+        if (imageName.StartsWith("/"))
+            return imageName;
+        return "/shared-fotos/cars/" + imageName;
+    }
+
+    // Функция для получения логотипа бренда (светлая тема)
+    string GetBrandLogo(string brandName)
+    {
+        return brandName?.ToLower() switch
+        {
+            "honda" => "/shared-fotos/logo/honda_logo_black.png",
+            "acura" => "/shared-fotos/logo/acura_logo_black.png",
+            _ => "/images/default-logo.png"
+        };
+    }
+
+    // Функция для получения логотипа бренда (тёмная тема)
+    string GetBrandLogoDark(string brandName)
+    {
+        return brandName?.ToLower() switch
+        {
+            "honda" => "/shared-fotos/logo/honda_logo_white.png",
+            "acura" => "/shared-fotos/logo/acura_logo_black_negate.png",
+            _ => "/images/default-logo-dark.png"
+        };
+    }
+
+    // ===== ФУНКЦИЯ ДЛЯ ПАРСИНГА ПОКОЛЕНИЙ (ЧИСЛОВАЯ СОРТИРОВКА) =====
+    int ParseGeneration(string generation)
+    {
+        if (string.IsNullOrEmpty(generation)) return 0;
+        if (int.TryParse(generation, out int num)) return num;
+        var match = System.Text.RegularExpressions.Regex.Match(generation, @"\d+");
+        if (match.Success && int.TryParse(match.Value, out int extracted)) return extracted;
+        return 0;
+    }
+
     // Группируем по модели
     var groupedByModel = Model
         .GroupBy(c => c.Model)
         .OrderBy(g => g.Key)
         .ToList();
-
-    // Функция для получения логотипа бренда (как на главной странице)
-    string GetBrandLogo(string brandName)
-    {
-        return brandName?.ToLower() switch
-        {
-            "honda" => "https://logo-teka.com/wp-content/uploads/2025/06/honda-auto-logo.png",
-            "acura" => "https://thumbs.dreamstime.com/b/acura-124812338.jpg",
-            _ => "/images/default-logo.png"
-        };
-    }
-
-    // Функция для получения тёмного логотипа (как на главной странице)
-    string GetBrandLogoDark(string brandName)
-    {
-        return brandName?.ToLower() switch
-        {
-            "honda" => "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRdXFkhytgizlD868Ugijx1gETANFjG37KWA&s",
-            "acura" => "https://thumbs.dreamstime.com/b/acura-124812338.jpg",
-            _ => "/images/default-logo-dark.png"
-        };
-    }
 }
 
 <!DOCTYPE html>
@@ -155,7 +180,7 @@
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px 24px 60px;
+            padding: 0px 24px 60px;
         }
 
         .page-header {
@@ -191,13 +216,13 @@
             gap: 12px;
         }
 
-        /* ===== ЛОГОТИП БРЕНДА (КАК НА ГЛАВНОЙ) ===== */
         .brand-logo {
             display: inline-block;
             position: relative;
-            width: 44px;
-            height: 44px;
+            width: 180px;
+            height: 180px;
             flex-shrink: 0;
+            margin: 0 auto;
         }
 
         .brand-logo img {
@@ -209,7 +234,6 @@
             object-fit: contain;
         }
 
-        /* Светлая тема — показываем светлый логотип */
         .brand-logo .logo-light {
             display: block !important;
         }
@@ -217,7 +241,6 @@
             display: none !important;
         }
 
-        /* Тёмная тема — показываем тёмный логотип */
         [data-theme="dark"] .brand-logo .logo-light {
             display: none !important;
         }
@@ -231,9 +254,6 @@
             margin-top: 8px;
         }
 
-        /* ==========================================
-           АККОРДЕОН
-           ========================================== */
         .model-section {
             margin-bottom: 12px;
             border-radius: 16px;
@@ -248,7 +268,6 @@
             box-shadow: 0 8px 30px var(--shadow-hover);
         }
 
-        /* ===== ЗАГОЛОВОК МОДЕЛИ (КЛИКАБЕЛЬНЫЙ) ===== */
         .model-header {
             display: flex;
             align-items: center;
@@ -310,7 +329,6 @@
             transform: rotate(180deg);
         }
 
-        /* ===== КОНТЕНТ МОДЕЛИ (СКРЫВАЕТСЯ/ПОКАЗЫВАЕТСЯ) ===== */
         .model-content {
             max-height: 0;
             overflow: hidden;
@@ -326,7 +344,6 @@
             padding: 20px 24px;
         }
 
-        /* ===== ПОДЗАГОЛОВОК ПОКОЛЕНИЯ ===== */
         .generation-subheader {
             display: flex;
             align-items: center;
@@ -364,9 +381,6 @@
             padding-top: 4px;
         }
 
-        /* ==========================================
-           КАРТОЧКА АВТОМОБИЛЯ
-           ========================================== */
         .car-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -456,9 +470,6 @@
             text-align: center;
         }
 
-        /* ==========================================
-           АДАПТИВНОСТЬ
-           ========================================== */
         @@media (max-width: 768px) {
             .language-switcher {
                 top: 16px;
@@ -473,7 +484,7 @@
             }
 
             .container {
-                padding: 10px 12px 40px;
+                padding: 0px 12px 40px;
             }
 
             .page-title {
@@ -481,8 +492,8 @@
             }
 
             .brand-logo {
-                width: 34px;
-                height: 34px;
+                width: 100px;
+                height: 100px;
             }
 
             .model-header {
@@ -504,7 +515,7 @@
             }
 
             .car-card .car-image-container {
-                height: 120px;
+                height: 200px;
             }
 
             .generation-subheader {
@@ -536,11 +547,6 @@
                 font-size: 22px;
             }
 
-            .brand-logo {
-                width: 28px;
-                height: 28px;
-            }
-
             .model-header {
                 padding: 12px 14px;
             }
@@ -564,7 +570,7 @@
             }
 
             .car-card .car-image-container {
-                height: 100px;
+                height: 180px;
             }
 
             .car-card .car-model-name {
@@ -585,7 +591,9 @@
 
     <div class="container">
         <div class="page-header">
-           
+            <a href="/" class="back-link">
+                <i class="fas fa-arrow-left"></i> @GetLocalized("На главную", "Back to home", "Zurück zur Startseite")
+            </a>
             <h1 class="page-title">
                 <span class="brand-logo">
                     <img src="@GetBrandLogo(brand)" 
@@ -595,7 +603,7 @@
                          alt="@brand" 
                          class="logo-dark" />
                 </span>
-                @brand
+                
             </h1>
             
         </div>
@@ -611,9 +619,10 @@
         {
             @foreach (var modelGroup in groupedByModel)
             {
+                // ===== ИСПРАВЛЕНИЕ: СОРТИРУЕМ ПОКОЛЕНИЯ КАК ЧИСЛА =====
                 var generationGroups = modelGroup
                     .GroupBy(c => c.Generation)
-                    .OrderBy(g => g.Key)
+                    .OrderBy(g => ParseGeneration(g.Key))  // ← Числовая сортировка
                     .ToList();
 
                 <div class="model-section">
@@ -621,7 +630,9 @@
                         <span class="model-name">
                             <i class="fas fa-chevron-right"></i> @modelGroup.Key
                         </span>
-                       
+                        <span class="model-count">
+                            <i class="fas fa-car"></i> @modelGroup.Count()
+                        </span>
                     </div>
 
                     <div class="model-content">
@@ -630,17 +641,23 @@
                             <div class="generation-subheader">
                                 <span class="gen-icon"><i class="fas fa-calendar-alt"></i></span>
                                 <span class="gen-name">@GetLocalized("Поколение", "Generation", "Generation") @genGroup.Key</span>
-                                
+                                <span class="gen-count">@genGroup.Count() @GetLocalized("модификаций", "modifications", "Modifikationen")</span>
                             </div>
 
                             <div class="model-cars-grid">
-                                @foreach (var car in genGroup.OrderBy(c => c.Engine))
+                                @foreach (var car in genGroup.OrderBy(c => c.SortOrder))
                                 {
-                                    <a href="@Url.Action("Car", "Home", new { brand = car.Brand, model = car.Model, generation = car.Generation, engine = car.Engine })" class="car-card">
+                                    <a href="@Url.Action("Car", "Home", new { 
+                                        brand = Transliterate(car.Brand), 
+                                        model = Transliterate(car.Model), 
+                                        generation = Transliterate(car.Generation), 
+                                        engine = Transliterate(car.Engine) 
+                                    })" class="car-card">
                                         <div class="car-image-container">
                                             @if (!string.IsNullOrEmpty(car.Image))
                                             {
-                                                <img src="@car.Image" alt="@car.Brand @car.Model" class="car-image" loading="lazy" />
+                                                <img src="@GetCarImagePath(car.Image)" alt="@car.Brand @car.Model" class="car-image" loading="lazy" 
+                                                     onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-car\'></i></div>'" />
                                             }
                                             else
                                             {
@@ -695,6 +712,21 @@
             headerElement.classList.toggle('active');
             content.classList.toggle('open');
         }
+
+        // ==========================================
+        // АВТОМАТИЧЕСКОЕ РАСКРЫТИЕ ПЕРВОЙ МОДЕЛИ
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstSection = document.querySelector('.model-section');
+            if (firstSection) {
+                const header = firstSection.querySelector('.model-header');
+                const content = firstSection.querySelector('.model-content');
+                if (header && content) {
+                    header.classList.add('active');
+                    content.classList.add('open');
+                }
+            }
+        });
     </script>
 
 </body>
