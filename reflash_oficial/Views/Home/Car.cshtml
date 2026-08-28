@@ -884,23 +884,40 @@
             pointer-events: none;
         }
 
-        /* ===== УЗКИЙ СТОЛБИК ДЛЯ ИНФО ===== */
+        /* ===== СТОЛБИК ДЛЯ ИНФО (ТОЛЬКО МОБИЛЬНАЯ ВЕРСИЯ) ===== */
+        /* На ПК столбик сжат до нуля, но ячейка остаётся в таблице —
+           иначе colspan/скрытые td ломают выравнивание колонок */
         .price-table .info-col {
-            width: 1px;
+            width: 0;
+            max-width: 0;
+            min-width: 0;
             white-space: nowrap;
             padding: 0 !important;
+            border: none;
+            overflow: hidden;
             text-align: center;
             vertical-align: middle;
         }
 
+        .price-table .info-col .info-btn {
+            display: none;
+        }
+
         .price-table .name-col {
-            padding-right: 0 !important;
+            padding-right: 8px !important;
         }
 
         .price-table .name-col .price-name-cell {
             display: flex;
             align-items: center;
             gap: 0px;
+        }
+
+        /* Иконка информации внутри ячейки названия (ПК) */
+        .price-table .info-btn-inline {
+            display: inline-flex;
+            margin-left: 6px;
+            flex-shrink: 0;
         }
 
         .price-table .info-col .info-btn {
@@ -1415,6 +1432,26 @@
             .price-name-cell .info-btn i {
                 font-size: 12px;
             }
+
+            /* На телефоне иконка информации остаётся в отдельном столбике */
+            .price-table .info-col {
+                width: 7%;
+                max-width: none;
+                min-width: 16px;
+                overflow: visible;
+            }
+
+            .price-table .info-col .info-btn {
+                display: inline-flex;
+            }
+
+            .price-table .info-btn-inline {
+                display: none !important;
+            }
+
+            .price-table .name-col {
+                padding-right: 2px !important;
+            }
         }
 
         @@media (max-width: 480px) {
@@ -1512,45 +1549,57 @@
             
             #optionsTable thead th,
             #optionsTable tbody td {
-                padding: 6px 4px;
+                padding: 6px 3px;
                 font-size: 9px;
             }
-            
+
+            /* Заголовки переносятся ТОЛЬКО по словам, слова не разрываются */
             #optionsTable thead th {
                 white-space: normal !important;
-                word-break: break-word !important;
-                line-height: 1.2;
+                word-break: normal !important;
+                overflow-wrap: break-word !important;
+                hyphens: none !important;
+                line-height: 1.25;
+                letter-spacing: 0.2px;
                 vertical-align: middle;
                 text-align: center;
             }
 
+            /* 1 — название, 2 — иконка инфо, 3 — цена без тюнинга,
+               4 — доплата при тюнинге, 5 — выбрать */
             #optionsTable thead th:first-child,
             #optionsTable tbody td:first-child {
-                width: 40% !important;
-                min-width: 80px;
-                word-break: break-word;
-                padding-right: 4px;
+                width: 34% !important;
+                text-align: left;
+                word-break: normal;
+                overflow-wrap: break-word;
+                padding-right: 2px;
                 font-size: 10px;
                 font-weight: 600;
             }
-            
+
             #optionsTable thead th:nth-child(2),
             #optionsTable tbody td:nth-child(2) {
-                width: 25% !important;
-                font-size: 8px;
-                white-space: nowrap;
+                width: 7% !important;
+                min-width: 16px;
             }
-            
+
             #optionsTable thead th:nth-child(3),
-            #optionsTable tbody td:nth-child(3) {
-                width: 20% !important;
-                font-size: 8px;
+            #optionsTable tbody td:nth-child(3),
+            #optionsTable thead th:nth-child(4),
+            #optionsTable tbody td:nth-child(4) {
+                width: 22% !important;
+            }
+
+            #optionsTable tbody td:nth-child(3),
+            #optionsTable tbody td:nth-child(4) {
+                font-size: 9px;
                 white-space: nowrap;
             }
-            
+
             #optionsTable thead th:last-child,
             #optionsTable tbody td:last-child {
-                width: 10% !important;
+                width: 15% !important;
                 min-width: 30px;
                 padding: 4px 2px;
             }
@@ -1571,28 +1620,47 @@
         }
 
         @@media (max-width: 480px) {
+            #optionsTable thead th,
+            #optionsTable tbody td {
+                padding: 5px 2px;
+                font-size: 8px;
+            }
+
+            #optionsTable thead th {
+                font-size: 8px;
+                letter-spacing: 0.1px;
+                line-height: 1.2;
+            }
+
             #optionsTable thead th:first-child,
             #optionsTable tbody td:first-child {
-                width: 35% !important;
-                min-width: 60px;
+                width: 33% !important;
                 font-size: 9px;
             }
-            
+
             #optionsTable thead th:nth-child(2),
-            #optionsTable tbody td:nth-child(2),
-            #optionsTable thead th:nth-child(3),
-            #optionsTable tbody td:nth-child(3) {
-                font-size: 7px;
-                padding: 4px 2px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
+            #optionsTable tbody td:nth-child(2) {
+                width: 8% !important;
+                min-width: 14px;
             }
-            
+
+            #optionsTable thead th:nth-child(3),
+            #optionsTable tbody td:nth-child(3),
+            #optionsTable thead th:nth-child(4),
+            #optionsTable tbody td:nth-child(4) {
+                width: 22% !important;
+            }
+
+            #optionsTable tbody td:nth-child(3),
+            #optionsTable tbody td:nth-child(4) {
+                font-size: 8px;
+                white-space: nowrap;
+            }
+
             #optionsTable thead th:last-child,
             #optionsTable tbody td:last-child {
-                width: 12% !important;
-                min-width: 24px;
+                width: 15% !important;
+                min-width: 26px;
             }
         }
     </style>
@@ -1937,27 +2005,25 @@
                                     bool isChecked = !isZeroPrice && firstNonZero != null && item.id == firstNonZero.id;
                                     
                                     <tr>
-                                        @if (hasInfo)
-                                        {
-                                            <td class="name-col">
-                                                <div class="price-name-cell">
-                                                    <span>@name</span>
-                                                </div>
-                                            </td>
-                                            <td class="info-col">
+                                        <td class="name-col">
+                                            <div class="price-name-cell">
+                                                <span>@name</span>
+                                                @if (hasInfo)
+                                                {
+                                                    <button class="info-btn info-btn-inline" onclick="openInfoModal('@name', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td class="info-col">
+                                            @if (hasInfo)
+                                            {
                                                 <button class="info-btn" onclick="openInfoModal('@name', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
                                                     <i class="fas fa-info-circle"></i>
                                                 </button>
-                                            </td>
-                                        }
-                                        else
-                                        {
-                                            <td class="name-col" colspan="2">
-                                                <div class="price-name-cell">
-                                                    <span>@name</span>
-                                                </div>
-                                            </td>
-                                        }
+                                            }
+                                        </td>
                                         <td style="text-align: center; font-weight: 700; color: var(--accent-color);">
                                             @if (!string.IsNullOrEmpty(price))
                                             {
@@ -2005,8 +2071,8 @@
                                     <th class="name-col" style="width: 40%;">@GetLocalized("Название опции", "Option Name", "Optionsbezeichnung")</th>
                                     <th class="info-col"></th>
                                     <th style="width: 25%;">@GetLocalized("Цена без тюнинга", "Price without tuning", "Preis ohne Änderungen")</th>
-                                    <th style="width: 18%;">@GetLocalized("Доплата при тюнинге", "Tuning Surcharge", "Tuning-Aufpreis")</th>
-                                    <th style="width: 4%;">@GetLocalized("Выбрать", "Select", "Wählen")</th>
+                                    <th style="width: 25%;">@GetLocalized("Доплата при тюнинге", "Tuning Surcharge", "Tuning-Aufpreis")</th>
+                                    <th style="width: 10%;">@GetLocalized("Выбрать", "Select", "Wählen")</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2046,27 +2112,25 @@
                                     bool isProIncompatible = proPrice != null && proPrice.Trim() == "-";
                                     
                                     <tr id="option-row-@priceItem.id" class="@(isBaseIncompatible || isProIncompatible ? "incompatible-row" : "")">
-                                        @if (hasInfo)
-                                        {
-                                            <td class="name-col">
-                                                <div class="price-name-cell">
-                                                    <span>@priceItem.GetName(language)</span>
-                                                </div>
-                                            </td>
-                                            <td class="info-col">
+                                        <td class="name-col">
+                                            <div class="price-name-cell">
+                                                <span>@priceItem.GetName(language)</span>
+                                                @if (hasInfo)
+                                                {
+                                                    <button class="info-btn info-btn-inline" onclick="openInfoModal('@priceItem.GetName(language)', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td class="info-col">
+                                            @if (hasInfo)
+                                            {
                                                 <button class="info-btn" onclick="openInfoModal('@priceItem.GetName(language)', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
                                                     <i class="fas fa-info-circle"></i>
                                                 </button>
-                                            </td>
-                                        }
-                                        else
-                                        {
-                                            <td class="name-col" colspan="2">
-                                                <div class="price-name-cell">
-                                                    <span>@priceItem.GetName(language)</span>
-                                                </div>
-                                            </td>
-                                        }
+                                            }
+                                        </td>
                                         <td style="text-align: center;" class="@(isBaseIncompatible ? "price-cell-incompatible" : "")">
                                             @if (!string.IsNullOrEmpty(basePrice))
                                             {
