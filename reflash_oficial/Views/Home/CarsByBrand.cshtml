@@ -5,7 +5,6 @@
     var language = Context.Request.Cookies["Language"] ?? "ru";
     var currentTheme = Context.Request.Cookies["Theme"] ?? "dark";
 
-    // ===== ИСПОЛЬЗУЕМ СТАТИЧЕСКИЙ МЕТОД КОНТРОЛЛЕРА ДЛЯ ТРАНСЛИТЕРАЦИИ =====
     string Transliterate(string text) => reflash_oficial.Controllers.HomeController.TransliterateForUrl(text);
 
     string GetLocalized(string ru, string eng, string ger)
@@ -18,11 +17,10 @@
         };
     }
 
-    // ===== ФУНКЦИЯ ДЛЯ ПУТЕЙ К ИЗОБРАЖЕНИЯМ =====
     string GetCarImagePath(string imageName)
     {
         if (string.IsNullOrEmpty(imageName)) return "";
-        if (imageName.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+        if (imageName.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
             imageName.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             return imageName;
         if (imageName.StartsWith("/"))
@@ -30,7 +28,6 @@
         return "/shared-fotos/cars/" + imageName;
     }
 
-    // Функция для получения логотипа бренда (светлая тема)
     string GetBrandLogo(string brandName)
     {
         return brandName?.ToLower() switch
@@ -41,7 +38,6 @@
         };
     }
 
-    // Функция для получения логотипа бренда (тёмная тема)
     string GetBrandLogoDark(string brandName)
     {
         return brandName?.ToLower() switch
@@ -52,17 +48,6 @@
         };
     }
 
-    // ===== ФУНКЦИЯ ДЛЯ ПАРСИНГА ПОКОЛЕНИЙ (ЧИСЛОВАЯ СОРТИРОВКА) =====
-    int ParseGeneration(string generation)
-    {
-        if (string.IsNullOrEmpty(generation)) return 0;
-        if (int.TryParse(generation, out int num)) return num;
-        var match = System.Text.RegularExpressions.Regex.Match(generation, @"\d+");
-        if (match.Success && int.TryParse(match.Value, out int extracted)) return extracted;
-        return 0;
-    }
-
-    // Группируем по модели
     var groupedByModel = Model
         .GroupBy(c => c.Model)
         .OrderBy(g => g.Key)
@@ -78,9 +63,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ==========================================
-           CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ
-           ========================================== */
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f5f5f5;
@@ -118,9 +100,6 @@
             --logo-color-end: #FFD4C4;
         }
 
-        /* ==========================================
-           ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА
-           ========================================== */
         .language-switcher {
             position: fixed;
             top: 24px;
@@ -161,9 +140,6 @@
             box-shadow: 0 0 8px rgba(255,58,47,0.5);
         }
 
-        /* ==========================================
-           ОСНОВНЫЕ СТИЛИ
-           ========================================== */
         * {
             margin: 0;
             padding: 0;
@@ -344,15 +320,32 @@
             padding: 20px 24px;
         }
 
+        /* ===== ПОКОЛЕНИЯ ===== */
+        .generation-section {
+            margin-bottom: 8px;
+        }
+
         .generation-subheader {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 10px 16px;
-            margin: 12px 0 12px 10px;
+            margin: 8px 0 0 0;
             background: var(--bg-secondary);
             border-radius: 12px;
             border-left: 3px solid var(--accent-color);
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .generation-subheader:hover {
+            background: var(--bg-input);
+        }
+
+        .generation-subheader.active {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
         }
 
         .generation-subheader .gen-icon {
@@ -369,15 +362,43 @@
         .generation-subheader .gen-count {
             font-size: 13px;
             color: var(--text-muted);
-            margin-left: auto;
             white-space: nowrap;
+        }
+
+        .generation-subheader .toggle-icon {
+            margin-left: auto;
+            color: var(--text-muted);
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .generation-subheader.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .generation-content {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.35s ease, opacity 0.25s ease, padding 0.25s ease;
+            padding: 0 0 0 10px;
+            background: var(--bg-card);
+            border-left: 3px solid var(--border-color);
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .generation-content.open {
+            max-height: 5000px;
+            opacity: 1;
+            padding: 12px 0 12px 10px;
         }
 
         .model-cars-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 16px;
-            padding-left: 20px;
+            padding-left: 10px;
             padding-top: 4px;
         }
 
@@ -526,7 +547,6 @@
 
             .generation-subheader .gen-count {
                 margin-left: 0;
-                width: 100%;
             }
         }
 
@@ -596,16 +616,14 @@
             </a>
             <h1 class="page-title">
                 <span class="brand-logo">
-                    <img src="@GetBrandLogo(brand)" 
-                         alt="@brand" 
+                    <img src="@GetBrandLogo(brand)"
+                         alt="@brand"
                          class="logo-light" />
-                    <img src="@GetBrandLogoDark(brand)" 
-                         alt="@brand" 
+                    <img src="@GetBrandLogoDark(brand)"
+                         alt="@brand"
                          class="logo-dark" />
                 </span>
-                
             </h1>
-            
         </div>
 
         @if (TempData["Error"] != null)
@@ -619,10 +637,10 @@
         {
             @foreach (var modelGroup in groupedByModel)
             {
-                // ===== ИСПРАВЛЕНИЕ: СОРТИРУЕМ ПОКОЛЕНИЯ КАК ЧИСЛА =====
                 var generationGroups = modelGroup
                     .GroupBy(c => c.Generation)
-                    .OrderBy(g => ParseGeneration(g.Key))  // ← Числовая сортировка
+                    .OrderBy(g => g.Min(c => c.SortOrder2))
+                    .ThenBy(g => g.Key)
                     .ToList();
 
                 <div class="model-section">
@@ -633,47 +651,57 @@
                         <span class="model-count">
                             <i class="fas fa-car"></i> @modelGroup.Count()
                         </span>
+                        <span class="toggle-icon">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
                     </div>
 
                     <div class="model-content">
                         @foreach (var genGroup in generationGroups)
                         {
-                            <div class="generation-subheader">
-                                <span class="gen-icon"><i class="fas fa-calendar-alt"></i></span>
-                                <span class="gen-name">@GetLocalized("Поколение", "Generation", "Generation") @genGroup.Key</span>
-                                <span class="gen-count">@genGroup.Count() @GetLocalized("модификаций", "modifications", "Modifikationen")</span>
-                            </div>
+                            var isSingleGen = generationGroups.Count == 1;
 
-                            <div class="model-cars-grid">
-                                @foreach (var car in genGroup.OrderBy(c => c.SortOrder))
-                                {
-                                    <a href="@Url.Action("Car", "Home", new { 
-                                        brand = Transliterate(car.Brand), 
-                                        model = Transliterate(car.Model), 
-                                        generation = Transliterate(car.Generation), 
-                                        engine = Transliterate(car.Engine) 
-                                    })" class="car-card">
-                                        <div class="car-image-container">
-                                            @if (!string.IsNullOrEmpty(car.Image))
-                                            {
-                                                <img src="@GetCarImagePath(car.Image)" alt="@car.Brand @car.Model" class="car-image" loading="lazy" 
-                                                     onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-car\'></i></div>'" />
-                                            }
-                                            else
-                                            {
-                                                <div class="no-image">
-                                                    <i class="fas fa-car"></i>
+                            <div class="generation-section">
+                                <div class="generation-subheader @(isSingleGen ? "active" : "")"
+                                     onclick="toggleGeneration(this)">
+                                    <span class="gen-icon"><i class="fas fa-calendar-alt"></i></span>
+                                    <span class="gen-name">@GetLocalized("Поколение", "Generation", "Generation") @genGroup.Key</span>
+                                    <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+                                </div>
+
+                                <div class="generation-content @(isSingleGen ? "open" : "")">
+                                    <div class="model-cars-grid">
+                                        @foreach (var car in genGroup.OrderBy(c => c.SortOrder))
+                                        {
+                                            <a href="@Url.Action("Car", "Home", new {
+                                                brand = Transliterate(car.Brand),
+                                                model = Transliterate(car.Model),
+                                                generation = Transliterate(car.Generation),
+                                                engine = Transliterate(car.Engine)
+                                            })" class="car-card">
+                                                <div class="car-image-container">
+                                                    @if (!string.IsNullOrEmpty(car.Image))
+                                                    {
+                                                        <img src="@GetCarImagePath(car.Image)" alt="@car.Brand @car.Model" class="car-image" loading="lazy"
+                                                             onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-car\'></i></div>'" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="no-image">
+                                                            <i class="fas fa-car"></i>
+                                                        </div>
+                                                    }
                                                 </div>
-                                            }
-                                        </div>
-                                        <div class="car-info">
-                                            <div class="car-model-name">@car.Model</div>
-                                            <div class="car-details">
-                                                @car.Generation · @car.Engine
-                                            </div>
-                                        </div>
-                                    </a>
-                                }
+                                                <div class="car-info">
+                                                    <div class="car-model-name">@car.Model</div>
+                                                    <div class="car-details">
+                                                        @car.Generation · @car.Engine
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
                             </div>
                         }
                     </div>
@@ -691,17 +719,11 @@
     </div>
 
     <script>
-        // ==========================================
-        // ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА
-        // ==========================================
         function switchLanguage(lang) {
             document.cookie = "Language=" + lang + "; path=/; max-age=" + (365 * 24 * 60 * 60);
             location.reload();
         }
 
-        // ==========================================
-        // АККОРДЕОН - РАСКРЫТИЕ/СКРЫТИЕ МОДЕЛИ
-        // ==========================================
         function toggleModel(headerElement) {
             const section = headerElement.closest('.model-section');
             if (!section) return;
@@ -713,19 +735,20 @@
             content.classList.toggle('open');
         }
 
-        // ==========================================
-        // АВТОМАТИЧЕСКОЕ РАСКРЫТИЕ ПЕРВОЙ МОДЕЛИ
-        // ==========================================
-        document.addEventListener('DOMContentLoaded', function() {
-            const firstSection = document.querySelector('.model-section');
-            if (firstSection) {
-                const header = firstSection.querySelector('.model-header');
-                const content = firstSection.querySelector('.model-content');
-                if (header && content) {
-                    header.classList.add('active');
-                    content.classList.add('open');
-                }
-            }
+        function toggleGeneration(headerElement) {
+            const section = headerElement.closest('.generation-section');
+            if (!section) return;
+
+            const content = section.querySelector('.generation-content');
+            if (!content) return;
+
+            headerElement.classList.toggle('active');
+            content.classList.toggle('open');
+        }
+
+        // При загрузке все модели закрыты
+        document.addEventListener('DOMContentLoaded', function () {
+            // ничего не открываем
         });
     </script>
 

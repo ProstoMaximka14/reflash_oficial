@@ -857,6 +857,113 @@
             color: var(--text-muted);
         }
 
+
+        /* ===== ПК / МОБИЛКА: название + инфо ===== */
+        .price-name-desktop { display: block; }
+
+        .price-name-mobile,
+        .price-name-mobile-wrap {
+            display: none !important;
+        }
+
+        .name-info-table {
+            width: max-content !important;
+            max-width: 100%;
+            border-collapse: collapse;
+            border: none;
+            margin: 0;
+            padding: 0;
+            table-layout: auto !important;
+            vertical-align: middle;
+        }
+
+        .name-info-table td {
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            vertical-align: middle;
+            background: transparent !important;
+        }
+
+        .name-info-table .name-cell {
+            width: auto !important;
+            white-space: normal;
+            text-align: left;
+            font-weight: 500;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .name-info-table .info-cell {
+            width: 1% !important;
+            white-space: nowrap !important;
+            padding: 0 0 0 4px !important;
+            text-align: left !important;
+            vertical-align: middle;
+            line-height: 1;
+        }
+
+        .name-info-table .info-btn {
+            display: inline-flex !important;
+            align-items: center;
+            background: none !important;
+            border: none !important;
+            color: var(--accent-color) !important;
+            cursor: pointer;
+            font-size: 14px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            line-height: 1 !important;
+            opacity: 0.85;
+            vertical-align: middle;
+        }
+
+        .name-info-table .info-btn:hover {
+            opacity: 1;
+            color: var(--accent-hover) !important;
+        }
+
+        .name-info-table .info-btn i {
+            font-size: 14px !important;
+            pointer-events: none;
+            vertical-align: middle;
+        }
+
+        @@media (max-width: 768px) {
+            .price-name-desktop { display: none !important; }
+
+            .price-name-mobile-wrap {
+                display: inline-block !important;
+                width: fit-content !important;
+                max-width: 100% !important;
+                vertical-align: middle;
+            }
+
+            .price-name-mobile-wrap .name-info-table {
+                display: table !important;
+                width: max-content !important;
+                max-width: 100% !important;
+            }
+
+            span.price-name-mobile {
+                display: inline !important;
+            }
+
+            .price-table .info-col {
+                display: none !important;
+                width: 0 !important;
+                max-width: 0 !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                overflow: hidden !important;
+            }
+
+            .price-table .info-col .info-btn {
+                display: none !important;
+            }
+        }
+
         /* ===== СТИЛИ ДЛЯ КНОПКИ ИНФОРМАЦИИ ===== */
         .info-btn {
             background: none;
@@ -1555,15 +1662,16 @@
 
             /* Заголовки переносятся ТОЛЬКО по словам, слова не разрываются */
             #optionsTable thead th {
-                white-space: normal !important;
-                word-break: normal !important;
-                overflow-wrap: break-word !important;
-                hyphens: none !important;
-                line-height: 1.25;
-                letter-spacing: 0.2px;
-                vertical-align: middle;
-                text-align: center;
-            }
+        white-space: normal !important;
+        word-break: keep-all !important;      /* НЕ РАЗРЫВАЕТ СЛОВА */
+        overflow-wrap: break-word !important; /* ПЕРЕНОСИТ ТОЛЬКО ПО СЛОВАМ */
+        hyphens: none !important;             /* ОТКЛЮЧАЕМ ПЕРЕНОСЫ ПО СЛОГАМ */
+        line-height: 1.3;
+        letter-spacing: 0.2px;
+        vertical-align: middle;
+        text-align: center;
+        word-wrap: break-word !important;
+    }
 
             /* 1 — название, 2 — иконка инфо, 3 — цена без тюнинга,
                4 — доплата при тюнинге, 5 — выбрать */
@@ -1972,7 +2080,7 @@
                             <thead>
                                 <tr>
                                     <th class="name-col">@GetLocalized("Название", "Name", "Name")</th>
-                                    <th class="info-col"></th>
+                                 
                                     <th>@GetLocalized("Цена", "Price", "Preis")</th>
                                     <th style="text-align: center; width: 80px;">@GetLocalized("Выбрать", "Select", "Wählen")</th>
                                 </tr>
@@ -2005,23 +2113,34 @@
                                     bool isChecked = !isZeroPrice && firstNonZero != null && item.id == firstNonZero.id;
                                     
                                     <tr>
-                                        <td class="name-col">
-                                            <div class="price-name-cell">
-                                                <span>@name</span>
-                                                @if (hasInfo)
-                                                {
-                                                    <button class="info-btn info-btn-inline" onclick="openInfoModal('@name', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
-                                                        <i class="fas fa-info-circle"></i>
-                                                    </button>
-                                                }
+                                                                                <td class="name-col">
+                                            <div class="price-name-desktop">
+                                                <div class="price-name-cell">
+                                                    <span>@name</span>
+                                                    @if (hasInfo)
+                                                    {
+                                                        <button class="info-btn info-btn-inline" onclick="openInfoModal('@name', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
+                                                            <i class="fas fa-info-circle"></i>
+                                                        </button>
+                                                    }
+                                                </div>
                                             </div>
-                                        </td>
-                                        <td class="info-col">
                                             @if (hasInfo)
                                             {
-                                                <button class="info-btn" onclick="openInfoModal('@name', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
-                                                    <i class="fas fa-info-circle"></i>
-                                                </button>
+                                                <span class="price-name-mobile-wrap"><table class="name-info-table" style="width:max-content;max-width:100%;border-collapse:collapse;border:none;margin:0;padding:0;table-layout:auto;vertical-align:middle;">
+                                                    <tr>
+                                                        <td class="name-cell" style="border:none;padding:0;margin:0;width:auto;vertical-align:middle;">@name</td>
+                                                        <td class="info-cell" style="border:none;padding:0 0 0 4px;margin:0;width:1%;white-space:nowrap;vertical-align:middle;text-align:left;">
+                                                            <button type="button" class="info-btn" onclick="openInfoModal('@name', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
+                                                                <i class="fas fa-info-circle"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </table></span>
+                                            }
+                                            else
+                                            {
+                                                <span class="price-name-mobile">@name</span>
                                             }
                                         </td>
                                         <td style="text-align: center; font-weight: 700; color: var(--accent-color);">
@@ -2069,7 +2188,7 @@
                             <thead>
                                 <tr>
                                     <th class="name-col" style="width: 40%;">@GetLocalized("Название опции", "Option Name", "Optionsbezeichnung")</th>
-                                    <th class="info-col"></th>
+                                    
                                     <th style="width: 25%;">@GetLocalized("Цена без тюнинга", "Price without tuning", "Preis ohne Änderungen")</th>
                                     <th style="width: 25%;">@GetLocalized("Доплата при тюнинге", "Tuning Surcharge", "Tuning-Aufpreis")</th>
                                     <th style="width: 10%;">@GetLocalized("Выбрать", "Select", "Wählen")</th>
@@ -2112,23 +2231,34 @@
                                     bool isProIncompatible = proPrice != null && proPrice.Trim() == "-";
                                     
                                     <tr id="option-row-@priceItem.id" class="@(isBaseIncompatible || isProIncompatible ? "incompatible-row" : "")">
-                                        <td class="name-col">
-                                            <div class="price-name-cell">
-                                                <span>@priceItem.GetName(language)</span>
-                                                @if (hasInfo)
-                                                {
-                                                    <button class="info-btn info-btn-inline" onclick="openInfoModal('@priceItem.GetName(language)', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
-                                                        <i class="fas fa-info-circle"></i>
-                                                    </button>
-                                                }
+                                                                                <td class="name-col">
+                                            <div class="price-name-desktop">
+                                                <div class="price-name-cell">
+                                                    <span>@priceItem.GetName(language)</span>
+                                                    @if (hasInfo)
+                                                    {
+                                                        <button class="info-btn info-btn-inline" onclick="openInfoModal('@priceItem.GetName(language)', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
+                                                            <i class="fas fa-info-circle"></i>
+                                                        </button>
+                                                    }
+                                                </div>
                                             </div>
-                                        </td>
-                                        <td class="info-col">
                                             @if (hasInfo)
                                             {
-                                                <button class="info-btn" onclick="openInfoModal('@priceItem.GetName(language)', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
-                                                    <i class="fas fa-info-circle"></i>
-                                                </button>
+                                                <span class="price-name-mobile-wrap"><table class="name-info-table" style="width:max-content;max-width:100%;border-collapse:collapse;border:none;margin:0;padding:0;table-layout:auto;vertical-align:middle;">
+                                                    <tr>
+                                                        <td class="name-cell" style="border:none;padding:0;margin:0;width:auto;vertical-align:middle;">@priceItem.GetName(language)</td>
+                                                        <td class="info-cell" style="border:none;padding:0 0 0 4px;margin:0;width:1%;white-space:nowrap;vertical-align:middle;text-align:left;">
+                                                            <button type="button" class="info-btn" onclick="openInfoModal('@priceItem.GetName(language)', '@Html.Raw(info.Replace("'", "\\'").Replace("\n", "\\n"))')" title="@GetLocalized("Подробнее", "More info", "Mehr Info")">
+                                                                <i class="fas fa-info-circle"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </table></span>
+                                            }
+                                            else
+                                            {
+                                                <span class="price-name-mobile">@priceItem.GetName(language)</span>
                                             }
                                         </td>
                                         <td style="text-align: center;" class="@(isBaseIncompatible ? "price-cell-incompatible" : "")">

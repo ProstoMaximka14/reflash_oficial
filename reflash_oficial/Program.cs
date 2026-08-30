@@ -151,6 +151,11 @@ app.MapControllerRoute(
     pattern: "cars/{**oldUrl}",
     defaults: new { controller = "Home", action = "CarByOldUrl" });
 
+app.MapControllerRoute(
+    name: "car_by_old_ru",
+    pattern: "ru/{**oldUrl}",
+    defaults: new { controller = "Home", action = "CarByOldUrl" });
+
 
 app.MapControllerRoute(
     name: "partners",

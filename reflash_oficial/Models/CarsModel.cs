@@ -39,5 +39,7 @@ namespace reflash_oficial.Models
         public string old_url { get; set; }
 
         public int SortOrder { get; set; } = 0;
+
+        public int SortOrder2 { get; set; } = 0;
     }
 }
