@@ -1,4 +1,5 @@
-﻿@model List<reflash_oficial.Models.PartnersModel>
+﻿@using System.Text.Json
+@model List<reflash_oficial.Models.PartnersModel>
 @{
     ViewData["Title"] = "ReflashTeam";
 
@@ -907,6 +908,116 @@
                 padding: 3px 8px;
             }
         }
+
+        /* ===== МОДАЛКА ПАРТНЁРА (МОБИЛКА) ===== */
+        .partner-detail-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            background: rgba(0,0,0,0.72);
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .partner-detail-overlay.active { display: flex; }
+
+        .partner-detail-sheet {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            width: 100%;
+            max-width: 520px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 20px 20px 0 0;
+            padding: 20px 18px 28px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            box-shadow: 0 -8px 30px rgba(0,0,0,0.35);
+        }
+
+        .partner-detail-close {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: var(--text-muted);
+            cursor: pointer;
+            line-height: 1;
+            z-index: 2;
+        }
+        .partner-detail-close:hover { color: var(--accent-color); }
+
+        .partner-detail-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            padding-right: 36px;
+            color: var(--accent-color);
+        }
+
+        .partner-detail-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+        .partner-detail-row:last-child { border-bottom: none; }
+
+        .partner-detail-row .p-icon {
+            width: 22px;
+            text-align: center;
+            color: var(--accent-color);
+            flex-shrink: 0;
+        }
+
+        .partner-detail-row .label {
+            flex: 1;
+            min-width: 0;
+            word-break: break-word;
+            color: var(--text-primary);
+        }
+        .partner-detail-row .label a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .copy-btn {
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .copy-btn.copied {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .balloon-more-btn {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #FF3A2F;
+            color: #fff !important;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
     </style>
 </head>
 <body>
@@ -1142,7 +1253,16 @@
         </div>
     </div>
 
-    <script>
+        <!-- МОДАЛКА ДЕТАЛЕЙ ПАРТНЁРА (МОБИЛКА) -->
+    <div class="partner-detail-overlay" id="partnerDetailModal">
+        <div class="partner-detail-sheet" id="partnerDetailSheet">
+            <button type="button" class="partner-detail-close" id="partnerDetailClose">&times;</button>
+            <div class="partner-detail-title" id="partnerDetailTitle"></div>
+            <div id="partnerDetailBody"></div>
+        </div>
+    </div>
+
+<script>
         // ========== ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ==========
         function switchLanguage(lang) {
             document.cookie = "Language=" + lang + "; path=/; max-age=" + (365 * 24 * 60 * 60);
@@ -1229,6 +1349,11 @@
         var map;
         var partnerPlacemarks = [];
         var allPartners = [];
+        var partnersData = {};
+
+        function isMobileView() {
+            return window.matchMedia('(max-width: 768px)').matches;
+        }
 
         function initMap() {
             var mapElement = document.getElementById('map');
@@ -1239,17 +1364,14 @@
 
             try {
                 map = new ymaps.Map('map', {
-                    center: [20, 0],
-                    zoom: 2,
+                    center: [55.75, 37.62],
+                    zoom: 5,
                     controls: []
                 });
 
-                // Добавляем маркеры
                 addPartnersMarkers();
-
-                // Настройка кнопок
                 setupZoomControls();
-
+                setupPartnerDetailModal();
             } catch (error) {
                 console.error('Ошибка инициализации карты:', error);
                 mapElement.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--accent-color);">' +
@@ -1269,93 +1391,63 @@
                         {
                             var lat = partner.latitude.Replace(',', '.').Trim();
                             var lon = partner.longitude.Replace(',', '.').Trim();
-                            var name = partner.name?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var phone = partner.phone?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var website = partner.website?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var vk = partner.vk?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var vk_group = partner.vk_group?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var telegram = partner.telegram?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var whatsapp = partner.whatsapp?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var email = partner.email?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var point_name = partner.point_name?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var city = partner.city?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var street = partner.street?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-                            var house = partner.house?.Replace("'", "\\'").Replace("\"", "\\\"") ?? "";
-
+                            var name = partner.name ?? "";
+                            var phone = partner.phone ?? "";
+                            var website = partner.website ?? "";
+                            var vk = partner.vk ?? "";
+                            var vk_group = partner.vk_group ?? "";
+                            var telegram = partner.telegram ?? "";
+                            var whatsapp = partner.whatsapp ?? "";
+                            var email = partner.email ?? "";
+                            var point_name = partner.point_name ?? "";
+                            var city = partner.city ?? "";
+                            var street = partner.street ?? "";
+                            var house = partner.house ?? "";
                             var address = string.Join(", ", new[] { city, street, house }.Where(s => !string.IsNullOrEmpty(s))).Trim();
-
                             <text>
-                                var coords = [parseFloat("@lat"), parseFloat("@lon")];
-                                if (!isNaN(coords[0]) && !isNaN(coords[1])) {
-                                    var balloonHtml = '<div style="max-width: 320px; font-family: Inter, sans-serif;">' +
-                                        '<strong style="color: var(--accent-color);">@Html.Raw(name)</strong>' +
-                                        '<hr style="margin: 8px 0; border-color: var(--border-color);">';
+                                (function() {
+                                    var coords = [parseFloat("@lat"), parseFloat("@lon")];
+                                    if (isNaN(coords[0]) || isNaN(coords[1])) return;
 
-                                @if (!string.IsNullOrEmpty(point_name))
-                                {
-                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-building" style="color: var(--accent-color); width: 24px;"></i> @Html.Raw(point_name)</div>';</text>
-                                }
+                                    var pid = @partner.Id;
+                                    partnersData[pid] = {
+                                        id: pid,
+                                        name: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(name)),
+                                        pointName: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(point_name)),
+                                        city: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(city)),
+                                        address: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(address)),
+                                        phone: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(phone)),
+                                        whatsapp: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(whatsapp)),
+                                        telegram: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(telegram)),
+                                        email: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(email)),
+                                        vk: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(vk)),
+                                        vkGroup: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(vk_group)),
+                                        website: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(website)),
+                                        coords: coords
+                                    };
 
-                                @if (!string.IsNullOrEmpty(city))
-                                {
-                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-city" style="color: var(--accent-color); width: 24px;"></i> @Html.Raw(city)</div>';</text>
-                                }
-
-                                @if (!string.IsNullOrEmpty(phone))
-                                {
-                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-phone-alt" style="color: var(--accent-color); width: 24px;"></i> <a href="tel:@phone" style="color: var(--accent-color); text-decoration: none;">@phone</a></div>';</text>
-                                }
-
-                                @if (!string.IsNullOrEmpty(whatsapp))
-                                {
-                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fab fa-whatsapp" style="color: #25D366; width: 24px;"></i> <a href="https://wa.me/@whatsapp" target="_blank" style="color: var(--accent-color); text-decoration: none;">WhatsApp</a></div>';</text>
-                                }
-
-                                @if (!string.IsNullOrEmpty(telegram))
-                                {
-                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fab fa-telegram-plane" style="color: #0088cc; width: 24px;"></i> <a href="https://t.me/@telegram" target="_blank" style="color: var(--accent-color); text-decoration: none;">Telegram</a></div>';</text>
-                                }
-
-                                @if (!string.IsNullOrEmpty(email))
-                                {
-                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-envelope" style="color: var(--accent-color); width: 24px;"></i> <a href="mailto:@email" style="color: var(--accent-color); text-decoration: none;">@email</a></div>';</text>
-                                }
-
-                                @if (!string.IsNullOrEmpty(vk))
-                                {
-                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fab fa-vk" style="color: #4C75A3; width: 24px;"></i> <a href="@vk" target="_blank" style="color: var(--accent-color); text-decoration: none;">ВКонтакте</a></div>';</text>
-                                }
-
-                                @if (!string.IsNullOrEmpty(vk_group))
-                                {
-                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fab fa-vk" style="color: #4C75A3; width: 24px;"></i> <a href="@vk_group" target="_blank" style="color: var(--accent-color); text-decoration: none;">Группа ВК</a></div>';</text>
-                                }
-
-                                @if (!string.IsNullOrEmpty(website))
-                                {
-                                        <text>balloonHtml += '<div style="margin: 6px 0;"><i class="fas fa-globe" style="color: var(--accent-color); width: 24px;"></i> <a href="@website" target="_blank" style="color: var(--accent-color); text-decoration: none;">Сайт</a></div>';</text>
-                                }
-
-                                @if (!string.IsNullOrEmpty(address))
-                                {
-                                        <text>balloonHtml += '<hr style="margin: 8px 0;"><div style="margin: 6px 0;"><i class="fas fa-map-marker-alt" style="color: var(--accent-color); width: 24px;"></i> @address</div>';</text>
-                                }
-
-                                balloonHtml += '</div>';
+                                    var fullBalloon = buildDesktopBalloon(partnersData[pid]);
+                                    var shortBalloon = buildMobileBalloon(partnersData[pid]);
 
                                     var placemark = new ymaps.Placemark(coords, {
-                                        hintContent: '@Html.Raw(name)',
-                                        balloonContent: balloonHtml
+                                        hintContent: partnersData[pid].name,
+                                        balloonContent: isMobileView() ? shortBalloon : fullBalloon
                                     }, {
                                         preset: 'islands#redIcon',
                                         iconColor: '#FF3A2F'
                                     });
 
+                                    placemark.properties.set('partnerId', pid);
+
+                                    placemark.events.add('click', function () {
+                                        onPartnerSelect(pid, coords, true);
+                                    });
+
                                     map.geoObjects.add(placemark);
                                     partnerPlacemarks.push(placemark);
-                                    allPartners.push({ id: @partner.Id, coords: coords });
-                                    setupPartnerCardClick(@partner.Id, coords);
-                                }
+                                    allPartners.push({ id: pid, coords: coords });
+                                    setupPartnerCardClick(pid, coords);
+                                })();
                             </text>
                         }
                         catch (Exception ex) { }
@@ -1368,50 +1460,224 @@
             }
         }
 
-        function setupPartnerCardClick(partnerId, coords) {
-            var partnerCard = document.getElementById('partner-' + partnerId);
-            if (partnerCard) {
-                partnerCard.addEventListener('click', function(e) {
-                    if (e.target.tagName.toLowerCase() !== 'a') {
-                        if (map) {
-                            map.setCenter(coords, 12, {
-                                duration: 600,
-                                flying: true
-                            });
-                        }
+        function escHtml(s) {
+            if (!s) return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
 
-                        highlightPartnerCard(partnerId);
+        function buildDesktopBalloon(p) {
+            var html = '<div style="max-width:320px;font-family:Inter,sans-serif;">';
+            html += '<strong style="color:#FF3A2F;">' + escHtml(p.name) + '</strong>';
+            html += '<hr style="margin:8px 0;border-color:#333;">';
+            if (p.pointName) html += '<div style="margin:6px 0;"><i class="fas fa-building" style="width:22px;color:#FF3A2F;"></i> ' + escHtml(p.pointName) + '</div>';
+            if (p.city) html += '<div style="margin:6px 0;"><i class="fas fa-city" style="width:22px;color:#FF3A2F;"></i> ' + escHtml(p.city) + '</div>';
+            if (p.phone) html += '<div style="margin:6px 0;"><i class="fas fa-phone-alt" style="width:22px;color:#FF3A2F;"></i> <a href="tel:' + escHtml(p.phone) + '" style="color:#FF3A2F;text-decoration:none;">' + escHtml(p.phone) + '</a></div>';
+            if (p.whatsapp) html += '<div style="margin:6px 0;"><i class="fab fa-whatsapp" style="width:22px;color:#25D366;"></i> <a href="https://wa.me/' + escHtml(p.whatsapp) + '" target="_blank" style="color:#FF3A2F;text-decoration:none;">WhatsApp</a></div>';
+            if (p.telegram) html += '<div style="margin:6px 0;"><i class="fab fa-telegram-plane" style="width:22px;color:#0088cc;"></i> <a href="https://t.me/' + escHtml(p.telegram) + '" target="_blank" style="color:#FF3A2F;text-decoration:none;">Telegram</a></div>';
+            if (p.email) html += '<div style="margin:6px 0;"><i class="fas fa-envelope" style="width:22px;color:#FF3A2F;"></i> <a href="mailto:' + escHtml(p.email) + '" style="color:#FF3A2F;text-decoration:none;">' + escHtml(p.email) + '</a></div>';
+            if (p.vk) html += '<div style="margin:6px 0;"><i class="fab fa-vk" style="width:22px;color:#4C75A3;"></i> <a href="' + escHtml(p.vk) + '" target="_blank" style="color:#FF3A2F;text-decoration:none;">ВКонтакте</a></div>';
+            if (p.vkGroup) html += '<div style="margin:6px 0;"><i class="fab fa-vk" style="width:22px;color:#4C75A3;"></i> <a href="' + escHtml(p.vkGroup) + '" target="_blank" style="color:#FF3A2F;text-decoration:none;">Группа ВК</a></div>';
+            if (p.website) html += '<div style="margin:6px 0;"><i class="fas fa-globe" style="width:22px;color:#FF3A2F;"></i> <a href="' + escHtml(p.website) + '" target="_blank" style="color:#FF3A2F;text-decoration:none;">Сайт</a></div>';
+            if (p.address) html += '<hr style="margin:8px 0;"><div style="margin:6px 0;"><i class="fas fa-map-marker-alt" style="width:22px;color:#FF3A2F;"></i> ' + escHtml(p.address) + '</div>';
+            html += '</div>';
+            return html;
+        }
 
-                        var placemark = partnerPlacemarks.find(function(pm) {
-                            var pmCoords = pm.geometry.getCoordinates();
-                            return Math.abs(pmCoords[0] - coords[0]) < 0.0001 &&
-                                   Math.abs(pmCoords[1] - coords[1]) < 0.0001;
-                        });
+        function buildMobileBalloon(p) {
+            return '<div style="min-width:160px;font-family:Inter,sans-serif;text-align:center;">' +
+                '<strong style="color:#FF3A2F;font-size:14px;">' + escHtml(p.name) + '</strong>' +
+                '<button type="button" class="balloon-more-btn" onclick="openPartnerModal(' + p.id + ')">' +
+                '@GetLocalized("Подробнее", "More details", "Mehr Details")' +
+                '</button></div>';
+        }
 
-                        if (placemark) {
-                            setTimeout(function() {
-                                placemark.balloon.open();
-                            }, 600);
-                        }
-                    }
+        function onPartnerSelect(partnerId, coords, fromMap) {
+            if (!map || !coords) return;
+
+            var zoomLevel = isMobileView() ? 11 : 12;
+            map.setCenter(coords, zoomLevel, {
+                duration: isMobileView() ? 300 : 600,
+                flying: !isMobileView()
+            });
+
+            highlightPartnerCard(partnerId, fromMap);
+
+            if (!isMobileView()) {
+                var placemark = partnerPlacemarks.find(function (pm) {
+                    return pm.properties.get('partnerId') === partnerId;
                 });
+                if (placemark) {
+                    setTimeout(function () {
+                        placemark.balloon.open();
+                    }, 500);
+                }
+            } else if (fromMap) {
+                // на мобилке balloon уже короткий (имя + Подробнее)
+                var pm = partnerPlacemarks.find(function (p) {
+                    return p.properties.get('partnerId') === partnerId;
+                });
+                if (pm) {
+                    setTimeout(function () {
+                        pm.balloon.open();
+                    }, 320);
+                }
+            }
+
+            if (!fromMap && isMobileView()) {
+                var mapEl = document.getElementById('map');
+                if (mapEl) {
+                    setTimeout(function () {
+                        mapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 50);
+                }
             }
         }
 
-        function highlightPartnerCard(partnerId) {
-            document.querySelectorAll('.partner-card').forEach(function(card) {
+        function setupPartnerCardClick(partnerId, coords) {
+            var partnerCard = document.getElementById('partner-' + partnerId);
+            if (!partnerCard) return;
+
+            partnerCard.addEventListener('click', function (e) {
+                if (e.target.closest('a')) return;
+                onPartnerSelect(partnerId, coords, false);
+            });
+        }
+
+        function highlightPartnerCard(partnerId, fromMap) {
+            document.querySelectorAll('.partner-card').forEach(function (card) {
                 card.classList.remove('highlight');
             });
 
             var selectedCard = document.getElementById('partner-' + partnerId);
-            if (selectedCard) {
-                selectedCard.classList.add('highlight');
+            if (!selectedCard) return;
 
+            selectedCard.classList.add('highlight');
+
+            if (fromMap) {
                 selectedCard.scrollIntoView({
                     behavior: 'smooth',
-                    block: 'center'
+                    block: isMobileView() ? 'nearest' : 'center'
                 });
             }
+        }
+
+        function openPartnerModal(partnerId) {
+            var p = partnersData[partnerId];
+            if (!p) return;
+
+            var title = document.getElementById('partnerDetailTitle');
+            var body = document.getElementById('partnerDetailBody');
+            var modal = document.getElementById('partnerDetailModal');
+            if (!title || !body || !modal) return;
+
+            title.textContent = p.name || '';
+
+            var rows = [];
+            function addRow(icon, contentHtml, copyValue) {
+                var copyBtn = '';
+                if (copyValue) {
+                    var safe = String(copyValue).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                    copyBtn = '<button type="button" class="copy-btn" onclick="copyPartnerText(this, \'' + safe + '\')">' +
+                        '@GetLocalized("Скопировать", "Copy", "Kopieren")' + '</button>';
+                }
+                rows.push(
+                    '<div class="partner-detail-row">' +
+                    '<div class="p-icon"><i class="' + icon + '"></i></div>' +
+                    '<div class="label">' + contentHtml + '</div>' +
+                    copyBtn +
+                    '</div>'
+                );
+            }
+
+            if (p.pointName) addRow('fas fa-building', escHtml(p.pointName), null);
+            if (p.city) addRow('fas fa-city', escHtml(p.city), null);
+            if (p.address) addRow('fas fa-map-marker-alt', escHtml(p.address), p.address);
+            if (p.phone) addRow('fas fa-phone-alt', '<a href="tel:' + escHtml(p.phone) + '">' + escHtml(p.phone) + '</a>', p.phone);
+            if (p.whatsapp) addRow('fab fa-whatsapp', '<a href="https://wa.me/' + escHtml(p.whatsapp) + '" target="_blank">WhatsApp: ' + escHtml(p.whatsapp) + '</a>', p.whatsapp);
+            if (p.telegram) addRow('fab fa-telegram-plane', '<a href="https://t.me/' + escHtml(p.telegram) + '" target="_blank">Telegram: ' + escHtml(p.telegram) + '</a>', p.telegram);
+            if (p.email) addRow('fas fa-envelope', '<a href="mailto:' + escHtml(p.email) + '">' + escHtml(p.email) + '</a>', p.email);
+            if (p.vk) addRow('fab fa-vk', '<a href="' + escHtml(p.vk) + '" target="_blank">@GetLocalized("ВКонтакте", "VK", "VK")</a>', p.vk);
+            if (p.vkGroup) addRow('fab fa-vk', '<a href="' + escHtml(p.vkGroup) + '" target="_blank">@GetLocalized("Группа ВК", "VK Group", "VK-Gruppe")</a>', p.vkGroup);
+            if (p.website) addRow('fas fa-globe', '<a href="' + escHtml(p.website) + '" target="_blank">' + escHtml(p.website) + '</a>', p.website);
+
+            body.innerHTML = rows.length ? rows.join('') : '<div class="partner-detail-row"><div class="label">@GetLocalized("Нет данных", "No data", "Keine Daten")</div></div>';
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // закрыть balloon карты
+            try {
+                map.balloon.close();
+            } catch (e) {}
+        }
+
+        function closePartnerModal() {
+            var modal = document.getElementById('partnerDetailModal');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function copyPartnerText(btn, text) {
+            if (!text) return;
+            function done() {
+                var old = btn.textContent;
+                btn.textContent = '@GetLocalized("Скопировано", "Copied", "Kopiert")';
+                btn.classList.add('copied');
+                setTimeout(function () {
+                    btn.textContent = old;
+                    btn.classList.remove('copied');
+                }, 1500);
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done).catch(function () {
+                    fallbackCopy(text);
+                    done();
+                });
+            } else {
+                fallbackCopy(text);
+                done();
+            }
+        }
+
+        function fallbackCopy(text) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(ta);
+        }
+
+        function setupPartnerDetailModal() {
+            var modal = document.getElementById('partnerDetailModal');
+            var closeBtn = document.getElementById('partnerDetailClose');
+            var sheet = document.getElementById('partnerDetailSheet');
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closePartnerModal();
+                });
+            }
+            if (modal) {
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) closePartnerModal();
+                });
+            }
+            if (sheet) {
+                sheet.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                });
+            }
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closePartnerModal();
+            });
         }
 
         function setupZoomControls() {
@@ -1419,20 +1685,19 @@
             var zoomOut = document.getElementById('zoom-out');
 
             if (zoomIn) {
-                zoomIn.onclick = function() {
+                zoomIn.onclick = function () {
                     if (map) map.setZoom(map.getZoom() + 1);
                 };
             }
             if (zoomOut) {
-                zoomOut.onclick = function() {
+                zoomOut.onclick = function () {
                     if (map) map.setZoom(map.getZoom() - 1);
                 };
             }
         }
 
-        // Запуск карты
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 if (typeof ymaps !== 'undefined') {
                     ymaps.ready(initMap);
                 } else {
@@ -1445,5 +1710,8 @@
             }
         }
     </script>
+
+
+
 </body>
 </html>
