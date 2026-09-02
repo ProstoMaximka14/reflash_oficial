@@ -911,79 +911,103 @@
 
         /* ===== МОДАЛКА ПАРТНЁРА (МОБИЛКА) ===== */
         .partner-detail-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 5000;
-            background: rgba(0,0,0,0.72);
-            align-items: flex-end;
-            justify-content: center;
-        }
-        .partner-detail-overlay.active { display: flex; }
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    background: rgba(0,0,0,0.72);
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden; /* не даём оверлею раздуваться */
+}
 
-        .partner-detail-sheet {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            width: 100%;
-            max-width: 520px;
-            max-height: 85vh;
-            overflow-y: auto;
-            border-radius: 20px 20px 0 0;
-            padding: 20px 18px 28px;
-            border: 1px solid var(--border-color);
-            position: relative;
-            box-shadow: 0 -8px 30px rgba(0,0,0,0.35);
-        }
+.partner-detail-overlay.active { display: flex; }
 
-        .partner-detail-close {
-            position: absolute;
-            top: 10px;
-            right: 14px;
-            background: none;
-            border: none;
-            font-size: 28px;
-            color: var(--text-muted);
-            cursor: pointer;
-            line-height: 1;
-            z-index: 2;
-        }
-        .partner-detail-close:hover { color: var(--accent-color); }
+.partner-detail-sheet {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    width: 100%;
+    max-width: 100%;          /* не шире экрана */
+    box-sizing: border-box;
+    max-height: 85vh;
+    overflow-x: hidden;       /* горизонтальный вылет */
+    overflow-y: auto;
+    border-radius: 20px 20px 0 0;
+    padding: 16px 14px 24px;
+    border: 1px solid var(--border-color);
+    position: relative;
+}
 
-        .partner-detail-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 14px;
-            padding-right: 36px;
-            color: var(--accent-color);
-        }
+.partner-detail-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    padding-right: 0;
+    color: var(--accent-color);
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
 
-        .partner-detail-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 11px 0;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
-        }
-        .partner-detail-row:last-child { border-bottom: none; }
+.partner-detail-photo-wrap {
+    text-align: center;
+    margin: 0 0 12px 0;
+    width: 100%;
+    overflow: hidden;
+}
 
-        .partner-detail-row .p-icon {
-            width: 22px;
-            text-align: center;
-            color: var(--accent-color);
-            flex-shrink: 0;
-        }
+.partner-detail-photo {
+    width: 100%;
+    max-width: 100%;
+    height: auto !important;
+    max-height: 200px;
+    object-fit: contain !important;
+    object-position: center;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    display: block;
+    margin: 0 auto;
+}
 
-        .partner-detail-row .label {
-            flex: 1;
-            min-width: 0;
-            word-break: break-word;
-            color: var(--text-primary);
-        }
-        .partner-detail-row .label a {
-            color: var(--accent-color);
-            text-decoration: none;
-        }
+.partner-detail-photo-placeholder {
+    width: 100%;
+    height: 100px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 40px;
+}
+
+.partner-detail-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 13px;
+    min-width: 0;             /* важно для flex */
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.partner-detail-row .label {
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.partner-detail-row .label a {
+    color: var(--accent-color);
+    text-decoration: none;
+    word-break: break-all;    /* длинные URL/email */
+}
 
         .copy-btn {
             flex-shrink: 0;
@@ -1133,14 +1157,7 @@
                                 </div>
 
                                 <div class="contact-info">
-                                    <!-- Точка -->
-                                    @if (!string.IsNullOrEmpty(partner.point_name))
-                                    {
-                                        <div class="contact-item">
-                                            <div class="contact-icon"><i class="fas fa-building"></i></div>
-                                            <div class="contact-text">@partner.point_name</div>
-                                        </div>
-                                    }
+                                   
 
                                     <!-- Телефон -->
                                     @if (!string.IsNullOrEmpty(partner.phone))
@@ -1216,6 +1233,14 @@
                                         </div>
                                     }
 
+                                    @if (!string.IsNullOrEmpty(partner.info))
+                                    {
+                                        <div class="contact-item">
+                                            <div class="contact-icon"><i class="fas fa-info-circle"></i></div>
+                                            <div class="contact-text">@partner.info</div>
+                                        </div>
+                                    }
+
                                     <!-- Сайт -->
                                     @if (!string.IsNullOrEmpty(partner.website))
                                     {
@@ -1256,7 +1281,6 @@
         <!-- МОДАЛКА ДЕТАЛЕЙ ПАРТНЁРА (МОБИЛКА) -->
     <div class="partner-detail-overlay" id="partnerDetailModal">
         <div class="partner-detail-sheet" id="partnerDetailSheet">
-            <button type="button" class="partner-detail-close" id="partnerDetailClose">&times;</button>
             <div class="partner-detail-title" id="partnerDetailTitle"></div>
             <div id="partnerDetailBody"></div>
         </div>
@@ -1403,7 +1427,10 @@
                             var city = partner.city ?? "";
                             var street = partner.street ?? "";
                             var house = partner.house ?? "";
+                            var photo = partner.photo ?? "";
                             var address = string.Join(", ", new[] { city, street, house }.Where(s => !string.IsNullOrEmpty(s))).Trim();
+                            var streetAddress = string.Join(", ", new[] { street, house }.Where(s => !string.IsNullOrEmpty(s))).Trim();
+                            var info = partner.info ?? "";
                             <text>
                                 (function() {
                                     var coords = [parseFloat("@lat"), parseFloat("@lon")];
@@ -1415,7 +1442,11 @@
                                         name: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(name)),
                                         pointName: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(point_name)),
                                         city: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(city)),
+                                        street: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(street)),
+                                        house: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(house)),
+                                        streetAddress: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(streetAddress)),
                                         address: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(address)),
+                                        photo: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(photo)),
                                         phone: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(phone)),
                                         whatsapp: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(whatsapp)),
                                         telegram: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(telegram)),
@@ -1423,6 +1454,7 @@
                                         vk: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(vk)),
                                         vkGroup: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(vk_group)),
                                         website: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(website)),
+                                        info: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(info)),
                                         coords: coords
                                     };
 
@@ -1543,6 +1575,12 @@
 
             partnerCard.addEventListener('click', function (e) {
                 if (e.target.closest('a')) return;
+                // телефон: то же окно, что «Подробнее» на карте
+                if (isMobileView()) {
+                    highlightPartnerCard(partnerId, false);
+                    openPartnerModal(partnerId);
+                    return;
+                }
                 onPartnerSelect(partnerId, coords, false);
             });
         }
@@ -1557,10 +1595,11 @@
 
             selectedCard.classList.add('highlight');
 
-            if (fromMap) {
+            // с телефона при клике по маркеру не скроллим к карточке
+            if (fromMap && !isMobileView()) {
                 selectedCard.scrollIntoView({
                     behavior: 'smooth',
-                    block: isMobileView() ? 'nearest' : 'center'
+                    block: 'center'
                 });
             }
         }
@@ -1577,12 +1616,32 @@
             title.textContent = p.name || '';
 
             var rows = [];
+
+            // 1) Фото под именем
+            if (p.photo) {
+                rows.push(
+                    '<div class="partner-detail-photo-wrap">' +
+                    '<img class="partner-detail-photo" src="/shared-fotos/partners/' + escHtml(p.photo) + '" ' +
+                    'alt="' + escHtml(p.name || '') + '" ' +
+                    'onerror="this.onerror=null;this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\';">' +
+                    '<span class="partner-detail-photo-placeholder" style="display:none;"><i class="fas fa-user-circle"></i></span>' +
+                    '</div>'
+                );
+            } else {
+                rows.push(
+                    '<div class="partner-detail-photo-wrap">' +
+                    '<span class="partner-detail-photo-placeholder"><i class="fas fa-user-circle"></i></span>' +
+                    '</div>'
+                );
+            }
+
             function addRow(icon, contentHtml, copyValue) {
                 var copyBtn = '';
                 if (copyValue) {
                     var safe = String(copyValue).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-                    copyBtn = '<button type="button" class="copy-btn" onclick="copyPartnerText(this, \'' + safe + '\')">' +
-                        '@GetLocalized("Скопировать", "Copy", "Kopieren")' + '</button>';
+                    copyBtn = '<button type="button" class="copy-btn" title="@GetLocalized("Скопировать", "Copy", "Kopieren")" ' +
+                        'onclick="copyPartnerText(this, \'' + safe + '\')">' +
+                        '<i class="fas fa-copy"></i></button>';
                 }
                 rows.push(
                     '<div class="partner-detail-row">' +
@@ -1593,25 +1652,31 @@
                 );
             }
 
-            if (p.pointName) addRow('fas fa-building', escHtml(p.pointName), null);
+            // 2) город только второй строкой (после фото)
             if (p.city) addRow('fas fa-city', escHtml(p.city), null);
-            if (p.address) addRow('fas fa-map-marker-alt', escHtml(p.address), p.address);
-            if (p.phone) addRow('fas fa-phone-alt', '<a href="tel:' + escHtml(p.phone) + '">' + escHtml(p.phone) + '</a>', p.phone);
-            if (p.whatsapp) addRow('fab fa-whatsapp', '<a href="https://wa.me/' + escHtml(p.whatsapp) + '" target="_blank">WhatsApp: ' + escHtml(p.whatsapp) + '</a>', p.whatsapp);
-            if (p.telegram) addRow('fab fa-telegram-plane', '<a href="https://t.me/' + escHtml(p.telegram) + '" target="_blank">Telegram: ' + escHtml(p.telegram) + '</a>', p.telegram);
-            if (p.email) addRow('fas fa-envelope', '<a href="mailto:' + escHtml(p.email) + '">' + escHtml(p.email) + '</a>', p.email);
-            if (p.vk) addRow('fab fa-vk', '<a href="' + escHtml(p.vk) + '" target="_blank">@GetLocalized("ВКонтакте", "VK", "VK")</a>', p.vk);
-            if (p.vkGroup) addRow('fab fa-vk', '<a href="' + escHtml(p.vkGroup) + '" target="_blank">@GetLocalized("Группа ВК", "VK Group", "VK-Gruppe")</a>', p.vkGroup);
-            if (p.website) addRow('fas fa-globe', '<a href="' + escHtml(p.website) + '" target="_blank">' + escHtml(p.website) + '</a>', p.website);
 
+            // 3) адрес без города (улица + дом), если есть
+            if (p.streetAddress) addRow('fas fa-map-marker-alt', escHtml(p.streetAddress), null);
+
+            // телефон — с копированием
+            if (p.phone) addRow('fas fa-phone-alt', '<a href="tel:' + escHtml(p.phone) + '">' + escHtml(p.phone) + '</a>', p.phone);
+
+            // WhatsApp / Telegram / соцсети — без копирования
+            if (p.whatsapp) addRow('fab fa-whatsapp', '<a href="https://wa.me/' + escHtml(p.whatsapp) + '" target="_blank">WhatsApp: ' + escHtml(p.whatsapp) + '</a>', null);
+            if (p.telegram) addRow('fab fa-telegram-plane', '<a href="https://t.me/' + escHtml(p.telegram) + '" target="_blank">Telegram: ' + escHtml(p.telegram) + '</a>', null);
+
+            // email — с копированием
+            if (p.email) addRow('fas fa-envelope', '<a href="mailto:' + escHtml(p.email) + '">' + escHtml(p.email) + '</a>', p.email);
+
+            if (p.vk) addRow('fab fa-vk', '<a href="' + escHtml(p.vk) + '" target="_blank">@GetLocalized("ВКонтакте", "VK", "VK")</a>', null);
+            if (p.vkGroup) addRow('fab fa-vk', '<a href="' + escHtml(p.vkGroup) + '" target="_blank">@GetLocalized("Группа ВК", "VK Group", "VK-Gruppe")</a>', null);
+            if (p.website) addRow('fas fa-globe', '<a href="' + escHtml(p.website) + '" target="_blank">' + escHtml(p.website) + '</a>', null);
+            if (p.info) addRow('fas fa-info-circle', escHtml(p.info).replace(/\n/g, '<br>'), null);
             body.innerHTML = rows.length ? rows.join('') : '<div class="partner-detail-row"><div class="label">@GetLocalized("Нет данных", "No data", "Keine Daten")</div></div>';
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            // закрыть balloon карты
-            try {
-                map.balloon.close();
-            } catch (e) {}
+            try { map.balloon.close(); } catch (e) {}
         }
 
         function closePartnerModal() {
@@ -1623,11 +1688,13 @@
         function copyPartnerText(btn, text) {
             if (!text) return;
             function done() {
-                var old = btn.textContent;
-                btn.textContent = '@GetLocalized("Скопировано", "Copied", "Kopiert")';
+                var icon = btn.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-check';
+                }
                 btn.classList.add('copied');
                 setTimeout(function () {
-                    btn.textContent = old;
+                    if (icon) icon.className = 'fas fa-copy';
                     btn.classList.remove('copied');
                 }, 1500);
             }

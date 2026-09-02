@@ -490,6 +490,13 @@
             margin-bottom: 20px;
             text-align: center;
         }
+        .model-header .model-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
 
         @@media (max-width: 768px) {
             .language-switcher {
@@ -645,16 +652,18 @@
 
                 <div class="model-section">
                     <div class="model-header" onclick="toggleModel(this)">
-                        <span class="model-name">
-                            <i class="fas fa-chevron-right"></i> @modelGroup.Key
-                        </span>
-                        <span class="model-count">
-                            <i class="fas fa-car"></i> @modelGroup.Count()
-                        </span>
-                        <span class="toggle-icon">
-                            <i class="fas fa-chevron-down"></i>
-                        </span>
-                    </div>
+    <span class="model-name">
+        <i class="fas fa-chevron-right"></i> @modelGroup.Key
+    </span>
+    <span class="model-header-right">
+        <span class="model-count">
+            <i class="fas fa-car"></i> @modelGroup.Count()
+        </span>
+        <span class="toggle-icon">
+            <i class="fas fa-chevron-down"></i>
+        </span>
+    </span>
+</div>
 
                     <div class="model-content">
                         @foreach (var genGroup in generationGroups)

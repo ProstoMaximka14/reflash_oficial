@@ -125,6 +125,7 @@ namespace reflash_oficial.Controllers
                                     point_name = reader.IsDBNull(reader.GetOrdinal("point_name")) ? "" : reader.GetString("point_name"),
                                     longitude = reader.IsDBNull(reader.GetOrdinal("longitude")) ? "" : reader.GetString("longitude"),
                                     latitude = reader.IsDBNull(reader.GetOrdinal("latitude")) ? "" : reader.GetString("latitude"),
+                                    info = reader.IsDBNull(reader.GetOrdinal("info")) ? "" : reader.GetString("info"),
                                     photo = photoFileName
                                 });
                             }

@@ -21,6 +21,8 @@
         public string house { get; set; }
         public string point_name { get; set; }     // Точка (название точки/офиса)
 
+        public string info { get; set; }
+
         // ===== КООРДИНАТЫ ДЛЯ КАРТЫ =====
         public string longitude { get; set; }
         public string latitude { get; set; }
