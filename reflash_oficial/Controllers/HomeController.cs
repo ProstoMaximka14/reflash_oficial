@@ -113,18 +113,32 @@ namespace reflash_oficial.Controllers
                                     Id = reader.GetInt32("id"),
                                     name = reader.IsDBNull(reader.GetOrdinal("name")) ? "" : reader.GetString("name"),
                                     phone = reader.IsDBNull(reader.GetOrdinal("phone")) ? "" : reader.GetString("phone"),
+                                    photo = photoFileName,
                                     vk = reader.IsDBNull(reader.GetOrdinal("vk_url")) ? "" : reader.GetString("vk_url"),
+                                    website = reader.IsDBNull(reader.GetOrdinal("website_url")) ? "" : reader.GetString("website_url"),
+
+                                    city = reader.IsDBNull(reader.GetOrdinal("city")) ? "" : reader.GetString("city"),
+                                    city_eng = reader.IsDBNull(reader.GetOrdinal("city_eng")) ? "" : reader.GetString("city_eng"),
+                                    city_ger = reader.IsDBNull(reader.GetOrdinal("city_ger")) ? "" : reader.GetString("city_ger"),
+
+                                    country = reader.IsDBNull(reader.GetOrdinal("country")) ? "" : reader.GetString("country"),
+                                    country_eng = reader.IsDBNull(reader.GetOrdinal("country_eng")) ? "" : reader.GetString("country_eng"),
+                                    country_ger = reader.IsDBNull(reader.GetOrdinal("country_ger")) ? "" : reader.GetString("country_ger"),
+
+                                    longitude = reader.IsDBNull(reader.GetOrdinal("longitude")) ? "" : reader.GetString("longitude"),
+                                    latitude = reader.IsDBNull(reader.GetOrdinal("latitude")) ? "" : reader.GetString("latitude"),
                                     vk_group = reader.IsDBNull(reader.GetOrdinal("vk_group_url")) ? "" : reader.GetString("vk_group_url"),
                                     telegram = reader.IsDBNull(reader.GetOrdinal("telegram")) ? "" : reader.GetString("telegram"),
                                     whatsapp = reader.IsDBNull(reader.GetOrdinal("whatsapp")) ? "" : reader.GetString("whatsapp"),
                                     email = reader.IsDBNull(reader.GetOrdinal("email")) ? "" : reader.GetString("email"),
-                                    website = reader.IsDBNull(reader.GetOrdinal("website_url")) ? "" : reader.GetString("website_url"),
-                                    city = reader.IsDBNull(reader.GetOrdinal("city")) ? "" : reader.GetString("city"),
-                                    address = reader.IsDBNull(reader.GetOrdinal("address")) ? "" : reader.GetString("address"),
-                                    longitude = reader.IsDBNull(reader.GetOrdinal("longitude")) ? "" : reader.GetString("longitude"),
-                                    latitude = reader.IsDBNull(reader.GetOrdinal("latitude")) ? "" : reader.GetString("latitude"),
+
                                     info = reader.IsDBNull(reader.GetOrdinal("info")) ? "" : reader.GetString("info"),
-                                    photo = photoFileName
+                                    info_eng = reader.IsDBNull(reader.GetOrdinal("info_eng")) ? "" : reader.GetString("info_eng"),
+                                    info_ger = reader.IsDBNull(reader.GetOrdinal("info_ger")) ? "" : reader.GetString("info_ger"),
+
+                                    address = reader.IsDBNull(reader.GetOrdinal("address")) ? "" : reader.GetString("address"),
+                                    address_eng = reader.IsDBNull(reader.GetOrdinal("address_eng")) ? "" : reader.GetString("address_eng"),
+                                    address_ger = reader.IsDBNull(reader.GetOrdinal("address_ger")) ? "" : reader.GetString("address_ger")
                                 });
                             }
                         }

@@ -3,30 +3,35 @@
     public class PartnersModel
     {
         public int Id { get; set; }
-
         public string name { get; set; }
+        public string phone { get; set; }
+        public string photo { get; set; }
+        public string vk { get; set; }
+        public string website { get; set; }
 
-        // ===== КОНТАКТЫ =====
-        public string phone { get; set; }          // Телефон
-        public string vk { get; set; }             // ВКонтакте (ссылка)
-        public string vk_group { get; set; }       // Группа ВК (ссылка)
-        public string telegram { get; set; }       // Telegram
-        public string whatsapp { get; set; }       // WhatsApp
-        public string email { get; set; }          // Email
-        public string website { get; set; }        // Сайт
-
-        // ===== АДРЕС =====
         public string city { get; set; }
+        public string city_eng { get; set; }
+        public string city_ger { get; set; }
+
+        public string country { get; set; }
+        public string country_eng { get; set; }
+        public string country_ger { get; set; }
+
         public string address { get; set; }
+        public string address_eng { get; set; }
+        public string address_ger { get; set; }
 
-        public string info { get; set; }
-
-        // ===== КООРДИНАТЫ ДЛЯ КАРТЫ =====
         public string longitude { get; set; }
         public string latitude { get; set; }
 
-        // ===== ФОТО =====
-        public string photo { get; set; }
+        // ===== НОВЫЕ ПОЛЯ =====
+        public string vk_group { get; set; }      // Группа ВК
+        public string telegram { get; set; }      // Telegram
+        public string whatsapp { get; set; }      // WhatsApp
+        public string email { get; set; }         // Email
+        public string info { get; set; }
+        public string info_eng { get; set; }
+        public string info_ger { get; set; }
 
         public string PhotoUrl
         {

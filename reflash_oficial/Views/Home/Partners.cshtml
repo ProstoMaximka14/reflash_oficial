@@ -20,12 +20,95 @@
         };
     }
 
-    // Получаем список уникальных городов
+    // Получаем список уникальных стран (оригинальные названия для фильтрации)
+    var countries = Model?.Where(p => !string.IsNullOrEmpty(p.country))
+                         .Select(p => p.country.Trim())
+                         .Distinct()
+                         .OrderBy(c => c)
+                         .ToList() ?? new List<string>();
+
+    // Получаем список уникальных городов (оригинальные названия для фильтрации)
     var cities = Model?.Where(p => !string.IsNullOrEmpty(p.city))
                        .Select(p => p.city.Trim())
                        .Distinct()
                        .OrderBy(c => c)
                        .ToList() ?? new List<string>();
+
+    // ===== ФУНКЦИИ ЛОКАЛИЗАЦИИ =====
+    string GetLocalizedCity(PartnersModel partner)
+    {
+        if (partner == null) return "";
+        return language switch
+        {
+            "en" => !string.IsNullOrEmpty(partner.city_eng) ? partner.city_eng : partner.city,
+            "de" => !string.IsNullOrEmpty(partner.city_ger) ? partner.city_ger : partner.city,
+            _ => partner.city
+        };
+    }
+
+    string GetLocalizedCountry(PartnersModel partner)
+    {
+        if (partner == null) return "";
+        return language switch
+        {
+            "en" => !string.IsNullOrEmpty(partner.country_eng) ? partner.country_eng : partner.country,
+            "de" => !string.IsNullOrEmpty(partner.country_ger) ? partner.country_ger : partner.country,
+            _ => partner.country
+        };
+    }
+
+    string GetLocalizedAddress(PartnersModel partner)
+    {
+        if (partner == null) return "";
+        return language switch
+        {
+            "en" => !string.IsNullOrEmpty(partner.address_eng) ? partner.address_eng : partner.address,
+            "de" => !string.IsNullOrEmpty(partner.address_ger) ? partner.address_ger : partner.address,
+            _ => partner.address
+        };
+    }
+
+    string GetLocalizedInfo(PartnersModel partner)
+    {
+        if (partner == null) return "";
+        return language switch
+        {
+            "en" => !string.IsNullOrEmpty(partner.info_eng) ? partner.info_eng : partner.info,
+            "de" => !string.IsNullOrEmpty(partner.info_ger) ? partner.info_ger : partner.info,
+            _ => partner.info
+        };
+    }
+
+    // ===== ДЛЯ ДРОПДАУНОВ: value = оригинальное название, display = локализованное =====
+    var localizedCountries = countries.Select(c => {
+        var displayName = c;
+        if (language == "en")
+        {
+            var engName = Model?.FirstOrDefault(p => p.country == c)?.country_eng;
+            if (!string.IsNullOrEmpty(engName)) displayName = engName;
+        }
+        else if (language == "de")
+        {
+            var gerName = Model?.FirstOrDefault(p => p.country == c)?.country_ger;
+            if (!string.IsNullOrEmpty(gerName)) displayName = gerName;
+        }
+        return new { Original = c, Display = displayName };
+    }).OrderBy(x => x.Display).ToList();
+
+    var localizedCities = cities.Select(c => {
+        var displayName = c;
+        if (language == "en")
+        {
+            var engName = Model?.FirstOrDefault(p => p.city == c)?.city_eng;
+            if (!string.IsNullOrEmpty(engName)) displayName = engName;
+        }
+        else if (language == "de")
+        {
+            var gerName = Model?.FirstOrDefault(p => p.city == c)?.city_ger;
+            if (!string.IsNullOrEmpty(gerName)) displayName = gerName;
+        }
+        return new { Original = c, Display = displayName };
+    }).OrderBy(x => x.Display).ToList();
 }
 
 <!DOCTYPE html>
@@ -290,7 +373,7 @@
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
-        /* ========== ФИЛЬТР ПО ГОРОДАМ ========== */
+        /* ========== ФИЛЬТР ПО СТРАНЕ И ГОРОДУ ========== */
         .filter-section {
             margin-bottom: 30px;
         }
@@ -329,7 +412,7 @@
 
         .filter-select {
             flex: 1;
-            min-width: 200px;
+            min-width: 150px;
             padding: 12px 18px;
             font-size: 15px;
             font-weight: 500;
@@ -390,7 +473,7 @@
             font-weight: 700;
         }
 
-        /* ========== СЕТКА ПАРТНЕРОВ (ГОРИЗОНТАЛЬНЫЕ КАРТОЧКИ) ========== */
+        /* ========== СЕТКА ПАРТНЕРОВ ========== */
         .partners-section {
             margin-top: 10px;
         }
@@ -430,11 +513,11 @@
 
         .partners-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            gap: 6px;
         }
 
-        /* ===== ГОРИЗОНТАЛЬНАЯ КАРТОЧКА ===== */
+        /* ===== КАРТОЧКА ПАРТНЁРА ===== */
         .partner-card {
             display: flex;
             flex-direction: row;
@@ -446,7 +529,7 @@
             transition: all 0.3s ease;
             cursor: pointer;
             box-shadow: 0 2px 12px var(--shadow-color);
-            height: 180px;
+            height: 150px;
             min-height: 160px;
         }
 
@@ -467,8 +550,8 @@
 
         /* ===== ФОТО (СЛЕВА) ===== */
         .partner-photo-container {
-            flex: 0 0 160px;
-            width: 160px;
+            flex: 0 0 120px;
+            width: 120px;
             height: 100%;
             overflow: hidden;
             background: var(--bg-secondary);
@@ -478,7 +561,7 @@
         .partner-photo {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             transition: transform 0.4s ease;
         }
 
@@ -878,9 +961,9 @@
             inset: 0;
             z-index: 5000;
             background: rgba(0,0,0,0.72);
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
-            padding: 0;
+            padding: 24px;
             box-sizing: border-box;
             overflow: hidden;
         }
@@ -890,16 +973,33 @@
         .partner-detail-sheet {
             background: var(--bg-card);
             color: var(--text-primary);
-            width: 100%;
-            max-width: 100%;
+            width: auto;
+            min-width: 280px;
+            max-width: min(420px, 100%);
             box-sizing: border-box;
             max-height: 85vh;
             overflow-x: hidden;
             overflow-y: auto;
-            border-radius: 20px 20px 0 0;
-            padding: 16px 14px 24px;
+            border-radius: 16px;
+            padding: 20px 18px 24px;
             border: 1px solid var(--border-color);
             position: relative;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+        }
+
+        @@media (max-width: 768px) {
+            .partner-detail-overlay {
+                align-items: flex-end;
+                padding: 0;
+            }
+            .partner-detail-sheet {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+                border-radius: 20px 20px 0 0;
+                padding: 16px 14px 24px;
+                box-shadow: none;
+            }
         }
 
         .partner-detail-title {
@@ -1136,24 +1236,36 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- ФИЛЬТР ПО ГОРОДАМ -->
+        <!-- ФИЛЬТР ПО СТРАНЕ И ГОРОДУ -->
         <!-- ============================================================ -->
         <div class="filter-section">
             <div class="filter-card">
+                <div class="filter-label">
+                    <i class="fas fa-globe"></i>
+                    @GetLocalized("Страна", "Country", "Land")
+                </div>
+                <select class="filter-select" id="countryFilter">
+                    <option value="">@GetLocalized("Все страны", "All countries", "Alle Länder")</option>
+                    @foreach (var country in localizedCountries)
+                    {
+                        <option value="@country.Original">@country.Display</option>
+                    }
+                </select>
+
                 <div class="filter-label">
                     <i class="fas fa-city"></i>
                     @GetLocalized("Город", "City", "Stadt")
                 </div>
                 <select class="filter-select" id="cityFilter">
                     <option value="">@GetLocalized("Все города", "All cities", "Alle Städte")</option>
-                    @foreach (var city in cities)
+                    @foreach (var city in localizedCities)
                     {
-                        <option value="@city">@city</option>
+                        <option value="@city.Original">@city.Display</option>
                     }
                 </select>
+
                 <button class="filter-reset" id="resetFilter">
                     <i class="fas fa-undo-alt" style="margin-right: 6px;"></i>
-                    
                 </button>
             </div>
         </div>
@@ -1175,7 +1287,13 @@
                 <div class="partners-grid" id="partnersGrid">
                     @foreach (var partner in Model)
                     {
-                        <div class="partner-card" id="partner-@partner.Id" data-partner-id="@partner.Id" data-city="@(partner.city ?? "")">
+                        var localizedCity = GetLocalizedCity(partner);
+                        var localizedCountry = GetLocalizedCountry(partner);
+
+                        <div class="partner-card" id="partner-@partner.Id" 
+                             data-partner-id="@partner.Id" 
+                             data-city="@(partner.city ?? "")" 
+                             data-country="@(partner.country ?? "")">
                             <!-- Фото (слева) -->
                             <div class="partner-photo-container">
                                 @if (!string.IsNullOrEmpty(partner.photo))
@@ -1197,11 +1315,18 @@
                             <div class="partner-info">
                                 <div class="partner-name">@partner.name</div>
 
-                                @if (!string.IsNullOrEmpty(partner.city))
+                                @if (!string.IsNullOrEmpty(localizedCity) || !string.IsNullOrEmpty(localizedCountry))
                                 {
                                     <div class="partner-city-info">
                                         <i class="fas fa-city" style="font-size: 12px; opacity: 0.7;"></i>
-                                        <span class="city-part">@partner.city</span>
+                                        @if (!string.IsNullOrEmpty(localizedCity))
+                                        {
+                                            <span class="city-part">@localizedCity</span>
+                                        }
+                                        @if (!string.IsNullOrEmpty(localizedCountry) && localizedCountry != localizedCity)
+                                        {
+                                            <span class="city-part" style="opacity: 0.6;">, @localizedCountry</span>
+                                        }
                                     </div>
                                 }
 
@@ -1259,28 +1384,110 @@
     <!-- JAVASCRIPT -->
     <!-- ============================================================ -->
     <script>
+        // ========== ТЕКУЩИЙ ЯЗЫК ==========
+        var currentLang = '@language';
+
         // ========== ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ==========
         function switchLanguage(lang) {
             document.cookie = "Language=" + lang + "; path=/; max-age=" + (365 * 24 * 60 * 60);
             location.reload();
         }
 
-        // ========== ФИЛЬТР ПО ГОРОДАМ ==========
+        // ========== ЛОКАЛИЗАЦИЯ ==========
+        function getLocalizedCity(p) {
+            if (!p) return '';
+            if (currentLang === 'en' && p.city_eng) return p.city_eng;
+            if (currentLang === 'de' && p.city_ger) return p.city_ger;
+            return p.city || '';
+        }
+
+        function getLocalizedCountry(p) {
+            if (!p) return '';
+            if (currentLang === 'en' && p.country_eng) return p.country_eng;
+            if (currentLang === 'de' && p.country_ger) return p.country_ger;
+            return p.country || '';
+        }
+
+        function getLocalizedAddress(p) {
+            if (!p) return '';
+            if (currentLang === 'en' && p.address_eng) return p.address_eng;
+            if (currentLang === 'de' && p.address_ger) return p.address_ger;
+            return p.address || '';
+        }
+
+        function getLocalizedInfo(p) {
+            if (!p) return '';
+            if (currentLang === 'en' && p.info_eng) return p.info_eng;
+            if (currentLang === 'de' && p.info_ger) return p.info_ger;
+            return p.info || '';
+        }
+
+        // ========== ДВОЙНОЙ ФИЛЬТР ПО СТРАНЕ И ГОРОДУ ==========
         document.addEventListener('DOMContentLoaded', function() {
+            var countryFilter = document.getElementById('countryFilter');
             var cityFilter = document.getElementById('cityFilter');
             var resetBtn = document.getElementById('resetFilter');
             var visibleCount = document.getElementById('visibleCount');
             var totalCount = document.getElementById('totalCount');
             var partnersCount = document.getElementById('partnersCount');
 
-            function filterPartners() {
-                var selectedCity = cityFilter.value.trim();
+            function updateCityOptions() {
+                var selectedCountry = countryFilter.value.trim();
+                var currentCity = cityFilter.value;
+
+                var availableCities = new Set();
                 var cards = document.querySelectorAll('.partner-card');
-                var visible = 0;
 
                 cards.forEach(function(card) {
+                    var cardCountry = card.getAttribute('data-country') || '';
                     var cardCity = card.getAttribute('data-city') || '';
-                    if (selectedCity === '' || cardCity === selectedCity) {
+                    
+                    if (selectedCountry === '' || cardCountry === selectedCountry) {
+                        if (cardCity) availableCities.add(cardCity);
+                    }
+                });
+
+                var sortedCities = Array.from(availableCities).sort();
+                var allCitiesText = currentLang === 'en' ? 'All cities' : (currentLang === 'de' ? 'Alle Städte' : 'Все города');
+                
+                cityFilter.innerHTML = '<option value="">' + allCitiesText + '</option>';
+                
+                sortedCities.forEach(function(originalCity) {
+                    var option = document.createElement('option');
+                    option.value = originalCity;
+                    
+                    var displayCity = originalCity;
+                    for (var key in partnersData) {
+                        if (partnersData[key].city === originalCity) {
+                            displayCity = getLocalizedCity(partnersData[key]);
+                            break;
+                        }
+                    }
+                    option.textContent = displayCity;
+                    cityFilter.appendChild(option);
+                });
+
+                if (currentCity && availableCities.has(currentCity)) {
+                    cityFilter.value = currentCity;
+                } else {
+                    cityFilter.value = '';
+                }
+            }
+
+            function filterPartners() {
+                var selectedCountry = countryFilter.value.trim();
+                var selectedCity = cityFilter.value.trim();
+                var visible = 0;
+                var cards = document.querySelectorAll('.partner-card');
+
+                cards.forEach(function(card) {
+                    var cardCountry = card.getAttribute('data-country') || '';
+                    var cardCity = card.getAttribute('data-city') || '';
+                    
+                    var countryMatch = selectedCountry === '' || cardCountry === selectedCountry;
+                    var cityMatch = selectedCity === '' || cardCity === selectedCity;
+                    
+                    if (countryMatch && cityMatch) {
                         card.classList.remove('hidden');
                         visible++;
                     } else {
@@ -1301,10 +1508,12 @@
                     if (!emptyState) {
                         var newEmpty = document.createElement('div');
                         newEmpty.className = 'empty-state';
+                        var nothingFound = currentLang === 'en' ? 'Nothing found' : (currentLang === 'de' ? 'Nichts gefunden' : 'Ничего не найдено');
+                        var noRepresentatives = currentLang === 'en' ? 'No representatives in the selected country/city' : (currentLang === 'de' ? 'Keine Vertreter im ausgewählten Land/Stadt' : 'Нет представителей в выбранной стране/городе');
                         newEmpty.innerHTML = `
                             <div class="empty-icon"><i class="fas fa-search"></i></div>
-                            <div class="empty-title">@GetLocalized("Ничего не найдено", "Nothing found", "Nichts gefunden")</div>
-                            <div class="empty-text">@GetLocalized("Нет представителей в выбранном городе", "No representatives in the selected city", "Keine Vertreter in der ausgewählten Stadt")</div>
+                            <div class="empty-title">${nothingFound}</div>
+                            <div class="empty-text">${noRepresentatives}</div>
                         `;
                         grid.parentNode.insertBefore(newEmpty, grid.nextSibling);
                         grid.style.display = 'none';
@@ -1319,20 +1528,29 @@
                 }
             }
 
+            if (countryFilter) {
+                countryFilter.addEventListener('change', function() {
+                    updateCityOptions();
+                    filterPartners();
+                });
+            }
+
             if (cityFilter) {
                 cityFilter.addEventListener('change', filterPartners);
             }
 
             if (resetBtn) {
                 resetBtn.addEventListener('click', function() {
-                    if (cityFilter) {
-                        cityFilter.value = '';
-                        filterPartners();
-                    }
+                    if (countryFilter) countryFilter.value = '';
+                    updateCityOptions();
+                    filterPartners();
                 });
             }
 
-            filterPartners();
+            setTimeout(function() {
+                updateCityOptions();
+                filterPartners();
+            }, 100);
         });
 
         // ========== КАРТА ==========
@@ -1354,15 +1572,31 @@
                 var _whatsapp = partner.whatsapp ?? "";
                 var _email = partner.email ?? "";
                 var _city = partner.city ?? "";
+                var _city_eng = partner.city_eng ?? "";
+                var _city_ger = partner.city_ger ?? "";
+                var _country = partner.country ?? "";
+                var _country_eng = partner.country_eng ?? "";
+                var _country_ger = partner.country_ger ?? "";
                 var _address = partner.address ?? "";
+                var _address_eng = partner.address_eng ?? "";
+                var _address_ger = partner.address_ger ?? "";
                 var _photo = partner.photo ?? "";
                 var _info = partner.info ?? "";
+                var _info_eng = partner.info_eng ?? "";
+                var _info_ger = partner.info_ger ?? "";
                 <text>
                 partnersData[@partner.Id] = {
                     id: @partner.Id,
                     name: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_name)),
                     city: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_city)),
+                    city_eng: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_city_eng)),
+                    city_ger: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_city_ger)),
+                    country: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_country)),
+                    country_eng: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_country_eng)),
+                    country_ger: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_country_ger)),
                     address: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_address)),
+                    address_eng: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_address_eng)),
+                    address_ger: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_address_ger)),
                     photo: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_photo)),
                     phone: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_phone)),
                     whatsapp: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_whatsapp)),
@@ -1372,6 +1606,8 @@
                     vkGroup: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_vk_group)),
                     website: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_website)),
                     info: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_info)),
+                    info_eng: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_info_eng)),
+                    info_ger: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_info_ger)),
                     coords: null
                 };
                 </text>
@@ -1458,7 +1694,9 @@
                                     if (isNaN(coords[0]) || isNaN(coords[1])) return;
 
                                     var pid = @partner.Id;
-                                    partnersData[pid] = {
+                                    // не затираем *_eng/*_ger из первичного заполнения
+                                    var prev = partnersData[pid] || {};
+                                    partnersData[pid] = Object.assign({}, prev, {
                                         id: pid,
                                         name: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(name)),
                                         city: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(city)),
@@ -1473,7 +1711,7 @@
                                         website: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(website)),
                                         info: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(info)),
                                         coords: coords
-                                    };
+                                    });
 
                                     var fullBalloon = buildDesktopBalloon(partnersData[pid]);
                                     var shortBalloon = buildMobileBalloon(partnersData[pid]);
@@ -1522,9 +1760,10 @@
             
             html += '<div style="font-size:15px;font-weight:700;color:#FF3A2F;margin-bottom:8px;text-align:center;word-wrap:break-word;">' + escHtml(p.name) + '</div>';
             
-            if (p.city) {
+            var city = getLocalizedCity(p);
+            if (city) {
                 html += '<div style="margin:4px 0;font-size:12px;color:#666;text-align:center;">';
-                html += '<i class="fas fa-city" style="width:16px;color:#FF3A2F;margin-right:4px;"></i> ' + escHtml(p.city);
+                html += '<i class="fas fa-city" style="width:16px;color:#FF3A2F;margin-right:4px;"></i> ' + escHtml(city);
                 html += '</div>';
             }
             
@@ -1563,9 +1802,10 @@
                 html += '</div>';
             }
             
-            if (p.address) {
+            var address = getLocalizedAddress(p);
+            if (address) {
                 html += '<div style="margin:4px 0;font-size:11px;color:#999;text-align:center;word-wrap:break-word;">';
-                html += '<i class="fas fa-map-marker-alt" style="width:16px;color:#FF3A2F;margin-right:4px;"></i> ' + escHtml(p.address);
+                html += '<i class="fas fa-map-marker-alt" style="width:16px;color:#FF3A2F;margin-right:4px;"></i> ' + escHtml(address);
                 html += '</div>';
             }
             
@@ -1577,7 +1817,7 @@
             return '<div style="min-width:160px;font-family:Inter,sans-serif;text-align:center;">' +
                 '<strong style="color:#FF3A2F;font-size:14px;">' + escHtml(p.name) + '</strong>' +
                 '<button type="button" class="balloon-more-btn" onclick="openPartnerModal(' + p.id + ')">' +
-                '@GetLocalized("Подробнее", "More details", "Mehr Details")' +
+                (currentLang === 'en' ? 'More details' : (currentLang === 'de' ? 'Mehr Details' : 'Подробнее')) +
                 '</button></div>';
         }
 
@@ -1667,7 +1907,7 @@
                 var copyBtn = '';
                 if (copyValue) {
                     var safe = String(copyValue).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-                    copyBtn = '<button type="button" class="copy-btn" title="@GetLocalized("Скопировать", "Copy", "Kopieren")" ' +
+                    copyBtn = '<button type="button" class="copy-btn" title="' + (currentLang === 'en' ? 'Copy' : (currentLang === 'de' ? 'Kopieren' : 'Скопировать')) + '" ' +
                         'onclick="copyPartnerText(this, \'' + safe + '\')">' +
                         '<i class="fas fa-copy"></i></button>';
                 }
@@ -1680,18 +1920,69 @@
                 );
             }
 
-            if (p.city) addRow('fas fa-city', escHtml(p.city), null);
-            if (p.address) addRow('fas fa-map-marker-alt', escHtml(p.address), null);
-            if (p.phone) addRow('fas fa-phone-alt', '<a href="tel:' + escHtml(p.phone) + '">' + escHtml(p.phone) + '</a>', p.phone);
-            if (p.whatsapp) addRow('fab fa-whatsapp', '<a href="https://wa.me/' + escHtml(p.whatsapp) + '" target="_blank">WhatsApp: ' + escHtml(p.whatsapp) + '</a>', null);
-            if (p.telegram) addRow('fab fa-telegram-plane', '<a href="https://t.me/' + escHtml(p.telegram) + '" target="_blank">Telegram: ' + escHtml(p.telegram) + '</a>', null);
-            if (p.email) addRow('fas fa-envelope', '<a href="mailto:' + escHtml(p.email) + '">' + escHtml(p.email) + '</a>', p.email);
-            if (p.vk) addRow('fab fa-vk', '<a href="' + escHtml(p.vk) + '" target="_blank">@GetLocalized("ВКонтакте", "VK", "VK")</a>', null);
-            if (p.vkGroup) addRow('fab fa-vk', '<a href="' + escHtml(p.vkGroup) + '" target="_blank">@GetLocalized("Группа ВК", "VK Group", "VK-Gruppe")</a>', null);
-            if (p.website) addRow('fas fa-globe', '<a href="' + escHtml(p.website) + '" target="_blank">' + escHtml(p.website) + '</a>', null);
-            if (p.info) addRow('fas fa-info-circle', escHtml(p.info).replace(/\n/g, '<br>'), null);
+            var mobile = isMobileView();
 
-            body.innerHTML = rows.length ? rows.join('') : '<div class="partner-detail-row"><div class="label">@GetLocalized("Нет данных", "No data", "Keine Daten")</div></div>';
+            // 1) город
+            var cityDisplay = getLocalizedCity(p);
+            if (cityDisplay) addRow('fas fa-city', escHtml(cityDisplay), null);
+
+            // 2) адрес
+            var addressDisplay = getLocalizedAddress(p);
+            if (addressDisplay) addRow('fas fa-map-marker-alt', escHtml(addressDisplay), null);
+
+            // 3) телефон — copy только на мобилке
+            if (p.phone) {
+                addRow(
+                    'fas fa-phone-alt',
+                    '<a href="tel:' + escHtml(p.phone) + '">' + escHtml(p.phone) + '</a>',
+                    mobile ? p.phone : null
+                );
+            }
+
+            // 4) WhatsApp — иконка + номер-ссылка
+            if (p.whatsapp) {
+                var waNum = String(p.whatsapp).replace(/[^0-9+]/g, '');
+                addRow(
+                    'fab fa-whatsapp',
+                    '<a href="https://wa.me/' + escHtml(waNum) + '" target="_blank">' + escHtml(p.whatsapp) + '</a>',
+                    null
+                );
+            }
+
+            // 5) Telegram — иконка + ник-ссылка
+            if (p.telegram) {
+                var tg = String(p.telegram).replace(/^@@/, '');
+                addRow(
+                    'fab fa-telegram-plane',
+                    '<a href="https://t.me/' + escHtml(tg) + '" target="_blank">' + escHtml(p.telegram) + '</a>',
+                    null
+                );
+            }
+
+            // 6) ВКонтакте
+            if (p.vk) {
+                addRow('fab fa-vk', '<a href="' + escHtml(p.vk) + '" target="_blank">' +
+                    (currentLang === 'en' || currentLang === 'de' ? 'VK' : 'ВКонтакте') + '</a>', null);
+            }
+
+            // 7) Группа ВК
+            if (p.vkGroup) {
+                addRow('fab fa-vk', '<a href="' + escHtml(p.vkGroup) + '" target="_blank">' +
+                    (currentLang === 'en' ? 'VK Group' : (currentLang === 'de' ? 'VK-Gruppe' : 'Группа ВК')) + '</a>', null);
+            }
+
+            // 8) сайт — текст ссылки
+            if (p.website) {
+                addRow('fas fa-globe', '<a href="' + escHtml(p.website) + '" target="_blank">' + escHtml(p.website) + '</a>', null);
+            }
+
+            // 9) info
+            var infoDisplay = getLocalizedInfo(p);
+            if (infoDisplay) {
+                addRow('fas fa-info-circle', escHtml(infoDisplay).replace(/\n/g, '<br>'), null);
+            }
+
+            body.innerHTML = rows.length ? rows.join('') : '<div class="partner-detail-row"><div class="label">' + (currentLang === 'en' ? 'No data' : (currentLang === 'de' ? 'Keine Daten' : 'Нет данных')) + '</div></div>';
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
 
