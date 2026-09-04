@@ -1,17 +1,21 @@
 ﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='75' font-size='80' font-weight='bold' text-anchor='middle' fill='red' font-family='Arial'>R</text></svg>">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='75' font-size='80' font-weight='bold' text-anchor='middle' fill='red' font-family='Arial'>R</text></svg>">
 
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/reflash_oficial.styles.css" asp-append-version="true" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* ==========================================
@@ -486,16 +490,17 @@
         }
     </style>
 </head>
+
 <body>
 
     @{
         var currentLang = Context.Request.Cookies["Language"] ?? "ru";
-        
+
         string GetLocalized(string ru, string en, string de)
         {
             return currentLang == "ru" ? ru :
-                   currentLang == "en" ? en :
-                   currentLang == "de" ? de : ru;
+            currentLang == "en" ? en :
+            currentLang == "de" ? de : ru;
         }
     }
 
@@ -504,24 +509,23 @@
             <div class="container-fluid">
                 <div class="navbar-wrapper">
                     <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-    <img src="/shared-fotos/logo/logo.png" alt="ReFlash Logo" 
-         style="height: 32px; width: auto; filter: 
+                        <img src="/shared-fotos/logo/logo.png" alt="ReFlash Logo" style="height: 32px; width: auto; filter: 
                 drop-shadow(0 0 1px #000000) 
                 drop-shadow(0 0 2px #000000) 
                 drop-shadow(0 0 3px #000000);" />
-</a>
-                    
+                    </a>
+
                     <!-- Навигация -->
                     <div class="nav-links">
                         <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
-                           asp-area="" asp-controller="Home" asp-action="Index">
-                            
+                            asp-area="" asp-controller="Home" asp-action="Index">
+
                             @GetLocalized("Главная", "Home", "Start")
                         </a>
-                        
+
                         <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "Partners" ? "active" : "")"
-                           asp-area="" asp-controller="Home" asp-action="Partners">
-                            
+                            asp-area="" asp-controller="Home" asp-action="Partners">
+
                             @GetLocalized("Партнёры", "Partners", "Partner")
                         </a>
                     </div>
@@ -529,27 +533,31 @@
                     <!-- Социальные иконки -->
                     <div class="social-icons">
                         <!-- Telegram -->
-                        <a href="https://t.me/reflashteamofficial" class="social-link telegram" target="_blank" title="Telegram">
+                        <a href="https://t.me/reflashteamofficial" class="social-link telegram" target="_blank"
+                            title="Telegram">
                             <i class="fab fa-telegram-plane"></i>
                         </a>
-                        
+
                         <!-- VK -->
                         <a href="https://vk.ru/reflashteam" class="social-link vk" target="_blank" title="VK">
                             <i class="fab fa-vk"></i>
                         </a>
-                        
+
                         <!-- Drive2.ru (кастомная иконка с буквой D) -->
-                        <a href="https://www.drive2.ru/o/reflashteam" class="social-link drive2" target="_blank" title="Drive2.ru">
+                        <a href="https://www.drive2.ru/o/reflashteam" class="social-link drive2" target="_blank"
+                            title="Drive2.ru">
                             D
                         </a>
-                        
+
                         <!-- Facebook -->
-                        <a href="https://www.facebook.com/reflashteam/" class="social-link facebook" target="_blank" title="Facebook">
+                        <a href="https://www.facebook.com/reflashteam/" class="social-link facebook" target="_blank"
+                            title="Facebook">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        
+
                         <!-- Instagram -->
-                        <a href="https://www.instagram.com/reflashteam/" class="social-link instagram" target="_blank" title="Instagram">
+                        <a href="https://www.instagram.com/reflashteam/" class="social-link instagram" target="_blank"
+                            title="Instagram">
                             <i class="fab fa-instagram"></i>
                         </a>
                     </div>
@@ -568,8 +576,8 @@
 
                         <span class="nav-divider"></span>
 
-                        <button class="nav-btn theme-btn" id="themeToggle" onclick="toggleTheme()" 
-                                title="@GetLocalized("Тема", "Theme", "Thema")">
+                        <button class="nav-btn theme-btn" id="themeToggle" onclick="toggleTheme()"
+                            title="@GetLocalized("Тема", "Theme", "Thema")">
                             <i class="fas fa-moon" id="themeIcon"></i>
                             <span id="themeLabel">
                                 @GetLocalized("Тёмная", "Dark", "Dunkel")
@@ -590,7 +598,7 @@
     <footer class="footer">
         <div class="footer-container">
             <p class="footer-text">
-                &copy; @DateTime.Now.Year ReFlash Official
+                &copy; 2005-@DateTime.Now.Year ReflashTeam
             </p>
         </div>
     </footer>
@@ -615,11 +623,11 @@
             if (newTheme === 'dark') {
                 icon.className = 'fas fa-moon';
                 label.textContent = lang === 'ru' ? 'Тёмная' :
-                                   lang === 'en' ? 'Dark' : 'Dunkel';
+                    lang === 'en' ? 'Dark' : 'Dunkel';
             } else {
                 icon.className = 'fas fa-sun';
                 label.textContent = lang === 'ru' ? 'Светлая' :
-                                   lang === 'en' ? 'Light' : 'Hell';
+                    lang === 'en' ? 'Light' : 'Hell';
             }
 
             document.cookie = "Theme=" + newTheme + "; path=/; max-age=" + (365 * 24 * 60 * 60);
@@ -645,7 +653,7 @@
                 icon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
             }
             if (label) {
-                label.textContent = theme === 'dark' 
+                label.textContent = theme === 'dark'
                     ? (lang === 'ru' ? 'Тёмная' : lang === 'en' ? 'Dark' : 'Dunkel')
                     : (lang === 'ru' ? 'Светлая' : lang === 'en' ? 'Light' : 'Hell');
             }
@@ -663,11 +671,12 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             loadTheme();
             updateActiveLanguage();
         });
     </script>
 
 </body>
+
 </html>
