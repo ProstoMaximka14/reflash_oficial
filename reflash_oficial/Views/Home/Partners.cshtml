@@ -118,7 +118,6 @@
             transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* Кастомный скролл */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -249,7 +248,6 @@
             width: 100%;
         }
 
-        /* Кастомные кнопки управления картой */
         .yandex-map-controls {
             position: absolute;
             bottom: 20px;
@@ -392,7 +390,7 @@
             font-weight: 700;
         }
 
-        /* ========== СЕТКА ПАРТНЕРОВ ========== */
+        /* ========== СЕТКА ПАРТНЕРОВ (ГОРИЗОНТАЛЬНЫЕ КАРТОЧКИ) ========== */
         .partners-section {
             margin-top: 10px;
         }
@@ -432,25 +430,30 @@
 
         .partners-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
         }
 
-        /* Карточка партнера */
+        /* ===== ГОРИЗОНТАЛЬНАЯ КАРТОЧКА ===== */
         .partner-card {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
             background: var(--partner-bg);
-            border-radius: 24px;
+            border-radius: 20px;
             border: 1px solid var(--partner-border);
             overflow: hidden;
             transition: all 0.3s ease;
             cursor: pointer;
-            box-shadow: 0 4px 20px var(--shadow-color);
+            box-shadow: 0 2px 12px var(--shadow-color);
+            height: 180px;
+            min-height: 160px;
         }
 
         .partner-card:hover {
-            transform: translateY(-6px);
+            transform: translateY(-4px);
             border-color: var(--partner-hover-border);
-            box-shadow: 0 20px 30px -12px var(--shadow-hover);
+            box-shadow: 0 12px 24px -8px var(--shadow-hover);
         }
 
         .partner-card.highlight {
@@ -462,10 +465,11 @@
             display: none;
         }
 
-        /* Фото */
+        /* ===== ФОТО (СЛЕВА) ===== */
         .partner-photo-container {
-            width: 100%;
-            height: 160px;
+            flex: 0 0 160px;
+            width: 160px;
+            height: 100%;
             overflow: hidden;
             background: var(--bg-secondary);
             position: relative;
@@ -492,151 +496,84 @@
         }
 
         .no-photo-icon {
-            font-size: 64px;
+            font-size: 48px;
             color: var(--text-muted);
         }
 
-        /* Информация */
+        /* ===== ИНФОРМАЦИЯ (СПРАВА) ===== */
         .partner-info {
-            padding: 14px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 14px 18px;
+            min-width: 0;
         }
 
         .partner-name {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .partner-name a {
+            margin-bottom: 4px;
             color: var(--text-primary);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .partner-name a:hover {
-            color: var(--accent-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .partner-city-info {
             display: flex;
-            align-items: flex-start;
-            gap: 8px;
+            align-items: center;
+            gap: 6px;
             font-size: 13px;
             color: var(--text-secondary);
-            margin-bottom: 10px;
-            line-height: 1.4;
+            margin-bottom: 4px;
         }
+
         .partner-city-info .city-part {
-            font-weight: 600;
-            color: var(--text-primary);
-            white-space: nowrap;
+            font-weight: 500;
+            color: var(--text-secondary);
         }
-        .partner-city-info .info-part {
-            flex: 1;
-            min-width: 0;
-            color: var(--text-muted);
-            word-break: break-word;
-        }
+
         .partner-card-phone {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             font-size: 14px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
+
         .partner-card-phone a {
             color: var(--accent-color);
             text-decoration: none;
             font-weight: 600;
         }
+
+        .partner-card-phone a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== КНОПКА ПОДРОБНЕЕ ===== */
         .partner-more-btn {
-            display: block;
-            width: 100%;
-            padding: 10px 14px;
+            display: inline-block;
+            width: auto;
+            align-self: flex-start;
+            padding: 8px 20px;
             background: var(--accent-color);
             color: #fff !important;
             border: none;
-            border-radius: 12px;
+            border-radius: 30px;
             font-size: 13px;
             font-weight: 700;
             cursor: pointer;
             text-align: center;
             font-family: inherit;
+            transition: background 0.2s, transform 0.2s;
+            letter-spacing: 0.5px;
         }
+
         .partner-more-btn:hover {
             background: var(--accent-hover);
-        }
-
-        /* Контакты */
-        .contact-info {
-            margin-bottom: 16px;
-        }
-
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
-        }
-
-        .contact-item:last-child {
-            border-bottom: none;
-        }
-
-        .contact-icon {
-            width: 28px;
-            color: var(--accent-color);
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .contact-text {
-            flex: 1;
-            color: var(--text-secondary);
-        }
-
-        .contact-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .contact-link:hover {
-            color: var(--accent-color);
-        }
-
-        .no-contact {
-            color: var(--text-muted);
-            font-style: italic;
-        }
-
-        /* Адрес */
-        .partner-address {
-            padding: 14px 22px;
-            background: var(--partner-address-bg);
-            border-top: 1px solid var(--border-color);
-            font-size: 13px;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: background 0.3s ease, border-color 0.3s ease;
-        }
-
-        .partner-address i {
-            color: var(--accent-color);
-            font-size: 14px;
-        }
-
-        .partner-city-badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 20px;
-            background: var(--accent-color);
-            color: white;
-            font-size: 11px;
-            font-weight: 600;
-            margin-left: 8px;
+            transform: scale(1.02);
         }
 
         /* Пустое состояние */
@@ -647,6 +584,7 @@
             border-radius: 28px;
             border: 1px solid var(--empty-border);
             transition: background 0.3s ease, border-color 0.3s ease;
+            grid-column: 1 / -1;
         }
 
         .empty-icon {
@@ -666,26 +604,96 @@
             color: var(--text-muted);
         }
 
-        /* ==========================================
-           АДАПТИВНОСТЬ
-           ========================================== */
-        @@media (max-width: 1200px) {
-            .partners-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 16px;
-            }
-        }
-
+        /* ===== АДАПТИВ ===== */
+        /* Планшеты */
         @@media (max-width: 992px) {
             .partners-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, 1fr) !important;
                 gap: 14px;
             }
         }
 
-        @@media (max-width: 768px) {
+        /* Планшеты - уменьшаем карточки */
+        @@media (min-width: 601px) and (max-width: 900px) {
+            .partner-photo-container {
+                flex: 0 0 120px;
+                width: 120px;
+            }
+
+            .partner-card {
+                height: 150px;
+                min-height: 140px;
+            }
+
+            .partner-name {
+                font-size: 14px;
+            }
+
+            .partner-city-info {
+                font-size: 12px;
+            }
+
+            .partner-card-phone {
+                font-size: 13px;
+            }
+
+            .partner-more-btn {
+                font-size: 12px;
+                padding: 6px 16px;
+            }
+        }
+
+        /* Телефоны - вертикальные карточки */
+        @@media (max-width: 600px) {
             .main-container {
                 padding: 0 12px 30px;
+            }
+
+            .partners-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .partner-card {
+                flex-direction: column;
+                height: auto;
+                min-height: unset;
+                border-radius: 16px;
+            }
+
+            .partner-photo-container {
+                flex: 0 0 auto;
+                width: 100%;
+                height: 140px;
+            }
+
+            .partner-info {
+                padding: 12px 14px;
+                text-align: center;
+            }
+
+            .partner-name {
+                white-space: normal;
+                text-align: center;
+            }
+
+            .partner-city-info {
+                justify-content: center;
+            }
+
+            .partner-card-phone {
+                justify-content: center;
+            }
+
+            .partner-more-btn {
+                align-self: center;
+                width: 100%;
+                padding: 10px;
+                border-radius: 12px;
+            }
+
+            .no-photo-icon {
+                font-size: 36px;
             }
 
             .language-switcher {
@@ -765,58 +773,6 @@
                 padding: 4px 12px;
             }
 
-            .partners-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-
-            .partner-card {
-                border-radius: 16px;
-            }
-
-            .partner-photo-container {
-                height: 140px;
-            }
-
-            .no-photo-icon {
-                font-size: 40px;
-            }
-
-            .partner-info {
-                padding: 12px 14px;
-            }
-
-            .partner-name {
-                font-size: 14px;
-                margin-bottom: 10px;
-            }
-
-            .contact-item {
-                font-size: 12px;
-                padding: 4px 0;
-                gap: 8px;
-            }
-
-            .contact-icon {
-                width: 20px;
-                font-size: 12px;
-            }
-
-            .partner-address {
-                padding: 10px 14px;
-                font-size: 11px;
-                gap: 8px;
-            }
-
-            .partner-address i {
-                font-size: 12px;
-            }
-
-            .partner-city-badge {
-                font-size: 9px;
-                padding: 1px 8px;
-            }
-
             .yandex-map-controls {
                 bottom: 10px;
                 right: 10px;
@@ -830,9 +786,31 @@
             }
         }
 
-        @@media (max-width: 480px) {
-            .main-container {
-                padding: 0 8px 20px;
+        /* Очень маленькие телефоны */
+        @@media (max-width: 400px) {
+            .partner-photo-container {
+                height: 110px;
+            }
+
+            .partner-info {
+                padding: 10px 12px;
+            }
+
+            .partner-name {
+                font-size: 14px;
+            }
+
+            .partner-city-info {
+                font-size: 12px;
+            }
+
+            .partner-card-phone {
+                font-size: 12px;
+            }
+
+            .partner-more-btn {
+                font-size: 12px;
+                padding: 8px;
             }
 
             .page-title {
@@ -843,8 +821,8 @@
                 font-size: 18px;
             }
 
-            .section-header {
-                margin-bottom: 16px;
+            .partners-grid {
+                gap: 8px;
             }
 
             .filter-card {
@@ -852,19 +830,10 @@
                 border-radius: 16px;
             }
 
-            .filter-label {
-                font-size: 12px;
-            }
-
-            .filter-label i {
-                font-size: 14px;
-            }
-
             .filter-select {
                 padding: 8px 12px;
                 font-size: 12px;
                 border-radius: 12px;
-                background-position: right 10px center;
                 padding-right: 30px;
                 min-height: 36px;
             }
@@ -877,67 +846,6 @@
 
             .filter-result {
                 font-size: 12px;
-            }
-
-            .partners-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-
-            .partner-photo-container {
-                height: 110px;
-            }
-
-            .no-photo-icon {
-                font-size: 30px;
-            }
-
-            .partner-info {
-                padding: 8px 10px;
-            }
-
-            .partner-name {
-                font-size: 12px;
-                margin-bottom: 6px;
-            }
-
-            .partner-name i {
-                font-size: 11px;
-                margin-right: 4px;
-            }
-
-            .contact-item {
-                font-size: 10px;
-                padding: 3px 0;
-                gap: 6px;
-            }
-
-            .contact-icon {
-                width: 16px;
-                font-size: 10px;
-            }
-
-            .contact-text {
-                font-size: 10px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            .partner-address {
-                padding: 6px 10px;
-                font-size: 9px;
-                gap: 4px;
-            }
-
-            .partner-address i {
-                font-size: 10px;
-            }
-
-            .partner-city-badge {
-                font-size: 8px;
-                padding: 1px 6px;
-                margin-left: 4px;
             }
 
             .map-container {
@@ -963,105 +871,105 @@
             }
         }
 
-        /* ===== МОДАЛКА ПАРТНЁРА (МОБИЛКА) ===== */
+        /* ===== МОДАЛКА ПАРТНЁРА ===== */
         .partner-detail-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 5000;
-    background: rgba(0,0,0,0.72);
-    align-items: flex-end;
-    justify-content: center;
-    padding: 0;
-    box-sizing: border-box;
-    overflow: hidden; /* не даём оверлею раздуваться */
-}
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            background: rgba(0,0,0,0.72);
+            align-items: flex-end;
+            justify-content: center;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
 
-.partner-detail-overlay.active { display: flex; }
+        .partner-detail-overlay.active { display: flex; }
 
-.partner-detail-sheet {
-    background: var(--bg-card);
-    color: var(--text-primary);
-    width: 100%;
-    max-width: 100%;          /* не шире экрана */
-    box-sizing: border-box;
-    max-height: 85vh;
-    overflow-x: hidden;       /* горизонтальный вылет */
-    overflow-y: auto;
-    border-radius: 20px 20px 0 0;
-    padding: 16px 14px 24px;
-    border: 1px solid var(--border-color);
-    position: relative;
-}
+        .partner-detail-sheet {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            max-height: 85vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            border-radius: 20px 20px 0 0;
+            padding: 16px 14px 24px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
 
-.partner-detail-title {
-    font-size: 17px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    padding-right: 0;
-    color: var(--accent-color);
-    word-break: break-word;
-    overflow-wrap: anywhere;
-}
+        .partner-detail-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            padding-right: 0;
+            color: var(--accent-color);
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
 
-.partner-detail-photo-wrap {
-    text-align: center;
-    margin: 0 0 12px 0;
-    width: 100%;
-    overflow: hidden;
-}
+        .partner-detail-photo-wrap {
+            text-align: center;
+            margin: 0 0 12px 0;
+            width: 100%;
+            overflow: hidden;
+        }
 
-.partner-detail-photo {
-    width: 100%;
-    max-width: 100%;
-    height: auto !important;
-    max-height: 200px;
-    object-fit: contain !important;
-    object-position: center;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-secondary);
-    display: block;
-    margin: 0 auto;
-}
+        .partner-detail-photo {
+            width: 100%;
+            max-width: 100%;
+            height: auto !important;
+            max-height: 200px;
+            object-fit: contain !important;
+            object-position: center;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            display: block;
+            margin: 0 auto;
+        }
 
-.partner-detail-photo-placeholder {
-    width: 100%;
-    height: 100px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    color: var(--text-muted);
-    font-size: 40px;
-}
+        .partner-detail-photo-placeholder {
+            width: 100%;
+            height: 100px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 40px;
+        }
 
-.partner-detail-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border-color);
-    font-size: 13px;
-    min-width: 0;             /* важно для flex */
-    max-width: 100%;
-    box-sizing: border-box;
-}
+        .partner-detail-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+            min-width: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
 
-.partner-detail-row .label {
-    flex: 1;
-    min-width: 0;
-    word-break: break-word;
-    overflow-wrap: anywhere;
-}
+        .partner-detail-row .label {
+            flex: 1;
+            min-width: 0;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
 
-.partner-detail-row .label a {
-    color: var(--accent-color);
-    text-decoration: none;
-    word-break: break-all;    /* длинные URL/email */
-}
+        .partner-detail-row .label a {
+            color: var(--accent-color);
+            text-decoration: none;
+            word-break: break-all;
+        }
 
         .copy-btn {
             flex-shrink: 0;
@@ -1075,6 +983,7 @@
             cursor: pointer;
             white-space: nowrap;
         }
+
         .copy-btn.copied {
             border-color: var(--accent-color);
             color: var(--accent-color);
@@ -1095,80 +1004,109 @@
             text-align: center;
             text-decoration: none;
         }
+
+        /* Модалка на ПК */
         @@media (min-width: 769px) {
-    .partner-detail-overlay {
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(8px);
-    }
+            .partner-detail-overlay {
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(8px);
+            }
 
-    .partner-detail-sheet {
-        max-width: 480px;              /* ← ограничиваем ширину */
-        width: 100%;
-        border-radius: 24px;           /* ← скругление со всех сторон */
-        max-height: 80vh;
-        padding: 28px 32px 32px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
-        animation: modalFadeIn 0.3s ease;
-    }
+            .partner-detail-sheet {
+                max-width: 480px;
+                width: 100%;
+                border-radius: 24px;
+                max-height: 80vh;
+                padding: 28px 32px 32px;
+                border: 1px solid var(--border-color);
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+                animation: modalFadeIn 0.3s ease;
+            }
 
-    @@keyframes modalFadeIn {
-        from {
-            opacity: 0;
-            transform: scale(0.95) translateY(20px);
+            @@keyframes modalFadeIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.95) translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+            }
+
+            .partner-detail-title {
+                font-size: 22px;
+                padding-right: 40px;
+                margin-bottom: 16px;
+            }
+
+            .partner-detail-photo {
+                max-height: 180px;
+            }
+
+            .partner-detail-photo-placeholder {
+                height: 120px;
+                font-size: 48px;
+            }
+
+            .partner-detail-row {
+                font-size: 14px;
+                padding: 10px 0;
+                gap: 12px;
+            }
+
+            .partner-detail-row .p-icon {
+                width: 28px;
+                font-size: 16px;
+            }
+
+            .copy-btn {
+                padding: 4px 12px;
+                font-size: 12px;
+            }
         }
-        to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
+
+        /* Кнопка закрытия модалки */
+        .partner-detail-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-muted);
+            z-index: 10;
+            padding: 4px 10px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            line-height: 1;
         }
-    }
 
-    .partner-detail-close:hover {
-        background: var(--accent-color);
-        color: white;
-        border-color: var(--accent-color);
-    }
+        .partner-detail-close:hover {
+            background: var(--bg-secondary);
+            color: var(--accent-color);
+        }
 
-    .partner-detail-title {
-        font-size: 22px;
-        padding-right: 40px;
-        margin-bottom: 16px;
-    }
-
-    .partner-detail-photo {
-        max-height: 180px;
-    }
-
-    .partner-detail-photo-placeholder {
-        height: 120px;
-        font-size: 48px;
-    }
-
-    .partner-detail-row {
-        font-size: 14px;
-        padding: 10px 0;
-        gap: 12px;
-    }
-
-    .partner-detail-row .p-icon {
-        width: 28px;
-        font-size: 16px;
-    }
-
-    .copy-btn {
-        padding: 4px 12px;
-        font-size: 12px;
-    }
-}
+        @@media (max-width: 768px) {
+            .partner-detail-close {
+                top: 8px;
+                right: 12px;
+                font-size: 24px;
+                padding: 2px 8px;
+            }
+        }
     </style>
 </head>
 <body>
 
     <div class="main-container">
-        <!-- Карта -->
+        <!-- ============================================================ -->
+        <!-- КАРТА -->
+        <!-- ============================================================ -->
         <div class="map-section">
             <div class="map-card">
                 <div class="map-header">
@@ -1197,7 +1135,9 @@
             </div>
         </div>
 
-        <!-- ===== ФИЛЬТР ПО ГОРОДАМ ===== -->
+        <!-- ============================================================ -->
+        <!-- ФИЛЬТР ПО ГОРОДАМ -->
+        <!-- ============================================================ -->
         <div class="filter-section">
             <div class="filter-card">
                 <div class="filter-label">
@@ -1213,16 +1153,14 @@
                 </select>
                 <button class="filter-reset" id="resetFilter">
                     <i class="fas fa-undo-alt" style="margin-right: 6px;"></i>
-                    @GetLocalized("Сбросить", "Reset", "Zurücksetzen")
+                    
                 </button>
-                <div class="filter-result" id="filterResult">
-                    @GetLocalized("Показано", "Showing", "Angezeigt") <strong id="visibleCount">@(Model?.Count ?? 0)</strong>
-                    @GetLocalized("из", "of", "von") <span id="totalCount">@(Model?.Count ?? 0)</span>
-                </div>
             </div>
         </div>
 
-        <!-- Список партнеров -->
+        <!-- ============================================================ -->
+        <!-- СПИСОК ПАРТНЕРОВ -->
+        <!-- ============================================================ -->
         <div class="partners-section">
             <div class="section-header">
                 <h2 class="section-title">
@@ -1238,7 +1176,7 @@
                     @foreach (var partner in Model)
                     {
                         <div class="partner-card" id="partner-@partner.Id" data-partner-id="@partner.Id" data-city="@(partner.city ?? "")">
-                            <!-- Фото -->
+                            <!-- Фото (слева) -->
                             <div class="partner-photo-container">
                                 @if (!string.IsNullOrEmpty(partner.photo))
                                 {
@@ -1255,34 +1193,23 @@
                                 }
                             </div>
 
-                            <!-- Информация -->
+                            <!-- Информация (справа) -->
                             <div class="partner-info">
                                 <div class="partner-name">@partner.name</div>
 
                                 @if (!string.IsNullOrEmpty(partner.city))
                                 {
                                     <div class="partner-city-info">
-                                        @if (!string.IsNullOrEmpty(partner.city))
-                                        {
-                                            <span class="city-part">@partner.city</span>
-                                        }
-                                        
+                                        <i class="fas fa-city" style="font-size: 12px; opacity: 0.7;"></i>
+                                        <span class="city-part">@partner.city</span>
                                     </div>
                                 }
 
                                 @if (!string.IsNullOrEmpty(partner.phone))
                                 {
                                     <div class="partner-card-phone">
+                                        <i class="fas fa-phone-alt" style="font-size: 12px; opacity: 0.7;"></i>
                                         <a href="tel:@partner.phone" onclick="event.stopPropagation();">@partner.phone</a>
-                                    </div>
-                                }
-
-                                @if (!string.IsNullOrEmpty(partner.vk))
-                                {
-                                    <div class="partner-card-phone">
-                                        <a href="@partner.vk" target="_blank" onclick="event.stopPropagation();">
-                                            <i class="fab fa-vk" style="margin-right: 6px;"></i>ВКонтакте
-                                        </a>
                                     </div>
                                 }
 
@@ -1315,15 +1242,23 @@
         </div>
     </div>
 
-        <!-- МОДАЛКА ДЕТАЛЕЙ ПАРТНЁРА (МОБИЛКА) -->
+    <!-- ============================================================ -->
+    <!-- МОДАЛКА ДЕТАЛЕЙ ПАРТНЁРА -->
+    <!-- ============================================================ -->
     <div class="partner-detail-overlay" id="partnerDetailModal">
         <div class="partner-detail-sheet" id="partnerDetailSheet">
+            <button type="button" id="partnerDetailClose" class="partner-detail-close" title="Закрыть">
+                ×
+            </button>
             <div class="partner-detail-title" id="partnerDetailTitle"></div>
             <div id="partnerDetailBody"></div>
         </div>
     </div>
 
-<script>
+    <!-- ============================================================ -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================================================ -->
+    <script>
         // ========== ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ==========
         function switchLanguage(lang) {
             document.cookie = "Language=" + lang + "; path=/; max-age=" + (365 * 24 * 60 * 60);
@@ -1353,15 +1288,12 @@
                     }
                 });
 
-                // Обновляем счётчики
                 if (visibleCount) visibleCount.textContent = visible;
                 if (partnersCount) partnersCount.textContent = visible;
 
-                // Обновляем общее количество в фильтре
                 var total = cards.length;
                 if (totalCount) totalCount.textContent = total;
 
-                // Если ничего не найдено, показываем сообщение
                 var emptyState = document.querySelector('.empty-state');
                 var grid = document.getElementById('partnersGrid');
 
@@ -1387,12 +1319,10 @@
                 }
             }
 
-            // Событие изменения фильтра
             if (cityFilter) {
                 cityFilter.addEventListener('change', filterPartners);
             }
 
-            // Сброс фильтра
             if (resetBtn) {
                 resetBtn.addEventListener('click', function() {
                     if (cityFilter) {
@@ -1402,7 +1332,6 @@
                 });
             }
 
-            // Запускаем фильтр при загрузке
             filterPartners();
         });
 
@@ -1412,7 +1341,6 @@
         var allPartners = [];
         var partnersData = {};
 
-        // данные всех партнёров (для модалки с карточки, даже без координат)
         @if (Model != null)
         {
             foreach (var partner in Model)
@@ -1461,7 +1389,6 @@
                 card.addEventListener('click', function (e) {
                     if (e.target.closest('a') || e.target.closest('.partner-more-btn')) return;
 
-                    // ПК: без модалки (только кнопка «Подробнее»)
                     if (!isMobileView()) {
                         highlightPartnerCard(id, false);
                         var p = partnersData[id];
@@ -1471,7 +1398,6 @@
                         return;
                     }
 
-                    // Телефон: клик по карточке = полное окно (как «Подробнее»)
                     highlightPartnerCard(id, false);
                     openPartnerModal(id);
                 });
@@ -1592,74 +1518,60 @@
         }
 
         function buildDesktopBalloon(p) {
-    // Компактный балун с центрированием
-    var html = '<div style="max-width:240px;min-width:180px;font-family:Inter,sans-serif;text-align:center;padding:8px 4px;">';
-    
-    // Имя по центру
-    html += '<div style="font-size:15px;font-weight:700;color:#FF3A2F;margin-bottom:8px;text-align:center;word-wrap:break-word;">' + escHtml(p.name) + '</div>';
-    
-    
-    
-    // Город (если есть)
-    if (p.city) {
-        html += '<div style="margin:4px 0;font-size:12px;color:#666;text-align:center;">';
-        html += '<i class="fas fa-city" style="width:16px;color:#FF3A2F;margin-right:4px;"></i> ' + escHtml(p.city);
-        html += '</div>';
-    }
-    
-    // Телефон
-    if (p.phone) {
-        html += '<div style="margin:4px 0;font-size:13px;text-align:center;">';
-        html += '<i class="fas fa-phone-alt" style="width:16px;color:#FF3A2F;margin-right:4px;"></i> ';
-        html += '<a href="tel:' + escHtml(p.phone) + '" style="color:#FF3A2F;text-decoration:none;font-weight:600;">' + escHtml(p.phone) + '</a>';
-        html += '</div>';
-    }
-    
-    // VK (если есть)
-    if (p.vk) {
-        html += '<div style="margin:4px 0;font-size:13px;text-align:center;">';
-        html += '<i class="fab fa-vk" style="width:16px;color:#4C75A3;margin-right:4px;"></i> ';
-        html += '<a href="' + escHtml(p.vk) + '" target="_blank" style="color:#4C75A3;text-decoration:none;">ВКонтакте</a>';
-        html += '</div>';
-    }
-    
-    
-    
-     // WhatsApp (если есть)
-    if (p.whatsapp) {
-        html += '<div style="margin:4px 0;font-size:13px;text-align:center;">';
-        html += '<i class="fab fab fa-whatsapp" style="width:16px;color:#0088cc;margin-right:4px;"></i> ';
-        html += '<a href="https://wa.me/' + escHtml(p.whatsapp.replace(/[^0-9+]/g, '')) + '" target="_blank" style="color:#0088cc;text-decoration:none;">' + escHtml(p.whatsapp) + '</a>';
-        html += '</div>';
-    }
+            var html = '<div style="max-width:240px;min-width:180px;font-family:Inter,sans-serif;text-align:center;padding:8px 4px;">';
+            
+            html += '<div style="font-size:15px;font-weight:700;color:#FF3A2F;margin-bottom:8px;text-align:center;word-wrap:break-word;">' + escHtml(p.name) + '</div>';
+            
+            if (p.city) {
+                html += '<div style="margin:4px 0;font-size:12px;color:#666;text-align:center;">';
+                html += '<i class="fas fa-city" style="width:16px;color:#FF3A2F;margin-right:4px;"></i> ' + escHtml(p.city);
+                html += '</div>';
+            }
+            
+            if (p.phone) {
+                html += '<div style="margin:4px 0;font-size:13px;text-align:center;">';
+                html += '<i class="fas fa-phone-alt" style="width:16px;color:#FF3A2F;margin-right:4px;"></i> ';
+                html += '<a href="tel:' + escHtml(p.phone) + '" style="color:#FF3A2F;text-decoration:none;font-weight:600;">' + escHtml(p.phone) + '</a>';
+                html += '</div>';
+            }
+            
+            if (p.vk) {
+                html += '<div style="margin:4px 0;font-size:13px;text-align:center;">';
+                html += '<i class="fab fa-vk" style="width:16px;color:#4C75A3;margin-right:4px;"></i> ';
+                html += '<a href="' + escHtml(p.vk) + '" target="_blank" style="color:#4C75A3;text-decoration:none;">ВКонтакте</a>';
+                html += '</div>';
+            }
+            
+            if (p.whatsapp) {
+                html += '<div style="margin:4px 0;font-size:13px;text-align:center;">';
+                html += '<i class="fab fa-whatsapp" style="width:16px;color:#25D366;margin-right:4px;"></i> ';
+                html += '<a href="https://wa.me/' + escHtml(p.whatsapp.replace(/[^0-9+]/g, '')) + '" target="_blank" style="color:#25D366;text-decoration:none;">WhatsApp</a>';
+                html += '</div>';
+            }
 
-    // Telegram (если есть)
-    if (p.telegram) {
-        html += '<div style="margin:4px 0;font-size:13px;text-align:center;">';
-        html += '<i class="fab fa-telegram-plane" style="width:16px;color:#0088cc;margin-right:4px;"></i> ';
-        html += '<a href="https://t.me/' + escHtml(p.telegram) + '" target="_blank" style="color:#0088cc;text-decoration:none;">' + escHtml(p.telegram) + '</a>';
-        html += '</div>';
-    }
-    
-    // Email (если есть)
-    if (p.email) {
-        html += '<div style="margin:4px 0;font-size:12px;text-align:center;">';
-        html += '<i class="fas fa-envelope" style="width:16px;color:#FF3A2F;margin-right:4px;"></i> ';
-        html += '<a href="mailto:' + escHtml(p.email) + '" style="color:#FF3A2F;text-decoration:none;">' + escHtml(p.email) + '</a>';
-        html += '</div>';
-    }
-    
-    // Адрес (если есть)
-    if (p.address) {
-        
-        html += '<div style="margin:4px 0;font-size:11px;color:#999;text-align:center;word-wrap:break-word;">';
-        html += '<i class="fas fa-map-marker-alt" style="width:16px;color:#FF3A2F;margin-right:4px;"></i> ' + escHtml(p.address);
-        html += '</div>';
-    }
-    
-    html += '</div>';
-    return html;
-}
+            if (p.telegram) {
+                html += '<div style="margin:4px 0;font-size:13px;text-align:center;">';
+                html += '<i class="fab fa-telegram-plane" style="width:16px;color:#0088cc;margin-right:4px;"></i> ';
+                html += '<a href="https://t.me/' + escHtml(p.telegram) + '" target="_blank" style="color:#0088cc;text-decoration:none;">' + escHtml(p.telegram) + '</a>';
+                html += '</div>';
+            }
+            
+            if (p.email) {
+                html += '<div style="margin:4px 0;font-size:12px;text-align:center;">';
+                html += '<i class="fas fa-envelope" style="width:16px;color:#FF3A2F;margin-right:4px;"></i> ';
+                html += '<a href="mailto:' + escHtml(p.email) + '" style="color:#FF3A2F;text-decoration:none;">' + escHtml(p.email) + '</a>';
+                html += '</div>';
+            }
+            
+            if (p.address) {
+                html += '<div style="margin:4px 0;font-size:11px;color:#999;text-align:center;word-wrap:break-word;">';
+                html += '<i class="fas fa-map-marker-alt" style="width:16px;color:#FF3A2F;margin-right:4px;"></i> ' + escHtml(p.address);
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            return html;
+        }
 
         function buildMobileBalloon(p) {
             return '<div style="min-width:160px;font-family:Inter,sans-serif;text-align:center;">' +
@@ -1690,7 +1602,6 @@
                     }, 500);
                 }
             } else if (fromMap) {
-                // на мобилке balloon уже короткий (имя + Подробнее)
                 var pm = partnerPlacemarks.find(function (p) {
                     return p.properties.get('partnerId') === partnerId;
                 });
@@ -1711,24 +1622,6 @@
             }
         }
 
-        function setupPartnerCardClick(partnerId, coords) {
-            var partnerCard = document.getElementById('partner-' + partnerId);
-            if (!partnerCard) return;
-
-            partnerCard.addEventListener('click', function (e) {
-                if (e.target.closest('a') || e.target.closest('.partner-more-btn')) return;
-                if (!isMobileView()) {
-                    highlightPartnerCard(partnerId, false);
-                    if (coords && map) {
-                        map.setCenter(coords, 12, { duration: 400, flying: false });
-                    }
-                    return;
-                }
-                highlightPartnerCard(partnerId, false);
-                openPartnerModal(partnerId);
-            });
-        }
-
         function highlightPartnerCard(partnerId, fromMap) {
             document.querySelectorAll('.partner-card').forEach(function (card) {
                 card.classList.remove('highlight');
@@ -1738,9 +1631,6 @@
             if (!selectedCard) return;
 
             selectedCard.classList.add('highlight');
-
-            // с телефона при клике по маркеру не скроллим к карточке
-            
         }
 
         function openPartnerModal(partnerId) {
@@ -1756,7 +1646,6 @@
 
             var rows = [];
 
-            // 1) Фото под именем
             if (p.photo) {
                 rows.push(
                     '<div class="partner-detail-photo-wrap">' +
@@ -1791,26 +1680,17 @@
                 );
             }
 
-            // 2) город только второй строкой (после фото)
             if (p.city) addRow('fas fa-city', escHtml(p.city), null);
-
-            // 3) адрес, если есть
             if (p.address) addRow('fas fa-map-marker-alt', escHtml(p.address), null);
-
-            // телефон — с копированием
             if (p.phone) addRow('fas fa-phone-alt', '<a href="tel:' + escHtml(p.phone) + '">' + escHtml(p.phone) + '</a>', p.phone);
-
-            // WhatsApp / Telegram / соцсети — без копирования
             if (p.whatsapp) addRow('fab fa-whatsapp', '<a href="https://wa.me/' + escHtml(p.whatsapp) + '" target="_blank">WhatsApp: ' + escHtml(p.whatsapp) + '</a>', null);
-            if (p.telegram) addRow('fab fa-telegram-plane', '<a href="https://t.me/' + escHtml(p.telegram) + '" target="_blank">' + escHtml(p.telegram) + '</a>', null);
-
-            // email — с копированием
+            if (p.telegram) addRow('fab fa-telegram-plane', '<a href="https://t.me/' + escHtml(p.telegram) + '" target="_blank">Telegram: ' + escHtml(p.telegram) + '</a>', null);
             if (p.email) addRow('fas fa-envelope', '<a href="mailto:' + escHtml(p.email) + '">' + escHtml(p.email) + '</a>', p.email);
-
             if (p.vk) addRow('fab fa-vk', '<a href="' + escHtml(p.vk) + '" target="_blank">@GetLocalized("ВКонтакте", "VK", "VK")</a>', null);
             if (p.vkGroup) addRow('fab fa-vk', '<a href="' + escHtml(p.vkGroup) + '" target="_blank">@GetLocalized("Группа ВК", "VK Group", "VK-Gruppe")</a>', null);
             if (p.website) addRow('fas fa-globe', '<a href="' + escHtml(p.website) + '" target="_blank">' + escHtml(p.website) + '</a>', null);
             if (p.info) addRow('fas fa-info-circle', escHtml(p.info).replace(/\n/g, '<br>'), null);
+
             body.innerHTML = rows.length ? rows.join('') : '<div class="partner-detail-row"><div class="label">@GetLocalized("Нет данных", "No data", "Keine Daten")</div></div>';
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -1871,16 +1751,19 @@
                     closePartnerModal();
                 });
             }
+
             if (modal) {
                 modal.addEventListener('click', function (e) {
                     if (e.target === modal) closePartnerModal();
                 });
             }
+
             if (sheet) {
                 sheet.addEventListener('click', function (e) {
                     e.stopPropagation();
                 });
             }
+
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') closePartnerModal();
             });
@@ -1916,8 +1799,5 @@
             }
         }
     </script>
-
-
-
 </body>
 </html>
