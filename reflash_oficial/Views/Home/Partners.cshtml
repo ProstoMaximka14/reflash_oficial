@@ -1323,10 +1323,7 @@
                                         {
                                             <span class="city-part">@localizedCity</span>
                                         }
-                                        @if (!string.IsNullOrEmpty(localizedCountry) && localizedCountry != localizedCity)
-                                        {
-                                            <span class="city-part" style="opacity: 0.6;">, @localizedCountry</span>
-                                        }
+                                        
                                     </div>
                                 }
 
@@ -1540,12 +1537,13 @@
             }
 
             if (resetBtn) {
-                resetBtn.addEventListener('click', function() {
-                    if (countryFilter) countryFilter.value = '';
-                    updateCityOptions();
-                    filterPartners();
-                });
-            }
+    resetBtn.addEventListener('click', function () {
+        if (countryFilter) countryFilter.value = '';
+        if (cityFilter) cityFilter.value = '';
+        updateCityOptions();   // снова все города
+        filterPartners();      // показать всех
+    });
+}
 
             setTimeout(function() {
                 updateCityOptions();
@@ -1939,37 +1937,45 @@
                 );
             }
 
-            // 4) WhatsApp — иконка + номер-ссылка
-            if (p.whatsapp) {
-                var waNum = String(p.whatsapp).replace(/[^0-9+]/g, '');
-                addRow(
-                    'fab fa-whatsapp',
-                    '<a href="https://wa.me/' + escHtml(waNum) + '" target="_blank">' + escHtml(p.whatsapp) + '</a>',
-                    null
-                );
-            }
+            // 4) WhatsApp
+if (p.whatsapp) {
+    var waNum = String(p.whatsapp).replace(/[^0-9+]/g, '');
+    addRow(
+        'fab fa-whatsapp',
+        'WhatsApp: <a href="https://wa.me/' + escHtml(waNum) + '" target="_blank">' + escHtml(p.whatsapp) + '</a>',
+        null
+    );
+}
 
-            // 5) Telegram — иконка + ник-ссылка
-            if (p.telegram) {
-                var tg = String(p.telegram).replace(/^@@/, '');
-                addRow(
-                    'fab fa-telegram-plane',
-                    '<a href="https://t.me/' + escHtml(tg) + '" target="_blank">' + escHtml(p.telegram) + '</a>',
-                    null
-                );
-            }
+// 5) Telegram
+if (p.telegram) {
+    var tg = String(p.telegram).replace(/^@@/, '');
+    addRow(
+        'fab fa-telegram-plane',
+        'Telegram: <a href="https://t.me/' + escHtml(tg) + '" target="_blank">' + escHtml(p.telegram) + '</a>',
+        null
+    );
+}
 
             // 6) ВКонтакте
-            if (p.vk) {
-                addRow('fab fa-vk', '<a href="' + escHtml(p.vk) + '" target="_blank">' +
-                    (currentLang === 'en' || currentLang === 'de' ? 'VK' : 'ВКонтакте') + '</a>', null);
-            }
+if (p.vk) {
+    var vkLabel = currentLang === 'en' || currentLang === 'de' ? 'VK' : 'ВКонтакте';
+    addRow(
+        'fab fa-vk',
+        vkLabel + ': <a href="' + escHtml(p.vk) + '" target="_blank">' + escHtml(p.vk) + '</a>',
+        null
+    );
+}
 
-            // 7) Группа ВК
-            if (p.vkGroup) {
-                addRow('fab fa-vk', '<a href="' + escHtml(p.vkGroup) + '" target="_blank">' +
-                    (currentLang === 'en' ? 'VK Group' : (currentLang === 'de' ? 'VK-Gruppe' : 'Группа ВК')) + '</a>', null);
-            }
+// 7) Группа ВК
+if (p.vkGroup) {
+    var vkGroupLabel = currentLang === 'en' ? 'VK Group' : (currentLang === 'de' ? 'VK-Gruppe' : 'Группа ВК');
+    addRow(
+        'fab fa-vk',
+        vkGroupLabel + ': <a href="' + escHtml(p.vkGroup) + '" target="_blank">' + escHtml(p.vkGroup) + '</a>',
+        null
+    );
+}
 
             // 8) сайт — текст ссылки
             if (p.website) {
