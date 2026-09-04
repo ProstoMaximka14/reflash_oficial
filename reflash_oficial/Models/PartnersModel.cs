@@ -17,9 +17,7 @@
 
         // ===== АДРЕС =====
         public string city { get; set; }
-        public string street { get; set; }
-        public string house { get; set; }
-        public string point_name { get; set; }     // Точка (название точки/офиса)
+        public string address { get; set; }
 
         public string info { get; set; }
 
