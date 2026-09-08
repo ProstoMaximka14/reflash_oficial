@@ -1020,11 +1020,7 @@
                 min-height: 36px;
             }
 
-            .filter-reset {
-                font-size: 12px;
-                padding: 8px 14px;
-                border-radius: 12px;
-            }
+            
 
             .filter-result {
                 font-size: 12px;
@@ -1098,6 +1094,9 @@
                 border-radius: 20px 20px 0 0;
                 padding: 16px 14px 24px;
                 box-shadow: none;
+            }
+            .filter-reset {
+                display: none;
             }
         }
 
@@ -1351,9 +1350,7 @@
                     }
                 </select>
 
-                <button type="button" class="filter-reset filter-reset-mobile" id="resetFilterMobile" title="@GetLocalized("Сбросить", "Reset", "Zurücksetzen")">
-                    <i class="fas fa-undo-alt"></i>
-                </button>
+                
 
                 <div class="filter-label">
                     <i class="fas fa-city"></i>
