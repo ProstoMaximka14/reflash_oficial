@@ -528,6 +528,11 @@
 
                             @GetLocalized("Партнёры", "Partners", "Partner")
                         </a>
+                        <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "News" ? "active" : "")"
+                            asp-area="" asp-controller="Home" asp-action="News">
+
+                            @GetLocalized("Новости", "News", "News")
+                        </a>
                     </div>
 
                     <!-- Социальные иконки -->

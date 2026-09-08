@@ -163,6 +163,11 @@ app.MapControllerRoute(
     defaults: new { controller = "Home", action = "Partners" });
 
 app.MapControllerRoute(
+    name: "news",
+    pattern: "News",
+    defaults: new { controller = "Home", action = "News" });
+
+app.MapControllerRoute(
     name: "brand_cars",
     pattern: "/{brand}",
     defaults: new { controller = "Home", action = "CarsByBrand" },

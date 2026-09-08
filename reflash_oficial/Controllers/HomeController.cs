@@ -269,6 +269,59 @@ namespace reflash_oficial.Controllers
             return furst_page;
         }
 
+        private List<NewsModel> GetNewsFromDatabase()
+        {
+            List<NewsModel> news = new List<NewsModel>();
+            string connectionString = GetConnectionString();
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+                    string query = @"SELECT id, photo_1, photo_2, name, name_eng, name_ger,
+                                    text, text_eng, text_ger, date
+                             FROM news
+                             ORDER BY id DESC";
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string photo1 = reader.IsDBNull(reader.GetOrdinal("photo_1")) ? "" : reader.GetString("photo_1");
+                            string photo2 = reader.IsDBNull(reader.GetOrdinal("photo_2")) ? "" : reader.GetString("photo_2");
+
+                            if (!string.IsNullOrEmpty(photo1) && photo1.Contains("/"))
+                                photo1 = Path.GetFileName(photo1);
+                            if (!string.IsNullOrEmpty(photo2) && photo2.Contains("/"))
+                                photo2 = Path.GetFileName(photo2);
+
+                            news.Add(new NewsModel
+                            {
+                                id = reader.GetInt32("id"),
+                                photo_1 = photo1,
+                                photo_2 = photo2,
+                                name = reader.IsDBNull(reader.GetOrdinal("name")) ? "" : reader.GetString("name"),
+                                name_eng = reader.IsDBNull(reader.GetOrdinal("name_eng")) ? "" : reader.GetString("name_eng"),
+                                name_ger = reader.IsDBNull(reader.GetOrdinal("name_ger")) ? "" : reader.GetString("name_ger"),
+                                text = reader.IsDBNull(reader.GetOrdinal("text")) ? "" : reader.GetString("text"),
+                                text_eng = reader.IsDBNull(reader.GetOrdinal("text_eng")) ? "" : reader.GetString("text_eng"),
+                                text_ger = reader.IsDBNull(reader.GetOrdinal("text_ger")) ? "" : reader.GetString("text_ger"),
+                                date = reader.IsDBNull(reader.GetOrdinal("date")) ? "" : reader.GetString("date")
+                            });
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                TempData["Error"] = $"Ошибка MySQL при загрузке новостей: {ex.Message}";
+            }
+
+            return news;
+        }
+
         // ==========================================
         // ЗАГРУЗКА ДАННЫХ ДЛЯ ДРОПДАУНОВ
         // ==========================================
@@ -394,6 +447,7 @@ namespace reflash_oficial.Controllers
                 DatabaseModel.Cars = GetCarsFromDatabase();
                 DatabaseModel.Partners = GetPartnersFromDatabase();
                 DatabaseModel.furst_page = GetFurstPageFromDatabase();
+                DatabaseModel.News = GetNewsFromDatabase();
                 LoadDropdownData();
             }
 
@@ -608,6 +662,8 @@ namespace reflash_oficial.Controllers
 
         public IActionResult News()
         {
+            DatabaseModel.News = GetNewsFromDatabase();
+            Console.WriteLine($"NEWS COUNT = {DatabaseModel.News?.Count ?? -1}");
             return View(DatabaseModel.News);
         }
 
@@ -620,6 +676,7 @@ namespace reflash_oficial.Controllers
 
                 DatabaseModel.Cars = GetCarsFromDatabase();
                 DatabaseModel.Partners = GetPartnersFromDatabase();
+                DatabaseModel.News = GetNewsFromDatabase();
                 DatabaseModel.furst_page = GetFurstPageFromDatabase();
                 LoadDropdownData();
 
