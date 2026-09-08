@@ -473,6 +473,10 @@
             font-weight: 700;
         }
 
+        .filter-reset-mobile {
+            display: none;
+        }
+
         /* ========== СЕТКА ПАРТНЕРОВ ========== */
         .partners-section {
             margin-top: 10px;
@@ -728,6 +732,65 @@
 
         /* Телефоны - вертикальные карточки */
         @@media (max-width: 600px) {
+            .filter-section { margin-bottom: 14px; }
+            .map-section { margin-bottom: 14px; }
+
+            .filter-label {
+                display: none !important;
+            }
+
+            .filter-card {
+                display: grid !important;
+                grid-template-columns: 1fr auto;
+                align-items: center;
+                gap: 8px;
+                padding: 10px 12px;
+            }
+
+            #countryFilter {
+                grid-column: 1;
+                grid-row: 1;
+                width: 100%;
+                min-width: 0;
+                font-size: 12px;
+                padding: 8px 28px 8px 10px;
+            }
+
+            #resetFilterMobile {
+                display: inline-flex !important;
+                grid-column: 2;
+                grid-row: 1;
+                width: auto;
+                padding: 8px 12px;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #cityFilter {
+                grid-column: 1;
+                grid-row: 2;
+                width: 100%;
+                min-width: 0;
+                font-size: 12px;
+                padding: 8px 28px 8px 10px;
+            }
+
+            #resetFilter {
+                grid-column: 2;
+                grid-row: 2;
+                width: auto !important;
+                padding: 8px 12px;
+            }
+
+            #filterResult,
+            .filter-result {
+                grid-column: 1 / -1;
+                grid-row: 3;
+                margin-left: 0 !important;
+                text-align: center;
+                font-size: 11px;
+            }
+
             .main-container {
                 padding: 0 12px 30px;
             }
@@ -816,35 +879,71 @@
                 font-size: 11px;
             }
 
+            /* фильтр компактнее: без подписей, сброс рядом со страной */
+            .filter-section {
+                margin-bottom: 14px;
+            }
+
+            .map-section {
+                margin-bottom: 14px;
+            }
+
             .filter-card {
-                padding: 16px 18px;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 12px;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 8px;
+                padding: 10px 12px;
+                border-radius: 14px;
             }
 
             .filter-label {
-                font-size: 13px;
+                display: none !important;
+            }
+
+            #countryFilter {
+                order: 1;
+                flex: 1 1 auto;
+                min-width: 0;
+                font-size: 12px;
+                padding: 8px 28px 8px 10px;
+                background-position: right 8px center;
+                border-radius: 10px;
+            }
+
+            #resetFilter {
+                order: 2;
+                flex: 0 0 auto;
+                width: auto !important;
+                padding: 8px 12px;
+                font-size: 12px;
+                white-space: nowrap;
+                border-radius: 10px;
+            }
+
+            #cityFilter {
+                order: 3;
+                flex: 1 1 100%;
+                width: 100%;
+                min-width: 0;
+                font-size: 12px;
+                padding: 8px 28px 8px 10px;
+                background-position: right 8px center;
+                border-radius: 10px;
+            }
+
+            #filterResult,
+            .filter-result {
+                order: 4;
+                flex: 1 1 100%;
+                width: 100%;
+                margin-left: 0 !important;
+                text-align: center;
+                font-size: 11px;
             }
 
             .filter-select {
-                min-width: auto;
-                padding: 10px 14px;
-                font-size: 14px;
-                background-position: right 12px center;
-                padding-right: 36px;
-            }
-
-            .filter-reset {
-                width: 100%;
-                justify-content: center;
-                padding: 10px 16px;
-                font-size: 13px;
-            }
-
-            .filter-result {
-                margin-left: 0;
-                text-align: center;
+                min-width: 0;
             }
 
             .section-title {
@@ -909,8 +1008,8 @@
             }
 
             .filter-card {
-                padding: 12px 14px;
-                border-radius: 16px;
+                padding: 8px 10px;
+                gap: 6px;
             }
 
             .filter-select {
@@ -1252,6 +1351,10 @@
                     }
                 </select>
 
+                <button type="button" class="filter-reset filter-reset-mobile" id="resetFilterMobile" title="@GetLocalized("Сбросить", "Reset", "Zurücksetzen")">
+                    <i class="fas fa-undo-alt"></i>
+                </button>
+
                 <div class="filter-label">
                     <i class="fas fa-city"></i>
                     @GetLocalized("Город", "City", "Stadt")
@@ -1267,6 +1370,7 @@
                 <button class="filter-reset" id="resetFilter">
                     <i class="fas fa-undo-alt" style="margin-right: 6px;"></i>
                 </button>
+                
             </div>
         </div>
 
@@ -1536,14 +1640,19 @@
                 cityFilter.addEventListener('change', filterPartners);
             }
 
+            function doResetFilters() {
+                if (countryFilter) countryFilter.value = '';
+                if (cityFilter) cityFilter.value = '';
+                updateCityOptions();
+                filterPartners();
+            }
             if (resetBtn) {
-    resetBtn.addEventListener('click', function () {
-        if (countryFilter) countryFilter.value = '';
-        if (cityFilter) cityFilter.value = '';
-        updateCityOptions();   // снова все города
-        filterPartners();      // показать всех
-    });
-}
+                resetBtn.addEventListener('click', doResetFilters);
+            }
+            var resetBtnMobile = document.getElementById('resetFilterMobile');
+            if (resetBtnMobile) {
+                resetBtnMobile.addEventListener('click', doResetFilters);
+            }
 
             setTimeout(function() {
                 updateCityOptions();
