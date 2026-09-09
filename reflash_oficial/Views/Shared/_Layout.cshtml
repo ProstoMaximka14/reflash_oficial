@@ -1,44 +1,29 @@
 ﻿<!DOCTYPE html>
 <html lang="en" data-theme="dark">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='75' font-size='80' font-weight='bold' text-anchor='middle' fill='red' font-family='Arial'>R</text></svg>">
-
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/reflash_oficial.styles.css" asp-append-version="true" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ==========================================
-           ОБЩИЕ СТИЛИ
-           ========================================== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-primary, #0A0A0F);
             color: var(--text-primary, #E8E8F0);
             transition: background 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* ==========================================
-           CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ
-           ========================================== */
-
-        /* Светлая тема */
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f5f5f5;
@@ -62,7 +47,6 @@
             --title-shadow: rgba(0, 0, 0, 0.15);
         }
 
-        /* Тёмная тема */
         [data-theme="dark"] {
             --bg-primary: #0A0A0F;
             --bg-secondary: #14141C;
@@ -86,9 +70,6 @@
             --title-shadow: rgba(0, 0, 0, 0.5);
         }
 
-        /* ==========================================
-           НАВБАР - ПРОЗРАЧНЫЙ, БЕЗ ЧЕРТЫ
-           ========================================== */
         header {
             position: sticky;
             top: 0;
@@ -99,7 +80,6 @@
             padding: 0;
             margin: 0;
             background: var(--bg-navbar) !important;
-            backdrop-filter: blur(0px);
             border-bottom: none !important;
             box-shadow: none !important;
             transition: background 0.3s ease;
@@ -129,29 +109,23 @@
             width: auto;
         }
 
+        /* На ПК обёртки не влияют на раскладку */
+        .navbar-top,
+        .navbar-bottom {
+            display: contents;
+        }
+
         .navbar-brand {
             font-size: 1.2rem;
             font-weight: 800;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, var(--logo-color-start) 0%, var(--logo-color-end) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
             text-decoration: none;
             white-space: nowrap;
             transition: opacity 0.2s;
             flex-shrink: 0;
         }
 
-        .navbar-brand:hover {
-            opacity: 0.85;
-            color: transparent;
-        }
-
-        .navbar-brand i {
-            color: var(--accent-color);
-            margin-right: 6px;
-        }
+        .navbar-brand:hover { opacity: 0.85; }
 
         .nav-links {
             display: flex;
@@ -194,14 +168,6 @@
             border-radius: 2px;
         }
 
-        .nav-link-custom i {
-            margin-right: 4px;
-            font-size: 12px;
-        }
-
-        /* ==========================================
-           СОЦИАЛЬНЫЕ ИКОНКИ
-           ========================================== */
         .social-icons {
             display: flex;
             align-items: center;
@@ -233,7 +199,6 @@
             box-shadow: 0 4px 15px rgba(255, 58, 47, 0.2);
         }
 
-        /* Telegram */
         .social-link.telegram:hover {
             background: rgba(0, 136, 204, 0.2);
             border-color: #0088CC;
@@ -241,7 +206,6 @@
             box-shadow: 0 4px 15px rgba(0, 136, 204, 0.2);
         }
 
-        /* VK */
         .social-link.vk:hover {
             background: rgba(69, 112, 169, 0.2);
             border-color: #4C75A3;
@@ -249,11 +213,7 @@
             box-shadow: 0 4px 15px rgba(69, 112, 169, 0.2);
         }
 
-        /* Drive2.ru */
-        .social-link.drive2 {
-            font-size: 11px;
-            font-weight: 700;
-        }
+        .social-link.drive2 { font-size: 11px; font-weight: 700; }
 
         .social-link.drive2:hover {
             background: rgba(255, 107, 0, 0.2);
@@ -262,7 +222,6 @@
             box-shadow: 0 4px 15px rgba(255, 107, 0, 0.2);
         }
 
-        /* Facebook */
         .social-link.facebook:hover {
             background: rgba(24, 119, 242, 0.2);
             border-color: #1877F2;
@@ -270,7 +229,6 @@
             box-shadow: 0 4px 15px rgba(24, 119, 242, 0.2);
         }
 
-        /* Instagram */
         .social-link.instagram:hover {
             background: rgba(225, 48, 108, 0.2);
             border-color: #E1306C;
@@ -278,9 +236,6 @@
             box-shadow: 0 4px 15px rgba(225, 48, 108, 0.2);
         }
 
-        /* ==========================================
-           КНОПКИ УПРАВЛЕНИЯ
-           ========================================== */
         .navbar-controls {
             display: flex;
             align-items: center;
@@ -289,8 +244,8 @@
         }
 
         .nav-btn {
-            background: transparent;
-            border: none;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
             padding: 4px 10px;
             cursor: pointer;
             font-weight: 600;
@@ -298,8 +253,6 @@
             transition: all 0.2s ease;
             font-size: 11px;
             color: var(--text-muted);
-            border: 1px solid var(--border-color);
-            background: var(--bg-input);
             display: flex;
             align-items: center;
             gap: 3px;
@@ -330,9 +283,7 @@
             border-color: var(--accent-color);
         }
 
-        .nav-btn i {
-            font-size: 11px;
-        }
+        .nav-btn i { font-size: 11px; }
 
         .nav-divider {
             width: 1px;
@@ -341,71 +292,71 @@
             opacity: 0.5;
         }
 
-        /* ==========================================
-           ОСНОВНОЙ КОНТЕНТ
-           ========================================== */
         .container {
             max-width: 100%;
             margin: 0 auto;
-            padding: 0px 0px;
+            padding: 0;
+            flex: 1 0 auto;
+            width: 100%;
         }
 
-        main {
-            min-height: calc(100vh - 80px);
-        }
+        main { min-height: 0; }
 
-        /* ==========================================
-           СКРОЛЛ
-           ========================================== */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
 
-        ::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent-color);
-            border-radius: 10px;
-        }
-
-        .footer-text {
+        .footer {
+            flex-shrink: 0;
+            width: 100%;
+            margin-top: auto;
+            padding: 16px 0;
             text-align: center;
         }
 
-        /* ==========================================
-           АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ
-           ========================================== */
+        .footer-text { text-align: center; }
+
+        /* ========== МОБИЛКА: 2 РЯДА ========== */
         @@media (max-width: 768px) {
             nav.navbar .container-fluid {
                 padding: 8px 12px;
-                justify-content: center !important;
             }
 
             .navbar-wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
                 gap: 8px;
-                justify-content: center;
                 width: 100%;
             }
 
-            .navbar-brand {
-                font-size: 1rem;
+            .navbar-top {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                flex-wrap: nowrap;
+                width: 100%;
             }
 
-            .navbar-brand i {
-                font-size: 12px;
-                margin-right: 4px;
+            .navbar-bottom {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                flex-wrap: nowrap;
+                width: 100%;
             }
+
+            .navbar-brand img {
+                height: 28px !important;
+            }
+
+            .nav-links { gap: 2px; }
 
             .nav-link-custom {
                 padding: 4px 10px;
-                font-size: 11px;
-            }
-
-            .nav-link-custom i {
-                font-size: 10px;
-                margin-right: 2px;
+                font-size: 12px;
             }
 
             .nav-link-custom.active::after {
@@ -414,93 +365,40 @@
                 bottom: 1px;
             }
 
+            .social-icons { gap: 6px; }
+
             .social-link {
-                width: 26px;
-                height: 26px;
-                font-size: 11px;
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
             }
 
-            .social-link.drive2 {
-                font-size: 9px;
-            }
+            .social-link.drive2 { font-size: 10px; }
 
-            .social-icons {
-                gap: 4px;
-            }
-
-            .navbar-controls {
-                gap: 3px;
-            }
+            .navbar-controls { gap: 4px; }
 
             .nav-btn {
-                padding: 3px 7px;
-                font-size: 10px;
+                padding: 4px 8px;
+                font-size: 11px;
                 border-radius: 30px;
             }
 
-            .nav-btn i {
-                font-size: 9px;
-            }
+            .nav-btn i { font-size: 11px; }
 
-            .nav-divider {
-                display: none;
-            }
-        }
+            .nav-divider { display: none; }
 
-        @@media (max-width: 480px) {
-            .navbar-wrapper {
-                gap: 4px;
-            }
-
-            .navbar-brand {
-                font-size: 0.85rem;
-            }
-
-            .nav-link-custom {
-                padding: 3px 7px;
-                font-size: 10px;
-            }
-
-            .nav-link-custom i {
-                font-size: 9px;
-            }
-
-            .social-link {
-                width: 22px;
-                height: 22px;
-                font-size: 9px;
-            }
-
-            .social-link.drive2 {
-                font-size: 7px;
-            }
-
-            .nav-btn {
-                font-size: 9px;
-                padding: 2px 5px;
-            }
-
-            .nav-btn i {
-                font-size: 8px;
-            }
-
-            .navbar-wrapper {
-                gap: 4px;
-            }
+            #themeLabel { display: none; }
         }
     </style>
 </head>
-
 <body>
-
     @{
         var currentLang = Context.Request.Cookies["Language"] ?? "ru";
-
         string GetLocalized(string ru, string en, string de)
         {
             return currentLang == "ru" ? ru :
-            currentLang == "en" ? en :
-            currentLang == "de" ? de : ru;
+                   currentLang == "en" ? en :
+                   currentLang == "de" ? de : ru;
         }
     }
 
@@ -508,86 +406,58 @@
         <nav class="navbar">
             <div class="container-fluid">
                 <div class="navbar-wrapper">
-                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                        <img src="/shared-fotos/logo/logo.png" alt="ReFlash Logo" style="height: 32px; width: auto; filter: 
-                drop-shadow(0 0 1px #000000) 
-                drop-shadow(0 0 2px #000000) 
-                drop-shadow(0 0 3px #000000);" />
-                    </a>
-
-                    <!-- Навигация -->
-                    <div class="nav-links">
-                        <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
-                            asp-area="" asp-controller="Home" asp-action="Index">
-
-                            @GetLocalized("Главная", "Home", "Start")
+                    <div class="navbar-top">
+                        <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                            <img src="/shared-fotos/logo/logo.png" alt="ReFlash Logo"
+                                 style="height: 32px; width: auto; filter: drop-shadow(0 0 1px #000000) drop-shadow(0 0 2px #000000) drop-shadow(0 0 3px #000000);" />
                         </a>
 
-                        <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "Partners" ? "active" : "")"
-                            asp-area="" asp-controller="Home" asp-action="Partners">
-
-                            @GetLocalized("Партнёры", "Partners", "Partner")
-                        </a>
-                        <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "News" ? "active" : "")"
-                            asp-area="" asp-controller="Home" asp-action="News">
-
-                            @GetLocalized("Новости", "News", "News")
-                        </a>
+                        <div class="nav-links">
+                            <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                               asp-area="" asp-controller="Home" asp-action="Index">
+                                @GetLocalized("Главная", "Home", "Start")
+                            </a>
+                            <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "Partners" ? "active" : "")"
+                               asp-area="" asp-controller="Home" asp-action="Partners">
+                                @GetLocalized("Партнёры", "Partners", "Partner")
+                            </a>
+                            <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "News" ? "active" : "")"
+                               asp-area="" asp-controller="Home" asp-action="News">
+                                @GetLocalized("Новости", "News", "News")
+                            </a>
+                        </div>
                     </div>
 
-                    <!-- Социальные иконки -->
-                    <div class="social-icons">
-                        <!-- Telegram -->
-                        <a href="https://t.me/reflashteamofficial" class="social-link telegram" target="_blank"
-                            title="Telegram">
-                            <i class="fab fa-telegram-plane"></i>
-                        </a>
+                    <div class="navbar-bottom">
+                        <div class="social-icons">
+                            <a href="https://t.me/reflashteamofficial" class="social-link telegram" target="_blank" title="Telegram">
+                                <i class="fab fa-telegram-plane"></i>
+                            </a>
+                            <a href="https://vk.ru/reflashteam" class="social-link vk" target="_blank" title="VK">
+                                <i class="fab fa-vk"></i>
+                            </a>
+                            <a href="https://www.drive2.ru/o/reflashteam" class="social-link drive2" target="_blank" title="Drive2.ru">
+                                D
+                            </a>
+                            <a href="https://www.facebook.com/reflashteam/" class="social-link facebook" target="_blank" title="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://www.instagram.com/reflashteam/" class="social-link instagram" target="_blank" title="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
 
-                        <!-- VK -->
-                        <a href="https://vk.ru/reflashteam" class="social-link vk" target="_blank" title="VK">
-                            <i class="fab fa-vk"></i>
-                        </a>
-
-                        <!-- Drive2.ru (кастомная иконка с буквой D) -->
-                        <a href="https://www.drive2.ru/o/reflashteam" class="social-link drive2" target="_blank"
-                            title="Drive2.ru">
-                            D
-                        </a>
-
-                        <!-- Facebook -->
-                        <a href="https://www.facebook.com/reflashteam/" class="social-link facebook" target="_blank"
-                            title="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-
-                        <!-- Instagram -->
-                        <a href="https://www.instagram.com/reflashteam/" class="social-link instagram" target="_blank"
-                            title="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-
-                    <!-- Управление -->
-                    <div class="navbar-controls">
-                        <button class="nav-btn lang-btn" data-lang="ru" onclick="switchLanguage('ru')">
-                            РУ
-                        </button>
-                        <button class="nav-btn lang-btn" data-lang="en" onclick="switchLanguage('en')">
-                            EN
-                        </button>
-                        <button class="nav-btn lang-btn" data-lang="de" onclick="switchLanguage('de')">
-                            DE
-                        </button>
-
-                        <span class="nav-divider"></span>
-
-                        <button class="nav-btn theme-btn" id="themeToggle" onclick="toggleTheme()"
-                            title="@GetLocalized("Тема", "Theme", "Thema")">
-                            <i class="fas fa-moon" id="themeIcon"></i>
-                            <span id="themeLabel">
-                                @GetLocalized("Тёмная", "Dark", "Dunkel")
-                            </span>
-                        </button>
+                        <div class="navbar-controls">
+                            <button class="nav-btn lang-btn" data-lang="ru" onclick="switchLanguage('ru')">РУ</button>
+                            <button class="nav-btn lang-btn" data-lang="en" onclick="switchLanguage('en')">EN</button>
+                            <button class="nav-btn lang-btn" data-lang="de" onclick="switchLanguage('de')">DE</button>
+                            <span class="nav-divider"></span>
+                            <button class="nav-btn theme-btn" id="themeToggle" onclick="toggleTheme()"
+                                    title="@GetLocalized("Тема", "Theme", "Thema")">
+                                <i class="fas fa-moon" id="themeIcon"></i>
+                                <span id="themeLabel">@GetLocalized("Тёмная", "Dark", "Dunkel")</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -620,21 +490,15 @@
             const label = document.getElementById('themeLabel');
             const currentTheme = html.getAttribute('data-theme') || 'light';
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
             html.setAttribute('data-theme', newTheme);
-
             const lang = getCookie('Language') || 'ru';
-
             if (newTheme === 'dark') {
-                icon.className = 'fas fa-moon';
-                label.textContent = lang === 'ru' ? 'Тёмная' :
-                    lang === 'en' ? 'Dark' : 'Dunkel';
+                if (icon) icon.className = 'fas fa-moon';
+                if (label) label.textContent = lang === 'ru' ? 'Тёмная' : lang === 'en' ? 'Dark' : 'Dunkel';
             } else {
-                icon.className = 'fas fa-sun';
-                label.textContent = lang === 'ru' ? 'Светлая' :
-                    lang === 'en' ? 'Light' : 'Hell';
+                if (icon) icon.className = 'fas fa-sun';
+                if (label) label.textContent = lang === 'ru' ? 'Светлая' : lang === 'en' ? 'Light' : 'Hell';
             }
-
             document.cookie = "Theme=" + newTheme + "; path=/; max-age=" + (365 * 24 * 60 * 60);
         }
 
@@ -651,12 +515,8 @@
             const icon = document.getElementById('themeIcon');
             const label = document.getElementById('themeLabel');
             const lang = getCookie('Language') || 'ru';
-
             html.setAttribute('data-theme', theme);
-
-            if (icon) {
-                icon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
-            }
+            if (icon) icon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
             if (label) {
                 label.textContent = theme === 'dark'
                     ? (lang === 'ru' ? 'Тёмная' : lang === 'en' ? 'Dark' : 'Dunkel')
@@ -666,13 +526,9 @@
 
         function updateActiveLanguage() {
             const currentLang = getCookie('Language') || 'ru';
-            const langButtons = document.querySelectorAll('.lang-btn');
-
-            langButtons.forEach(btn => {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.remove('active');
-                if (btn.dataset.lang === currentLang) {
-                    btn.classList.add('active');
-                }
+                if (btn.dataset.lang === currentLang) btn.classList.add('active');
             });
         }
 
@@ -681,7 +537,5 @@
             updateActiveLanguage();
         });
     </script>
-
 </body>
-
 </html>

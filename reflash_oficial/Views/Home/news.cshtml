@@ -381,6 +381,57 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+        .language-switcher {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    gap: 8px;
+    z-index: 1100;
+    background: var(--bg-overlay);
+    backdrop-filter: blur(12px);
+    padding: 6px 12px;
+    border-radius: 60px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 20px var(--shadow-color);
+}
+
+.lang-btn {
+    background: transparent;
+    border: none;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 40px;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+}
+
+.lang-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 58, 47, 0.1);
+}
+
+.lang-btn.active {
+    background: var(--accent-color);
+    color: white;
+    box-shadow: 0 0 8px rgba(255, 58, 47, 0.5);
+}
+
+@@media (max-width: 768px) {
+    .language-switcher {
+        top: 16px;
+        right: 16px;
+        padding: 4px 10px;
+        gap: 4px;
+    }
+    .lang-btn {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+}
     </style>
 </head>
 <body>
