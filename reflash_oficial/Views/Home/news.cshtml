@@ -1,9 +1,14 @@
 ﻿@model List<reflash_oficial.Models.NewsModel>
 @{
+    Layout = "_Layout";
     ViewData["Title"] = "News";
+
     var language = Context.Request.Cookies["Language"];
     if (string.IsNullOrEmpty(language)) language = "ru";
-    var currentTheme = Context.Request.Cookies["Theme"] ?? "dark";
+
+    int currentPage = ViewBag.CurrentPage is int cp ? cp : 1;
+    int totalPages = ViewBag.TotalPages is int tp ? tp : 1;
+    int totalCount = ViewBag.TotalCount is int tc ? tc : (Model?.Count ?? 0);
 
     string GetLocalized(string ru, string eng, string ger)
     {
@@ -36,634 +41,326 @@
             _ => n.text ?? ""
         };
     }
+
+    string FormatDate(string date)
+    {
+        if (string.IsNullOrWhiteSpace(date)) return "";
+        if (DateTime.TryParse(date, out var d))
+            return d.ToString("dd.MM.yyyy");
+        return date;
+    }
 }
 
-<!DOCTYPE html>
-<html lang="@language" data-theme="@currentTheme">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>@GetLocalized("Новости", "News", "Nachrichten") — ReFlash Official</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f5f5f5;
-            --bg-card: #ffffff;
-            --bg-overlay: rgba(255, 255, 255, 0.9);
-            --text-primary: #1a1a2e;
-            --text-secondary: #4a4a5e;
-            --text-muted: #88889a;
-            --border-color: #e0e0e0;
-            --shadow-color: rgba(0, 0, 0, 0.08);
-            --shadow-hover: rgba(0, 0, 0, 0.15);
-            --accent-color: #2196F3;
-            --accent-hover: #1976D2;
-            --logo-color-start: #0D47A1;
-            --logo-color-end: #42A5F5;
+<style>
+    .news-page {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 24px 10% 40px;
+        box-sizing: border-box;
+    }
+
+    .news-page-header {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    .news-page-title {
+        font-size: 36px;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--logo-color-start, #FFB5A0) 0%, var(--logo-color-end, #FFD4C4) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        letter-spacing: -0.5px;
+    }
+
+    .news-page-subtitle {
+        color: var(--text-muted, #88889a);
+        font-size: 15px;
+        margin-top: 8px;
+    }
+
+    .news-item {
+        width: 100%;
+        background: var(--bg-card, #111118);
+        border: 1px solid var(--border-color, #2A2A35);
+        border-radius: 16px;
+        margin-bottom: 24px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px var(--shadow-color, rgba(0,0,0,0.25));
+    }
+
+    .news-item-body {
+        padding: 20px 24px 24px;
+    }
+
+    .news-item-body::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    .news-item-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--text-primary, #E8E8F0);
+        margin: 0 0 16px;
+        line-height: 1.35;
+    }
+
+    .news-item-date {
+        color: var(--accent-color, #FF3A2F);
+        font-weight: 700;
+        margin-right: 8px;
+        white-space: nowrap;
+    }
+
+    .news-item-photo-wrap {
+        float: left;
+        margin: 0 20px 12px 0;
+        max-width: 40%;
+        text-align: left;
+    }
+
+    .news-item-photo {
+        max-width: 320px;
+        max-height: 240px;
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        border-radius: 12px;
+        display: block;
+        background: var(--bg-secondary, #14141C);
+    }
+
+    .news-item-text {
+        font-size: 15px;
+        color: var(--text-secondary, #C0C0D0);
+        line-height: 1.65;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .news-empty {
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--bg-card, #111118);
+        border-radius: 16px;
+        border: 1px solid var(--border-color, #2A2A35);
+    }
+
+    .news-empty i {
+        font-size: 48px;
+        color: var(--text-muted, #88889a);
+        margin-bottom: 12px;
+    }
+
+    .news-empty h3 {
+        color: var(--accent-color, #FF3A2F);
+        margin-bottom: 8px;
+    }
+
+    .news-empty p {
+        color: var(--text-muted, #88889a);
+    }
+
+    .news-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+        padding-top: 8px;
+    }
+
+    .news-page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color, #2A2A35);
+        background: var(--bg-card, #111118);
+        color: var(--text-secondary, #C0C0D0);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+
+    .news-page-btn:hover {
+        border-color: var(--accent-color, #FF3A2F);
+        color: var(--accent-color, #FF3A2F);
+        text-decoration: none;
+    }
+
+    .news-page-btn.active {
+        background: var(--accent-color, #FF3A2F);
+        border-color: var(--accent-color, #FF3A2F);
+        color: #fff;
+    }
+
+    .news-page-btn.disabled {
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
+    .news-page-info {
+        width: 100%;
+        text-align: center;
+        font-size: 13px;
+        color: var(--text-muted, #88889a);
+        margin-bottom: 4px;
+    }
+
+    @@media (max-width: 768px) {
+        .news-page {
+            padding: 16px 12px 28px;
         }
 
-        [data-theme="dark"] {
-            --bg-primary: #0A0A0F;
-            --bg-secondary: #14141C;
-            --bg-card: #111118;
-            --bg-overlay: rgba(10, 10, 15, 0.9);
-            --text-primary: #E8E8F0;
-            --text-secondary: #C0C0D0;
-            --text-muted: #88889a;
-            --border-color: #2A2A35;
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --shadow-hover: rgba(0, 0, 0, 0.5);
-            --accent-color: #FF3A2F;
-            --accent-hover: #D62B1F;
-            --logo-color-start: #FFB5A0;
-            --logo-color-end: #FFD4C4;
+        .news-page-title {
+            font-size: 28px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            overflow-x: hidden;
-            line-height: 1.5;
-            transition: background 0.3s ease, color 0.3s ease;
+        .news-item-body {
+            padding: 16px;
         }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
-        ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
+        .news-item-title {
+            font-size: 17px;
+        }
 
-        .main-container {
-            max-width: 1200px;
+        .news-item-photo-wrap {
+            float: none;
+            max-width: 100%;
+            margin: 0 0 16px 0;
+            text-align: center;
+        }
+
+        .news-item-photo {
+            max-width: 100%;
+            max-height: 200px;
             margin: 0 auto;
-            padding: 40px 24px 60px;
         }
 
-        .page-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .page-title {
-            font-size: 42px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--logo-color-start) 0%, var(--logo-color-end) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: -1px;
-        }
-
-        .page-subtitle {
-            color: var(--text-muted);
-            font-size: 16px;
-            margin-top: 12px;
-        }
-
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 24px;
-        }
-
-        .news-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px var(--shadow-color);
-            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        .news-card:hover {
-            transform: translateY(-6px);
-            border-color: var(--accent-color);
-            box-shadow: 0 16px 32px var(--shadow-hover);
-        }
-
-        .news-image-wrap {
-            width: 100%;
-            height: 200px;
-            background: var(--bg-secondary);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .news-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.4s ease;
-        }
-
-        .news-card:hover .news-image {
-            transform: scale(1.04);
-        }
-
-        .news-image-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            font-size: 48px;
-        }
-
-        .news-body {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .news-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-            line-height: 1.35;
-        }
-
-        .news-text {
+        .news-item-text {
             font-size: 14px;
-            color: var(--text-secondary);
-            line-height: 1.55;
-            flex: 1;
-            margin-bottom: 16px;
-            white-space: pre-wrap;
-            word-break: break-word;
         }
-
-        .news-date {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--text-muted);
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-            margin-top: auto;
-        }
-
-        .news-date i { color: var(--accent-color); }
-
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            background: var(--bg-card);
-            border-radius: 24px;
-            border: 1px solid var(--border-color);
-        }
-
-        .empty-state i {
-            font-size: 56px;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-        }
-
-        .empty-state h3 {
-            color: var(--accent-color);
-            margin-bottom: 8px;
-            font-size: 22px;
-        }
-
-        .empty-state p { color: var(--text-muted); }
-
-        /* ===== МОДАЛКА НОВОСТИ ===== */
-        .news-modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 5000;
-            background: rgba(0, 0, 0, 0.72);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .news-modal-overlay.active {
-            display: flex;
-        }
-
-        .news-modal-sheet {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            width: 100%;
-            max-width: 560px;
-            max-height: 90vh;
-            overflow-x: hidden;
-            overflow-y: auto;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
-            position: relative;
-            padding: 0 0 20px;
-        }
-
-        .news-modal-close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            z-index: 2;
-            width: 36px;
-            height: 36px;
-            border: none;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.55);
-            color: #fff;
-            font-size: 22px;
-            line-height: 1;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .news-modal-close:hover {
-            background: var(--accent-color);
-        }
-
-        .news-modal-photo {
-            width: 100%;
-            max-height: 280px;
-            object-fit: cover;
-            display: block;
-            background: var(--bg-secondary);
-        }
-
-        .news-modal-photo-placeholder {
-            width: 100%;
-            height: 180px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-secondary);
-            color: var(--text-muted);
-            font-size: 56px;
-        }
-
-        .news-modal-content {
-            padding: 18px 20px 8px;
-        }
-
-        .news-modal-title {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--accent-color);
-            margin-bottom: 10px;
-            line-height: 1.3;
-            padding-right: 28px;
-        }
-
-        .news-modal-date {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .news-modal-date i { color: var(--accent-color); }
-
-        .news-modal-text {
-            font-size: 15px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        @@media (max-width: 768px) {
-            .main-container {
-                padding: 24px 12px 40px;
-            }
-
-            .page-title { font-size: 28px; }
-            .page-subtitle { font-size: 13px; }
-
-            .news-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-
-            .news-image-wrap { height: 180px; }
-            .news-title { font-size: 16px; }
-
-            .news-modal-overlay {
-                align-items: flex-end;
-                padding: 0;
-            }
-
-            .news-modal-sheet {
-                max-width: 100%;
-                max-height: 92vh;
-                border-radius: 20px 20px 0 0;
-            }
-
-            .news-modal-photo { max-height: 220px; }
-            .news-modal-title { font-size: 18px; }
-        }
-
-        @@media (min-width: 769px) and (max-width: 992px) {
-            .news-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        .language-switcher {
-    position: fixed;
-    top: 24px;
-    right: 24px;
-    display: flex;
-    gap: 8px;
-    z-index: 1100;
-    background: var(--bg-overlay);
-    backdrop-filter: blur(12px);
-    padding: 6px 12px;
-    border-radius: 60px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 8px 20px var(--shadow-color);
-}
-
-.lang-btn {
-    background: transparent;
-    border: none;
-    padding: 6px 14px;
-    cursor: pointer;
-    font-weight: 600;
-    border-radius: 40px;
-    transition: all 0.2s ease;
-    font-size: 13px;
-    color: var(--text-muted);
-    letter-spacing: 0.3px;
-}
-
-.lang-btn:hover {
-    color: var(--text-primary);
-    background: rgba(255, 58, 47, 0.1);
-}
-
-.lang-btn.active {
-    background: var(--accent-color);
-    color: white;
-    box-shadow: 0 0 8px rgba(255, 58, 47, 0.5);
-}
-
-@@media (max-width: 768px) {
-    .language-switcher {
-        top: 16px;
-        right: 16px;
-        padding: 4px 10px;
-        gap: 4px;
     }
-    .lang-btn {
-        padding: 4px 10px;
-        font-size: 11px;
-    }
-}
-    </style>
-</head>
-<body>
+</style>
 
-    <!-- ============================================================ -->
-    <!-- ДАННЫЕ НОВОСТЕЙ ДЛЯ JAVASCRIPT (аналог partnersData)          -->
-    <!-- ============================================================ -->
-    <script>
-        var newsData = {};
+<div class="news-page">
+    <div class="news-page-header">
+        <h1 class="news-page-title">@GetLocalized("Новости", "News", "Nachrichten")</h1>
+        <p class="news-page-subtitle">
+            @GetLocalized("Актуальные события ReFlash Team", "Latest updates from ReFlash Team", "Aktuelle Neuigkeiten von ReFlash Team")
+        </p>
+    </div>
 
-        @if (Model != null)
+    @if (Model != null && Model.Count > 0)
+    {
+        @foreach (var news in Model)
         {
-            foreach (var news in Model)
-            {
-                var title = GetNewsName(news);
-                var body = GetNewsText(news);
-                var photo1 = news.photo_1 ?? "";
-                var photo2 = news.photo_2 ?? "";
-                var date = news.date ?? "";
-                <text>
-                newsData[@news.id] = {
-                    id: @news.id,
-                    title: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(title ?? "")),
-                    text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(body ?? "")),
-                    photo_1: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(photo1 ?? "")),
-                    photo_2: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(photo2 ?? "")),
-                    date: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(date ?? ""))
-                };
-                </text>
-            }
+            var title = GetNewsName(news);
+            var body = GetNewsText(news);
+            var photo = !string.IsNullOrEmpty(news.photo_1) ? news.photo_1
+                      : (!string.IsNullOrEmpty(news.photo_2) ? news.photo_2 : "");
+
+            <article class="news-item">
+                <div class="news-item-body">
+                    <h2 class="news-item-title">
+                        @if (!string.IsNullOrEmpty(news.date))
+                        {
+                            <span class="news-item-date">[@FormatDate(news.date)]</span>
+                        }
+                        @(string.IsNullOrEmpty(title)
+                            ? GetLocalized("Без названия", "Untitled", "Ohne Titel")
+                            : title)
+                    </h2>
+
+                    @if (!string.IsNullOrEmpty(photo))
+                    {
+                        <div class="news-item-photo-wrap">
+                            <img class="news-item-photo"
+                                 src="/shared-fotos/news/@photo"
+                                 alt="@title"
+                                 loading="lazy"
+                                 onerror="this.onerror=null;this.parentElement.style.display='none';" />
+                        </div>
+                    }
+
+                    <div class="news-item-text">
+                        @if (!string.IsNullOrEmpty(body))
+                        {
+                            @body
+                        }
+                        else
+                        {
+                            <span style="opacity:0.7;font-style:italic;">
+                                @GetLocalized("Нет описания", "No description", "Keine Beschreibung")
+                            </span>
+                        }
+                    </div>
+                </div>
+            </article>
         }
 
-        console.log('📰 newsData загружено:', newsData);
-    </script>
-
-    <!-- ============================================================ -->
-    <!-- ОСНОВНОЙ КОНТЕНТ                                               -->
-    <!-- ============================================================ -->
-    <div class="main-container">
-        <div class="page-header">
-            <h1 class="page-title">@GetLocalized("Новости", "News", "Nachrichten")</h1>
-            <p class="page-subtitle">@GetLocalized("Актуальные события ReFlash Team", "Latest updates from ReFlash Team", "Aktuelle Neuigkeiten von ReFlash Team")</p>
-        </div>
-
-        @if (Model != null && Model.Count > 0)
+        @if (totalPages > 1)
         {
-            <div class="news-grid">
-                @foreach (var news in Model)
-                {
-                    var title = GetNewsName(news);
-                    var body = GetNewsText(news);
-                    var photoCard = !string.IsNullOrEmpty(news.photo_1) ? news.photo_1 : news.photo_2;
-                    var photoModal = !string.IsNullOrEmpty(news.photo_2) ? news.photo_2 : news.photo_1;
+            <div class="news-pagination">
+                <div class="news-page-info">
+                    @GetLocalized("Страница", "Page", "Seite") @currentPage @GetLocalized("из", "of", "von") @totalPages
+                    · @totalCount @GetLocalized("новостей", "news", "Nachrichten")
+                </div>
 
-                    <article class="news-card"
-                             role="button"
-                             tabindex="0"
-                             onclick="openNewsModal(@news.id)"
-                             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openNewsModal(@news.id);}">
-                        <div class="news-image-wrap">
-                            @if (!string.IsNullOrEmpty(photoCard))
-                            {
-                                <img class="news-image"
-                                     src="/shared-fotos/news/@photoCard"
-                                     alt="@title"
-                                     onerror="this.onerror=null;this.style.display='none';this.parentElement.innerHTML='<div class=&quot;news-image-placeholder&quot;><i class=&quot;fas fa-newspaper&quot;></i></div>';" />
-                            }
-                            else
-                            {
-                                <div class="news-image-placeholder">
-                                    <i class="fas fa-newspaper"></i>
-                                </div>
-                            }
-                        </div>
-                        <div class="news-body">
-                            <h2 class="news-title">
-                                @(string.IsNullOrEmpty(title)
-                                    ? GetLocalized("Без названия", "Untitled", "Ohne Titel")
-                                    : title)
-                            </h2>
-                            <div class="news-text">
-                                @if (!string.IsNullOrEmpty(body))
-                                {
-                                    @(body.Length > 180 ? body.Substring(0, 180) + "…" : body)
-                                }
-                                else
-                                {
-                                    <span style="opacity:0.7;font-style:italic;">
-                                        @GetLocalized("Нет описания", "No description", "Keine Beschreibung")
-                                    </span>
-                                }
-                            </div>
-                            <div class="news-date">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>
-                                    @if (!string.IsNullOrEmpty(news.date))
-                                    {
-                                        @news.date
-                                    }
-                                    else
-                                    {
-                                        @GetLocalized("Дата не указана", "Date not set", "Datum nicht angegeben")
-                                    }
-                                </span>
-                            </div>
-                        </div>
-                    </article>
+                <a class="news-page-btn @(currentPage <= 1 ? "disabled" : "")"
+                   href="@(currentPage <= 1 ? "#" : Url.Action("News", "Home", new { page = currentPage - 1 }))">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+
+                @{
+                    int start = Math.Max(1, currentPage - 2);
+                    int end = Math.Min(totalPages, currentPage + 2);
+                    if (start > 1)
+                    {
+                        <a class="news-page-btn" href="@Url.Action("News", "Home", new { page = 1 })">1</a>
+                        if (start > 2)
+                        {
+                            <span class="news-page-btn disabled">…</span>
+                        }
+                    }
+                    for (int p = start; p <= end; p++)
+                    {
+                        <a class="news-page-btn @(p == currentPage ? "active" : "")"
+                           href="@Url.Action("News", "Home", new { page = p })">@p</a>
+                    }
+                    if (end < totalPages)
+                    {
+                        if (end < totalPages - 1)
+                        {
+                            <span class="news-page-btn disabled">…</span>
+                        }
+                        <a class="news-page-btn" href="@Url.Action("News", "Home", new { page = totalPages })">@totalPages</a>
+                    }
                 }
-            </div>
-        }
-        else
-        {
-            <div class="empty-state">
-                <i class="fas fa-newspaper"></i>
-                <h3>@GetLocalized("Новостей пока нет", "No news yet", "Noch keine Nachrichten")</h3>
-                <p>@GetLocalized("Следите за обновлениями — скоро здесь появятся новости.", "Stay tuned — news will appear here soon.", "Bleiben Sie dran — bald erscheinen hier Neuigkeiten.")</p>
-            </div>
-        }
-    </div>
 
-    <!-- ============================================================ -->
-    <!-- МОДАЛКА НОВОСТИ                                                -->
-    <!-- ============================================================ -->
-    <div class="news-modal-overlay" id="newsModal">
-        <div class="news-modal-sheet" id="newsModalSheet" role="dialog" aria-modal="true">
-            <button type="button" class="news-modal-close" id="newsModalClose" aria-label="Close">&times;</button>
-            <div id="newsModalPhotoWrap"></div>
-            <div class="news-modal-content">
-                <h2 class="news-modal-title" id="newsModalTitle"></h2>
-                <div class="news-modal-date" id="newsModalDate"></div>
-                <div class="news-modal-text" id="newsModalText"></div>
+                <a class="news-page-btn @(currentPage >= totalPages ? "disabled" : "")"
+                   href="@(currentPage >= totalPages ? "#" : Url.Action("News", "Home", new { page = currentPage + 1 }))">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
             </div>
+        }
+    }
+    else
+    {
+        <div class="news-empty">
+            <i class="fas fa-newspaper"></i>
+            <h3>@GetLocalized("Новостей пока нет", "No news yet", "Noch keine Nachrichten")</h3>
+            <p>@GetLocalized("Следите за обновлениями — скоро здесь появятся новости.", "Stay tuned — news will appear here soon.", "Bleiben Sie dran — bald erscheinen hier Neuigkeiten.")</p>
         </div>
-    </div>
-
-    <!-- ============================================================ -->
-    <!-- JAVASCRIPT                                                     -->
-    <!-- ============================================================ -->
-    <script>
-        // ========== ФУНКЦИЯ ЭКРАНИРОВАНИЯ ==========
-        function escHtml(s) {
-            if (!s) return '';
-            return String(s)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
-        // ========== ОТКРЫТИЕ МОДАЛКИ (аналог openPartnerModal) ==========
-        function openNewsModal(newsId) {
-            var data = newsData[newsId];
-            if (!data) {
-                console.error('❌ Новость не найдена, ID:', newsId);
-                return;
-            }
-
-            console.log('📝 Открываем новость:', data);
-
-            // Заголовок
-            document.getElementById('newsModalTitle').textContent = data.title || 'Без названия';
-
-            // Дата
-            var dateEl = document.getElementById('newsModalDate');
-            if (data.date) {
-                dateEl.innerHTML = '<i class="fas fa-calendar-alt"></i><span>' + escHtml(data.date) + '</span>';
-                dateEl.style.display = 'flex';
-            } else {
-                dateEl.innerHTML = '';
-                dateEl.style.display = 'none';
-            }
-
-            // Текст
-            document.getElementById('newsModalText').textContent = data.text || '';
-
-            // Фото (приоритет у photo_2, если нет — photo_1)
-            var photo = data.photo_2 || data.photo_1;
-            var photoWrap = document.getElementById('newsModalPhotoWrap');
-            if (photo) {
-                photoWrap.innerHTML =
-                    '<img class="news-modal-photo" src="/shared-fotos/news/' + escHtml(photo) + '" alt="' + escHtml(data.title) + '" ' +
-                    'onerror="this.onerror=null;this.parentElement.innerHTML=\'<div class=\\\'news-modal-photo-placeholder\\\'><i class=\\\'fas fa-newspaper\\\'></i></div>\';">';
-            } else {
-                photoWrap.innerHTML = '<div class="news-modal-photo-placeholder"><i class="fas fa-newspaper"></i></div>';
-            }
-
-            // Показываем модалку
-            document.getElementById('newsModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        // ========== ЗАКРЫТИЕ МОДАЛКИ ==========
-        function closeNewsModal() {
-            document.getElementById('newsModal').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        // ========== ОБРАБОТЧИКИ ==========
-
-        // Кнопка закрытия
-        document.getElementById('newsModalClose').addEventListener('click', function(e) {
-            e.stopPropagation();
-            closeNewsModal();
-        });
-
-        // Закрытие по клику на фон (overlay)
-        document.getElementById('newsModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeNewsModal();
-            }
-        });
-
-        // Закрытие по Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeNewsModal();
-            }
-        });
-
-        // ========== ОТЛАДКА (убедитесь, что данные пришли) ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            var cards = document.querySelectorAll('.news-card');
-            console.log('📰 Всего карточек:', cards.length);
-            console.log('📦 newsData:', newsData);
-
-            // Проверяем, что у каждой карточки есть onclick с id
-            cards.forEach(function(card, index) {
-                var onclickAttr = card.getAttribute('onclick');
-                console.log('Карточка #' + index + ' onclick:', onclickAttr);
-            });
-        });
-    </script>
-
-</body>
-</html>
+    }
+</div>

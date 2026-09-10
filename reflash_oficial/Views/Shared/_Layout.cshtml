@@ -300,19 +300,33 @@
             width: 100%;
         }
 
-        main { min-height: 0; }
+        main {
+    min-height: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+main.pb-3 {
+    padding-bottom: 0 !important;
+}
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-secondary); }
         ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
 
         .footer {
-            flex-shrink: 0;
-            width: 100%;
-            margin-top: auto;
-            padding: 16px 0;
-            text-align: center;
-        }
+    flex: 0 0 auto !important;
+    flex-grow: 0 !important;
+    width: 100%;
+    margin-top: auto;
+    margin-bottom: 0 !important;
+    padding: 10px 0 12px !important;
+    min-height: 0 !important;
+    height: auto !important;
+    line-height: normal !important;
+    text-align: center;
+    position: static !important; /* важнее, чем relative */
+    bottom: auto !important;
+}
 
         .footer-text { text-align: center; }
 
@@ -465,7 +479,7 @@
     </header>
 
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main">
             @RenderBody()
         </main>
     </div>

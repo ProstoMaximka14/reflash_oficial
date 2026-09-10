@@ -660,11 +660,29 @@ namespace reflash_oficial.Controllers
             return View(DatabaseModel.Partners);
         }
 
-        public IActionResult News()
+        public IActionResult News(int page = 1)
         {
-            DatabaseModel.News = GetNewsFromDatabase();
-            Console.WriteLine($"NEWS COUNT = {DatabaseModel.News?.Count ?? -1}");
-            return View(DatabaseModel.News);
+            const int pageSize = 20;
+
+            var all = GetNewsFromDatabase() ?? new List<NewsModel>();
+            // если date — DateTime/DATE, сортировка уже в SQL ORDER BY id DESC
+
+            int totalCount = all.Count;
+            int totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
+
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+
+            var items = all
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalCount = totalCount;
+
+            return View(items);
         }
 
         [HttpPost("/api/db-notify")]
