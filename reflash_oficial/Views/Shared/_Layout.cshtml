@@ -1,8 +1,28 @@
-﻿<!DOCTYPE html>
-<html lang="en" data-theme="dark">
+﻿@{
+    var currentLang = Context.Request.Cookies["Language"] ?? "ru";
+    if (currentLang != "ru" && currentLang != "en" && currentLang != "de") currentLang = "ru";
+    var currentTheme = Context.Request.Cookies["Theme"] ?? "dark";
+    if (currentTheme != "light" && currentTheme != "dark") currentTheme = "dark";
+    string GetLocalized(string ru, string en, string de)
+    {
+        return currentLang == "ru" ? ru :
+               currentLang == "en" ? en :
+               currentLang == "de" ? de : ru;
+    }
+}
+<!DOCTYPE html>
+<html lang="@currentLang" data-theme="@currentTheme">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+        (function () {
+            var match = document.cookie.match(/(?:^|; )Theme=([^;]*)/);
+            var theme = match ? decodeURIComponent(match[1]) : 'dark';
+            if (theme !== 'light' && theme !== 'dark') theme = 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='75' font-size='80' font-weight='bold' text-anchor='middle' fill='red' font-family='Arial'>R</text></svg>">
     <title>@ViewData["Title"]</title>
@@ -17,17 +37,26 @@
         html, body {
             margin: 0;
             padding: 0;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        html {
+            scrollbar-gutter: stable;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-primary, #0A0A0F);
-            color: var(--text-primary, #E8E8F0);
-            transition: background 0.3s ease, color 0.3s ease;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             margin: 0 !important;
             display: flex;
             flex-direction: column;
+        }
+
+        html.theme-ready body {
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         :root {
@@ -41,8 +70,10 @@
             --text-muted: #88889a;
             --border-color: #e0e0e0;
             --shadow-color: rgba(0, 0, 0, 0.08);
-            --accent-color: #FF3A2F;
-            --accent-hover: #D62B1F;
+            --accent-color: #2196F3;
+            --accent-hover: #1976D2;
+            --accent-soft: rgba(33, 150, 243, 0.1);
+            --accent-soft-strong: rgba(33, 150, 243, 0.15);
             --navbar-border: transparent;
             --logo-color-start: #0D47A1;
             --logo-color-end: #42A5F5;
@@ -51,6 +82,7 @@
             --title-gradient-start: #0a0a1a;
             --title-gradient-end: #60A5FA;
             --title-shadow: rgba(0, 0, 0, 0.15);
+            color-scheme: light;
         }
 
         [data-theme="dark"] {
@@ -66,6 +98,8 @@
             --shadow-color: rgba(0, 0, 0, 0.3);
             --accent-color: #FF3A2F;
             --accent-hover: #D62B1F;
+            --accent-soft: rgba(255, 58, 47, 0.1);
+            --accent-soft-strong: rgba(255, 58, 47, 0.15);
             --navbar-border: transparent;
             --logo-color-start: #FFB5A0;
             --logo-color-end: #FFD4C4;
@@ -74,6 +108,7 @@
             --title-gradient-start: #E8E8F0;
             --title-gradient-end: #FF3A2F;
             --title-shadow: rgba(0, 0, 0, 0.5);
+            color-scheme: dark;
         }
 
         header {
@@ -103,7 +138,7 @@
             margin: 0 !important;
             padding: 12px 24px;
             width: 100%;
-            flex-wrap: wrap !important;
+            flex-wrap: nowrap !important;
         }
 
         .navbar-wrapper {
@@ -111,8 +146,10 @@
             align-items: center;
             justify-content: center;
             gap: 16px;
-            flex-wrap: wrap;
-            width: auto;
+            flex-wrap: nowrap;
+            width: max-content;
+            max-width: 100%;
+            flex-shrink: 0;
         }
 
         /* На ПК обёртки не влияют на раскладку */
@@ -134,32 +171,38 @@
         .navbar-brand:hover { opacity: 0.85; }
 
         .nav-links {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(3, 6.75rem);
             align-items: center;
             gap: 2px;
             flex-shrink: 0;
         }
 
         .nav-link-custom {
-            padding: 6px 14px;
+            padding: 6px 8px;
             font-size: 13px;
             font-weight: 600;
             color: var(--text-secondary) !important;
             text-decoration: none;
-            transition: all 0.2s ease;
+            transition: color 0.2s ease, background 0.2s ease;
             border-radius: 40px;
             position: relative;
             white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .nav-link-custom:hover {
             color: var(--accent-color) !important;
-            background: rgba(255, 58, 47, 0.1);
+            background: var(--accent-soft);
         }
 
         .nav-link-custom.active {
             color: var(--accent-color) !important;
-            background: rgba(255, 58, 47, 0.15);
+            background: var(--accent-soft-strong);
         }
 
         .nav-link-custom.active::after {
@@ -177,7 +220,9 @@
         .social-icons {
             display: flex;
             align-items: center;
+            justify-content: flex-start;
             gap: 6px;
+            width: 174px;
             flex-shrink: 0;
         }
 
@@ -195,14 +240,15 @@
             text-decoration: none;
             font-size: 13px;
             font-weight: 600;
+            flex-shrink: 0;
         }
 
         .social-link:hover {
             transform: translateY(-2px);
-            background: rgba(255, 58, 47, 0.15);
+            background: var(--accent-soft-strong);
             border-color: var(--accent-color);
             color: var(--accent-color);
-            box-shadow: 0 4px 15px rgba(255, 58, 47, 0.2);
+            box-shadow: 0 4px 15px var(--accent-soft-strong);
         }
 
         .social-link.telegram:hover {
@@ -249,6 +295,22 @@
             flex-shrink: 0;
         }
 
+        .nav-btn.lang-btn {
+            min-width: 36px;
+            justify-content: center;
+            padding: 4px 8px;
+            font-size: 13px;
+            background: transparent;
+            border: none;
+            letter-spacing: 0.3px;
+        }
+
+        #themeLabel {
+            display: inline-block;
+            min-width: 5.2em;
+            text-align: left;
+        }
+
         .nav-btn {
             background: var(--bg-input);
             border: 1px solid var(--border-color);
@@ -267,8 +329,13 @@
 
         .nav-btn:hover {
             color: var(--accent-color);
-            background: rgba(255, 58, 47, 0.1);
+            background: var(--accent-soft);
             border-color: var(--accent-color);
+        }
+
+        .nav-btn.lang-btn:hover {
+            border: none;
+            background: var(--accent-soft);
         }
 
         .nav-btn.lang-btn.active {
@@ -285,7 +352,7 @@
 
         .nav-btn.theme-btn:hover {
             color: var(--accent-color);
-            background: rgba(255, 58, 47, 0.1);
+            background: var(--accent-soft);
             border-color: var(--accent-color);
         }
 
@@ -340,6 +407,7 @@ main.pb-3 {
         @@media (max-width: 768px) {
             nav.navbar .container-fluid {
                 padding: 8px 12px;
+                flex-wrap: wrap !important;
             }
 
             .navbar-wrapper {
@@ -348,6 +416,7 @@ main.pb-3 {
                 align-items: center;
                 gap: 8px;
                 width: 100%;
+                flex-wrap: nowrap;
             }
 
             .navbar-top {
@@ -372,10 +441,13 @@ main.pb-3 {
                 height: 28px !important;
             }
 
-            .nav-links { gap: 2px; }
+            .nav-links {
+                grid-template-columns: repeat(3, 5.7rem);
+                gap: 2px;
+            }
 
             .nav-link-custom {
-                padding: 4px 10px;
+                padding: 4px 6px;
                 font-size: 12px;
             }
 
@@ -385,12 +457,16 @@ main.pb-3 {
                 bottom: 1px;
             }
 
-            .social-icons { gap: 6px; }
+            .social-icons {
+                gap: 6px;
+                width: 160px;
+            }
 
             .social-link {
                 width: 28px;
                 height: 28px;
                 font-size: 12px;
+                flex-shrink: 0;
             }
 
             .social-link.drive2 { font-size: 10px; }
@@ -403,6 +479,11 @@ main.pb-3 {
                 border-radius: 30px;
             }
 
+            .nav-btn.lang-btn {
+                font-size: 13px;
+                padding: 4px 8px;
+            }
+
             .nav-btn i { font-size: 11px; }
 
             .nav-divider { display: none; }
@@ -412,15 +493,6 @@ main.pb-3 {
     </style>
 </head>
 <body>
-    @{
-        var currentLang = Context.Request.Cookies["Language"] ?? "ru";
-        string GetLocalized(string ru, string en, string de)
-        {
-            return currentLang == "ru" ? ru :
-                   currentLang == "en" ? en :
-                   currentLang == "de" ? de : ru;
-        }
-    }
 
     <header>
         <nav class="navbar">
@@ -437,13 +509,13 @@ main.pb-3 {
                                asp-area="" asp-controller="Home" asp-action="Index">
                                 @GetLocalized("Главная", "Home", "Start")
                             </a>
-                            <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "Partners" ? "active" : "")"
-                               asp-area="" asp-controller="Home" asp-action="Partners">
-                                @GetLocalized("Партнёры", "Partners", "Partner")
-                            </a>
                             <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "News" ? "active" : "")"
                                asp-area="" asp-controller="Home" asp-action="News">
                                 @GetLocalized("Новости", "News", "News")
+                            </a>
+                            <a class="nav-link-custom @(ViewContext.RouteData.Values["action"]?.ToString() == "Partners" ? "active" : "")"
+                               asp-area="" asp-controller="Home" asp-action="Partners">
+                                @GetLocalized("Партнёры", "Partners", "Partner")
                             </a>
                         </div>
                     </div>
@@ -468,14 +540,16 @@ main.pb-3 {
                         </div>
 
                         <div class="navbar-controls">
-                            <button class="nav-btn lang-btn" data-lang="ru" onclick="switchLanguage('ru')">РУ</button>
-                            <button class="nav-btn lang-btn" data-lang="en" onclick="switchLanguage('en')">EN</button>
-                            <button class="nav-btn lang-btn" data-lang="de" onclick="switchLanguage('de')">DE</button>
+                            <button class="nav-btn lang-btn @(currentLang == "ru" ? "active" : "")" data-lang="ru" onclick="switchLanguage('ru')">РУ</button>
+                            <button class="nav-btn lang-btn @(currentLang == "en" ? "active" : "")" data-lang="en" onclick="switchLanguage('en')">EN</button>
+                            <button class="nav-btn lang-btn @(currentLang == "de" ? "active" : "")" data-lang="de" onclick="switchLanguage('de')">DE</button>
                             <span class="nav-divider"></span>
                             <button class="nav-btn theme-btn" id="themeToggle" onclick="toggleTheme()"
                                     title="@GetLocalized("Тема", "Theme", "Thema")">
-                                <i class="fas fa-moon" id="themeIcon"></i>
-                                <span id="themeLabel">@GetLocalized("Тёмная", "Dark", "Dunkel")</span>
+                                <i class="fas @(currentTheme == "dark" ? "fa-moon" : "fa-sun")" id="themeIcon"></i>
+                                <span id="themeLabel">@(currentTheme == "dark"
+                                    ? GetLocalized("Тёмная", "Dark", "Dunkel")
+                                    : GetLocalized("Светлая", "Light", "Hell"))</span>
                             </button>
                         </div>
                     </div>
@@ -542,6 +616,9 @@ main.pb-3 {
                     ? (lang === 'ru' ? 'Тёмная' : lang === 'en' ? 'Dark' : 'Dunkel')
                     : (lang === 'ru' ? 'Светлая' : lang === 'en' ? 'Light' : 'Hell');
             }
+            requestAnimationFrame(function () {
+                html.classList.add('theme-ready');
+            });
         }
 
         function updateActiveLanguage() {
