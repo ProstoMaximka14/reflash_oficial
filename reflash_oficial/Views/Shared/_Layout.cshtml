@@ -14,12 +14,18 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-primary, #0A0A0F);
             color: var(--text-primary, #E8E8F0);
             transition: background 0.3s ease, color 0.3s ease;
             min-height: 100vh;
+            margin: 0 !important;
             display: flex;
             flex-direction: column;
         }
@@ -328,7 +334,7 @@ main.pb-3 {
     bottom: auto !important;
 }
 
-        .footer-text { text-align: center; }
+        .footer-text { text-align: center; margin: 0; }
 
         /* ========== МОБИЛКА: 2 РЯДА ========== */
         @@media (max-width: 768px) {
