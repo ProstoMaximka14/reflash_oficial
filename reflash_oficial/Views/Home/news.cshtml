@@ -54,9 +54,9 @@
 <style>
     .news-page {
         width: 100%;
-        max-width: none;
-        margin: 0;
-        padding: 24px 10% 40px;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 24px 24px 40px;
         box-sizing: border-box;
     }
 
@@ -193,14 +193,14 @@
     }
 
     .news-page-btn:hover {
-        border-color: var(--accent-color, #2196F3);
-        color: var(--accent-color, #2196F3);
+        border-color: var(--accent-color, #FF3A2F);
+        color: var(--accent-color, #FF3A2F);
         text-decoration: none;
     }
 
     .news-page-btn.active {
-        background: var(--accent-color, #2196F3);
-        border-color: var(--accent-color, #2196F3);
+        background: var(--accent-color, #FF3A2F);
+        border-color: var(--accent-color, #FF3A2F);
         color: #fff;
     }
 
@@ -227,28 +227,29 @@
         }
 
         .news-item-body {
-            padding: 16px;
+            padding: 14px;
         }
 
         .news-item-title {
-            font-size: 17px;
+            font-size: 16px;
         }
 
         .news-item-photo-wrap {
-            float: none;
-            max-width: 100%;
-            margin: 0 0 16px 0;
-            text-align: center;
+            float: left;
+            max-width: 42%;
+            margin: 0 12px 8px 0;
+            text-align: left;
         }
 
         .news-item-photo {
             max-width: 100%;
-            max-height: 200px;
-            margin: 0 auto;
+            max-height: 160px;
+            margin: 0;
         }
 
         .news-item-text {
-            font-size: 14px;
+            font-size: 13px;
+            line-height: 1.55;
         }
     }
 </style>
@@ -267,8 +268,7 @@
         {
             var title = GetNewsName(news);
             var body = GetNewsText(news);
-            var photo = !string.IsNullOrEmpty(news.photo_1) ? news.photo_1
-                      : (!string.IsNullOrEmpty(news.photo_2) ? news.photo_2 : "");
+            var photo = !string.IsNullOrEmpty(news.photo_1) ? news.photo_1 : "";
 
             <article class="news-item">
                 <div class="news-item-body">
