@@ -406,7 +406,7 @@ main.pb-3 {
         /* ========== МОБИЛКА: 2 РЯДА ========== */
         @@media (max-width: 768px) {
             nav.navbar .container-fluid {
-                padding: 8px 12px;
+                padding: 8px 8px;
                 flex-wrap: wrap !important;
             }
 
@@ -416,16 +416,20 @@ main.pb-3 {
                 align-items: center;
                 gap: 8px;
                 width: 100%;
+                max-width: 100%;
                 flex-wrap: nowrap;
+                flex-shrink: 1;
             }
 
             .navbar-top {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
+                gap: 4px;
                 flex-wrap: nowrap;
                 width: 100%;
+                max-width: 100%;
+                min-width: 0;
             }
 
             .navbar-bottom {
@@ -435,20 +439,31 @@ main.pb-3 {
                 gap: 8px;
                 flex-wrap: nowrap;
                 width: 100%;
+                max-width: 100%;
+            }
+
+            .navbar-brand {
+                flex-shrink: 0;
             }
 
             .navbar-brand img {
-                height: 28px !important;
+                height: 26px !important;
             }
 
             .nav-links {
-                grid-template-columns: repeat(3, 5.7rem);
-                gap: 2px;
+                display: flex;
+                grid-template-columns: none;
+                gap: 0;
+                flex: 1 1 auto;
+                min-width: 0;
+                justify-content: center;
             }
 
             .nav-link-custom {
-                padding: 4px 6px;
+                padding: 4px 8px;
                 font-size: 12px;
+                width: auto;
+                flex: 0 1 auto;
             }
 
             .nav-link-custom.active::after {
@@ -489,6 +504,17 @@ main.pb-3 {
             .nav-divider { display: none; }
 
             #themeLabel { display: none; }
+        }
+
+        @@media (max-width: 380px) {
+            .navbar-brand img {
+                height: 22px !important;
+            }
+
+            .nav-link-custom {
+                padding: 4px 5px;
+                font-size: 11px;
+            }
         }
     </style>
 </head>
