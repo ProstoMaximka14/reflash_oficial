@@ -93,7 +93,7 @@ namespace reflash_oficial.Controllers
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
-                    string query = "SELECT * FROM partners ORDER BY name";
+                    string query = "SELECT * FROM partners ORDER BY id";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
@@ -657,7 +657,8 @@ namespace reflash_oficial.Controllers
 
         public IActionResult Partners()
         {
-            return View(DatabaseModel.Partners);
+            var partners = DatabaseModel.Partners ?? new List<PartnersModel>();
+            return View(partners.OrderBy(p => p.Id).ToList());
         }
 
         public IActionResult News(int page = 1)

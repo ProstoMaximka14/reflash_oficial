@@ -307,8 +307,7 @@
 
         #themeLabel {
             display: inline-block;
-            min-width: 5.2em;
-            text-align: left;
+            line-height: 1;
         }
 
         .nav-btn {
@@ -348,6 +347,11 @@
             background: transparent;
             border: 1px solid var(--border-color);
             color: var(--text-muted);
+            justify-content: center;
+            min-width: 96px;
+            line-height: 1;
+            padding-top: 6px;
+            padding-bottom: 6px;
         }
 
         .nav-btn.theme-btn:hover {
@@ -504,6 +508,11 @@ main.pb-3 {
             .nav-divider { display: none; }
 
             #themeLabel { display: none; }
+
+            .nav-btn.theme-btn {
+                min-width: 0;
+                padding: 4px 8px;
+            }
         }
 
         @@media (max-width: 380px) {

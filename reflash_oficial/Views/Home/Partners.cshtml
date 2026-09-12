@@ -1389,7 +1389,7 @@
             @if (Model != null && Model.Count > 0)
             {
                 <div class="partners-grid" id="partnersGrid">
-                    @foreach (var partner in Model)
+                    @foreach (var partner in Model.OrderBy(p => p.Id))
                     {
                         var localizedCity = GetLocalizedCity(partner);
                         var localizedCountry = GetLocalizedCountry(partner);
@@ -1575,6 +1575,21 @@
                 }
             }
 
+            function sortPartnerCardsById() {
+                var grid = document.getElementById('partnersGrid');
+                if (!grid) return;
+
+                var cards = Array.from(grid.querySelectorAll('.partner-card'));
+                cards.sort(function(a, b) {
+                    var idA = parseInt(a.getAttribute('data-partner-id'), 10) || 0;
+                    var idB = parseInt(b.getAttribute('data-partner-id'), 10) || 0;
+                    return idA - idB;
+                });
+                cards.forEach(function(card) {
+                    grid.appendChild(card);
+                });
+            }
+
             function filterPartners() {
                 var selectedCountry = countryFilter.value.trim();
                 var selectedCity = cityFilter.value.trim();
@@ -1595,6 +1610,8 @@
                         card.classList.add('hidden');
                     }
                 });
+
+                sortPartnerCardsById();
 
                 if (visibleCount) visibleCount.textContent = visible;
                 if (partnersCount) partnersCount.textContent = visible;
