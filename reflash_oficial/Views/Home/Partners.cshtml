@@ -1693,6 +1693,8 @@
                 var _vk = partner.vk ?? "";
                 var _vk_group = partner.vk_group ?? "";
                 var _telegram = partner.telegram ?? "";
+                var _instagram = partner.instagram ?? "";
+                var _facebook = partner.facebook ?? "";
                 var _whatsapp = partner.whatsapp ?? "";
                 var _email = partner.email ?? "";
                 var _city = partner.city ?? "";
@@ -1725,6 +1727,8 @@
                     phone: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_phone)),
                     whatsapp: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_whatsapp)),
                     telegram: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_telegram)),
+                    instagram: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_instagram)),
+                    facebook: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_facebook)),
                     email: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_email)),
                     vk: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_vk)),
                     vkGroup: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_vk_group)),
@@ -1806,6 +1810,8 @@
                             var vk = partner.vk ?? "";
                             var vk_group = partner.vk_group ?? "";
                             var telegram = partner.telegram ?? "";
+                            var instagram = partner.instagram ?? "";
+                            var facebook = partner.facebook ?? "";
                             var whatsapp = partner.whatsapp ?? "";
                             var email = partner.email ?? "";
                             var city = partner.city ?? "";
@@ -1829,6 +1835,8 @@
                                         phone: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(phone)),
                                         whatsapp: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(whatsapp)),
                                         telegram: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(telegram)),
+                                        instagram: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(instagram)),
+                                        facebook: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(facebook)),
                                         email: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(email)),
                                         vk: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(vk)),
                                         vkGroup: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(vk_group)),
@@ -1879,6 +1887,16 @@
                 .replace(/"/g, '&quot;');
         }
 
+        function socialUrl(value, network) {
+            if (!value) return '';
+            var v = String(value).trim();
+            if (/^https?:\/\//i.test(v)) return v;
+            v = v.replace(/^@@/, '');
+            if (network === 'instagram') return 'https://instagram.com/' + v;
+            if (network === 'facebook') return 'https://facebook.com/' + v;
+            return v;
+        }
+
         function buildDesktopBalloon(p) {
             var html = '<div style="max-width:240px;min-width:180px;font-family:Inter,sans-serif;text-align:center;padding:8px 4px;">';
             
@@ -1916,6 +1934,20 @@
                 html += '<div style="margin:4px 0;font-size:13px;text-align:center;">';
                 html += '<i class="fab fa-telegram-plane" style="width:16px;color:#0088cc;margin-right:4px;"></i> ';
                 html += '<a href="https://t.me/' + escHtml(p.telegram) + '" target="_blank" style="color:#0088cc;text-decoration:none;">' + escHtml(p.telegram) + '</a>';
+                html += '</div>';
+            }
+
+            if (p.instagram) {
+                html += '<div style="margin:4px 0;font-size:13px;text-align:center;">';
+                html += '<i class="fab fa-instagram" style="width:16px;color:#E4405F;margin-right:4px;"></i> ';
+                html += '<a href="' + escHtml(socialUrl(p.instagram, 'instagram')) + '" target="_blank" style="color:#E4405F;text-decoration:none;">Instagram</a>';
+                html += '</div>';
+            }
+
+            if (p.facebook) {
+                html += '<div style="margin:4px 0;font-size:13px;text-align:center;">';
+                html += '<i class="fab fa-facebook" style="width:16px;color:#1877F2;margin-right:4px;"></i> ';
+                html += '<a href="' + escHtml(socialUrl(p.facebook, 'facebook')) + '" target="_blank" style="color:#1877F2;text-decoration:none;">Facebook</a>';
                 html += '</div>';
             }
             
@@ -2079,6 +2111,24 @@ if (p.telegram) {
     addRow(
         'fab fa-telegram-plane',
         'Telegram: <a href="https://t.me/' + escHtml(tg) + '" target="_blank">' + escHtml(p.telegram) + '</a>',
+        null
+    );
+}
+
+// 5.1) Instagram
+if (p.instagram) {
+    addRow(
+        'fab fa-instagram',
+        'Instagram: <a href="' + escHtml(socialUrl(p.instagram, 'instagram')) + '" target="_blank">' + escHtml(p.instagram) + '</a>',
+        null
+    );
+}
+
+// 5.2) Facebook
+if (p.facebook) {
+    addRow(
+        'fab fa-facebook',
+        'Facebook: <a href="' + escHtml(socialUrl(p.facebook, 'facebook')) + '" target="_blank">' + escHtml(p.facebook) + '</a>',
         null
     );
 }

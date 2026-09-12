@@ -129,6 +129,8 @@ namespace reflash_oficial.Controllers
                                     latitude = reader.IsDBNull(reader.GetOrdinal("latitude")) ? "" : reader.GetString("latitude"),
                                     vk_group = reader.IsDBNull(reader.GetOrdinal("vk_group_url")) ? "" : reader.GetString("vk_group_url"),
                                     telegram = reader.IsDBNull(reader.GetOrdinal("telegram")) ? "" : reader.GetString("telegram"),
+                                    instagram = reader.IsDBNull(reader.GetOrdinal("instagram")) ? "" : reader.GetString("instagram"),
+                                    facebook = reader.IsDBNull(reader.GetOrdinal("facebook")) ? "" : reader.GetString("facebook"),
                                     whatsapp = reader.IsDBNull(reader.GetOrdinal("whatsapp")) ? "" : reader.GetString("whatsapp"),
                                     email = reader.IsDBNull(reader.GetOrdinal("email")) ? "" : reader.GetString("email"),
 

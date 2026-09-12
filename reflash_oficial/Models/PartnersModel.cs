@@ -27,6 +27,8 @@
         // ===== НОВЫЕ ПОЛЯ =====
         public string vk_group { get; set; }      // Группа ВК
         public string telegram { get; set; }      // Telegram
+        public string instagram { get; set; }     // Instagram
+        public string facebook { get; set; }      // Facebook
         public string whatsapp { get; set; }      // WhatsApp
         public string email { get; set; }         // Email
         public string info { get; set; }
