@@ -66,19 +66,13 @@
     }
 
     .news-page-title {
-        font-size: 36px;
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--logo-color-start, #FFB5A0) 0%, var(--logo-color-end, #FFD4C4) 100%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
+        font-size: 38px;
+        font-weight: 700;
         letter-spacing: -0.5px;
-    }
-
-    .news-page-subtitle {
-        color: var(--text-muted, #88889a);
-        font-size: 15px;
-        margin-top: 8px;
+        color: var(--accent-color);
+        font-family: 'Inter', sans-serif;
+        line-height: 1.2;
+        margin: 0;
     }
 
     .news-item {
@@ -222,9 +216,9 @@
             padding: 16px 12px 28px;
         }
 
-        .news-page-title {
-            font-size: 28px;
-        }
+            .news-page-title {
+                font-size: 22px;
+            }
 
         .news-item-body {
             padding: 14px;
@@ -257,9 +251,6 @@
 <div class="news-page">
     <div class="news-page-header">
         <h1 class="news-page-title">@GetLocalized("Новости", "News", "Nachrichten")</h1>
-        <p class="news-page-subtitle">
-            @GetLocalized("Актуальные события ReFlash Team", "Latest updates from ReFlash Team", "Aktuelle Neuigkeiten von ReFlash Team")
-        </p>
     </div>
 
     @if (Model != null && Model.Count > 0)
